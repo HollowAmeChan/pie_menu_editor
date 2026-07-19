@@ -7,12 +7,12 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 60.
+- Repository commits including this audit snapshot: 62.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  57.
+  59.
 - Confirmed defect groups committed as `fix:`: 41.
-- Documentation and test-infrastructure commits: 16.
-- Preserved test scripts: 113 (75 smoke tests and 38 probes).
+- Feature, documentation, and test-infrastructure commits: 18.
+- Preserved test scripts: 114 (76 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **41 confirmed and fixed defect
@@ -93,6 +93,10 @@ The following areas were tested without being counted as additional bugs:
   restores normal execution on Blender 4.5 and 5.2. Before the fix, the focused
   reproducer terminated Blender 5.2 with an access violation in
   `WM_operator_poll`.
+- Scripts can invoke stored Macros through
+  `bpy.ops.pme.invoke_macro(menu_name="...")`. The wrapper checks menu type,
+  enabled state, poll conditions, missing dependencies, and explicit Macro
+  cancellation before entering the native Macro path on Blender 4.5 and 5.2.
 - Stack Key notifications stay hidden when `Use Overlay` is disabled or a
   specific slot is requested, display during normal cycling when enabled, and
   remove their handler and running state after expiry on Blender 4.5 and 5.2.
@@ -137,6 +141,10 @@ The following areas were tested without being counted as additional bugs:
 - Version 1.19.36 passes the keep-open version contract, layout memory guard,
   normal menu UI, all bundled example draws, and isolated release ZIP
   installation on Blender 4.5 and 5.2.
+- Version 1.19.37 passes safe external Macro invocation for valid, missing,
+  wrong-mode, disabled, poll-blocked, explicitly stopped, and missing-operator
+  targets; normal Macro execution, F3 search lifecycle, and isolated release
+  ZIP installation also pass on Blender 4.5 and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
@@ -167,8 +175,9 @@ outside version control.
   drawn, and one external operator was executed through PME, but every
   external operator was not executed.
 - PME entry points now prevent native Macro execution after an operator
-  dependency disappears. A script that directly invokes PME's generated
-  internal `bpy.ops.pme.macro_*` operator can still bypass that preflight;
+  dependency disappears, and `bpy.ops.pme.invoke_macro` is the supported
+  external script entry point. A script that directly invokes PME's generated
+  internal `bpy.ops.pme.macro_*` operator can still bypass the wrapper;
   Blender 5.2 polls stale native Macro children before Python `Macro.poll()`
   and can crash. Removing this residual risk requires replacing the legacy
   native-Macro exposure rather than another poll guard.
