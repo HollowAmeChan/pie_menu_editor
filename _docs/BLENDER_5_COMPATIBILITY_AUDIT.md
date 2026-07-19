@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 42.
+- Repository commits including this audit snapshot: 44.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  39.
-- Confirmed defect groups committed as `fix:`: 34.
-- Documentation and test-infrastructure commits: 5.
-- Preserved test scripts: 107 (69 smoke tests and 38 probes).
+  41.
+- Confirmed defect groups committed as `fix:`: 35.
+- Documentation and test-infrastructure commits: 6.
+- Preserved test scripts: 108 (70 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **34 confirmed and fixed defect
+The conservative bug count is therefore **35 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -59,6 +59,7 @@ coverage, not counted as bugs.
 | `5518e51` | Modal lifecycle | Active modal overlays and removed RNA pointers survived add-on disable. |
 | `aa04526` | Layout wrappers | PME's panel layout wrapper rejected Blender 5.2 UILayout keywords. |
 | `e164837` | User keymaps | Empty legacy PME user-keyconfig overrides accumulated and could not invoke a menu. |
+| `0256811` | Menu polling | Scripts, previews, nested calls, and runtime menu draws bypassed menu poll checks; poll errors also escaped operators. |
 
 ## Validated Coverage
 
@@ -74,6 +75,9 @@ The following areas were tested without being counted as additional bugs:
 - Editor keymap registration, including `3D View` and `3D View Generic`.
 - Empty/default PME user-keyconfig overrides are removed without changing
   valid PME overrides or unrelated Blender shortcuts on Blender 4.5 and 5.2.
+- Menu poll checks are consistent across hotkeys, scripts, previews, nested
+  calls, embedded draws, and runtime menu classes; runtime poll errors cancel
+  safely on Blender 4.5 and 5.2.
 - Complete native `UILayout` parameter coverage for PME's panel wrapper on
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
@@ -86,7 +90,7 @@ The following areas were tested without being counted as additional bugs:
 - All bundled examples drawing under the compatibility layer.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
-  version 1.19.27.
+  version 1.19.30.
 - Eight installed third-party dependencies enabled together with the real
   configuration, reducing missing-operator layout reports from 98 to 51.
 - A MACHIN3tools operator executed through a PME script menu and changed
@@ -107,7 +111,7 @@ outside version control.
 ## Remaining Gaps At Pause Point
 
 - The full 85-menu configuration passes on Blender 4.5 and 5.2 at version
-  1.19.27 with identical exported JSON and equivalent captured error sets.
+  1.19.30 with identical exported JSON and equivalent captured error sets.
 - PME's hold and chord state machines are covered, but operating-system-level
   keyboard queue dispatch is not an automated interaction matrix.
 - Major installed third-party add-ons were enabled, representative menus were
