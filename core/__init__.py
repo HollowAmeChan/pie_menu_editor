@@ -236,13 +236,12 @@ def on_context():
 
     pr = get_prefs()
 
-    if APP_VERSION < (5, 0, 0):
-        global re_enable_data
-        if re_enable_data is not None:
-            if len(pr.pie_menus) == 0 and re_enable_data:
-                property_utils.from_dict(pr, re_enable_data)
-            re_enable_data.clear()
-            re_enable_data = None
+    global re_enable_data
+    if re_enable_data is not None:
+        if len(pr.pie_menus) == 0 and re_enable_data:
+            property_utils.from_dict(pr, re_enable_data)
+        re_enable_data.clear()
+        re_enable_data = None
 
     for mod in MODULES:
         m = sys.modules["%s.%s" % (__name__, mod)]
@@ -484,9 +483,8 @@ def unregister():
         _unregister_idle_wait_classes()
         return
 
-    if APP_VERSION < (5, 0, 0):
-        global re_enable_data
-        re_enable_data = property_utils.to_dict(get_prefs())
+    global re_enable_data
+    re_enable_data = property_utils.to_dict(get_prefs())
 
     # Unload optional pluglug module first
     try:
