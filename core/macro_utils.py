@@ -8,6 +8,7 @@ from .bl_utils import uname
 
 _operators = {}
 _macros = {}
+_macro_errors = {}
 _macro_execs = []
 _exec_base = None
 _sticky_op = None
@@ -90,9 +91,54 @@ def _gen_modal_op(pm, idx):
     return tpname
 
 
+def _find_missing_operator(pm, visited=None):
+    visited = visited or set()
+    if pm.name in visited:
+        return None
+    visited.add(pm.name)
+
+    pr = get_prefs()
+    for pmi in pm.pmis:
+        if not pmi.enabled:
+            continue
+
+        if pmi.mode == 'COMMAND':
+            sub_op_idname, _, _ = operator_utils.find_operator(pmi.text)
+            if sub_op_idname and operator_utils.operator(sub_op_idname) is None:
+                return pmi, sub_op_idname
+
+        elif pmi.mode == 'MENU':
+            sub_pm = pr.pie_menus.get(pmi.text)
+            if sub_pm and sub_pm.mode == 'MACRO':
+                missing = _find_missing_operator(sub_pm, visited)
+                if missing:
+                    return missing
+
+    return None
+
+
+def _report_missing_operator(pm, missing):
+    pmi, op_idname = missing
+    _macro_errors[pm.name] = (pmi.name, op_idname)
+    print(
+        "PME: Macro '%s' stopped; operator not found in slot '%s': %s"
+        % (pm.name, pmi.name, op_idname)
+    )
+
+
 def add_macro(pm):
+    if not pm.enabled:
+        return False
+
     if pm.name in _macros:
-        return
+        return True
+
+    missing = _find_missing_operator(pm)
+    if missing:
+        _report_missing_operator(pm, missing)
+        return False
+
+    _macro_errors.pop(pm.name, None)
 
     pr = get_prefs()
     tp_name, tp_bl_idname = _gen_tp_id(pm.name)
@@ -124,7 +170,10 @@ def add_macro(pm):
                 sub_op_exec_ctx, _ = operator_utils.parse_pos_args(pos_args)
 
                 if sub_op_idname and sub_op_exec_ctx.startswith('INVOKE'):
-                    sub_tp = eval("bpy.ops." + sub_op_idname).idname()
+                    sub_op = operator_utils.operator(sub_op_idname)
+                    if sub_op is None:
+                        raise RuntimeError("Operator not found: " + sub_op_idname)
+                    sub_tp = sub_op.idname()
                     pmi.icon = 'BLENDER'
                     DBG_MACRO and logi("Type", sub_tp)
                     tp.define(sub_tp)
@@ -158,22 +207,32 @@ def add_macro(pm):
                     tp.define(idname)
                     sticky_idx += 1
 
+        return True
     except:
         print_exc()
+        registered_tp = _macros.pop(pm.name, None)
+        if registered_tp:
+            try:
+                bpy.utils.unregister_class(registered_tp)
+            except Exception:
+                print_exc()
+        return False
 
 
 def remove_macro(pm):
-    if pm.name not in _macros:
+    _macro_errors.pop(pm.name, None)
+    tp = _macros.pop(pm.name, None)
+    if tp is None:
         return
 
-    bpy.utils.unregister_class(_macros[pm.name])
-    del _macros[pm.name]
+    bpy.utils.unregister_class(tp)
 
 
 def remove_all_macros():
     for v in _macros.values():
         bpy.utils.unregister_class(v)
     _macros.clear()
+    _macro_errors.clear()
 
     while len(_macro_execs) > 1:
         bpy.utils.unregister_class(_macro_execs.pop())
@@ -181,11 +240,8 @@ def remove_all_macros():
 
 
 def update_macro(pm):
-    if pm.name not in _macros:
-        return
-
     remove_macro(pm)
-    add_macro(pm)
+    return add_macro(pm)
 
 
 def _fill_props(props, pm, idx=1):
@@ -203,7 +259,10 @@ def _fill_props(props, pm, idx=1):
 
             if sub_op_idname and sub_op_exec_ctx.startswith('INVOKE'):
                 args = ",".join(args)
-                sub_tp = eval("bpy.ops." + sub_op_idname).idname()
+                sub_op = operator_utils.operator(sub_op_idname)
+                if sub_op is None:
+                    raise RuntimeError("Operator not found: " + sub_op_idname)
+                sub_tp = sub_op.idname()
 
                 props[sub_tp] = eval("dict(%s)" % args)
             else:
@@ -230,14 +289,17 @@ def _fill_props(props, pm, idx=1):
 
 
 def execute_macro(pm):
+    missing = _find_missing_operator(pm)
+    if missing:
+        remove_macro(pm)
+        _report_missing_operator(pm, missing)
+        return False
+
     if pm.name not in _macros:
         # Macro class not built yet (e.g., right after json import); build now
-        try:
-            add_macro(pm)
-            print("Macro built successfully")
-        except:
-            print_exc()
-            return
+        if not add_macro(pm):
+            return False
+        print("Macro built successfully")
 
     tp = _macros[pm.name]
     op = eval("bpy.ops." + tp.bl_idname)
@@ -248,7 +310,7 @@ def execute_macro(pm):
         return op('INVOKE_DEFAULT', True, **props)
 
     try:
-        _do_call()
+        return _do_call()
     except TypeError as e:
         print("Type error: ", e)
         # Handle timing/registration mismatch right after creation/import
@@ -257,14 +319,17 @@ def execute_macro(pm):
         if "unrecognized" in msg and ("PME_OT_" in msg or "_OT_" in msg):
             try:
                 update_macro(pm)
-                _do_call()
+                ret = _do_call()
                 print("Macro updated and executed successfully")
-                return
+                return ret
             except Exception:
                 print_exc()
-                return
-        # Not our case; re-raise
-        raise
+                return False
+        print_exc()
+        return False
+    except Exception:
+        print_exc()
+        return False
 
 
 def rename_macro(old_name, name):
