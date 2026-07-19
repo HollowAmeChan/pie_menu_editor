@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 53.
+- Repository commits including this audit snapshot: 55.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  50.
-- Confirmed defect groups committed as `fix:`: 38.
-- Documentation and test-infrastructure commits: 12.
-- Preserved test scripts: 110 (72 smoke tests and 38 probes).
+  52.
+- Confirmed defect groups committed as `fix:`: 39.
+- Documentation and test-infrastructure commits: 13.
+- Preserved test scripts: 111 (73 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **38 confirmed and fixed defect
+The conservative bug count is therefore **39 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -63,6 +63,7 @@ coverage, not counted as bugs.
 | `5d9aab1` | Scripted menu calls | `open_menu` reported unavailable menus as successful, allowed disabled execution, and leaked kwargs after invalid Stack Key slots. |
 | `0c0c33c` | Poll context | Scripted poll expressions read ambient `bpy.context` through `C` instead of the invocation context, producing stale mode and area decisions. |
 | `5adee96` | Macro safety | Missing or later-unregistered operators could leave half-built native Macros and crash Blender in `WM_operator_poll`. |
+| `0e24c41` | Stack Key overlay | Stack Key notifications ignored the `Use Overlay` preference and displayed even when explicitly disabled. |
 
 ## Validated Coverage
 
@@ -90,6 +91,9 @@ The following areas were tested without being counted as additional bugs:
   restores normal execution on Blender 4.5 and 5.2. Before the fix, the focused
   reproducer terminated Blender 5.2 with an access violation in
   `WM_operator_poll`.
+- Stack Key notifications stay hidden when `Use Overlay` is disabled or a
+  specific slot is requested, display during normal cycling when enabled, and
+  remove their handler and running state after expiry on Blender 4.5 and 5.2.
 - F3 operator search opens before and after PME re-enable with Developer Extras
   enabled and a dynamic PME Macro registered on Blender 4.5 and 5.2.
 - `open_menu` rejects missing, disabled, poll-blocked, and invalid Stack Key
@@ -114,6 +118,9 @@ The following areas were tested without being counted as additional bugs:
   Macro search lifecycle, add-on lifecycle, exact synthetic import/export, the
   40-menu community fixture, and isolated release ZIP installation on Blender
   4.5 and 5.2.
+- Version 1.19.34 passes Stack Key visibility, normal overlay expiry, active
+  overlay disable cleanup, normal script/Stack Key execution, and isolated
+  release ZIP installation on Blender 4.5 and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
