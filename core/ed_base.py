@@ -1711,16 +1711,17 @@ class PME_MT_brush_set(bpy.types.Menu):
 
         def add_brush(col, brush):
             brush = brushes[brush]
+            command = f"activate_brush({brush.name!r})"
 
             col.operator(
                 "pme.exec",
                 text=brush.name, icon=ic('LAYER_ACTIVE')).cmd = (
                 "d =get_prefs().pmi_data; "
                 "d.mode = 'COMMAND'; "
-                "d.cmd = 'paint_settings(C).brush = D.brushes[\"{0}\"]'; "
-                "d.sname = '{0}'; "
-                "d.icon = '{1}'"
-            ).format(brush.name, 'BRUSH_DATA')
+                f"d.cmd = {command!r}; "
+                f"d.sname = {brush.name!r}; "
+                "d.icon = 'BRUSH_DATA'"
+            )
 
         image_brushes = []
         sculpt_brushes = []

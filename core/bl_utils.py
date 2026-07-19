@@ -1,5 +1,6 @@
 import bpy
 import _bpy
+import os
 import re
 from .addon import print_exc, ic, get_uprefs
 from .screen_utils import get_override_args
@@ -90,6 +91,100 @@ def template_palette(layout, data, property, color=True):
         layout.template_palette(data, property, color=color)
     else:
         layout.template_palette(data, property)
+
+
+def brush_asset_selector(layout, context=None, settings=None):
+    context = context or bl_context
+    settings = settings or paint_settings(context)
+    if not settings:
+        return False
+
+    from bl_ui.properties_paint_common import BrushAssetShelf
+
+    BrushAssetShelf.draw_popup_selector(layout, context, settings.brush)
+    return True
+
+
+def _relative_asset_path(filepath, directory):
+    filepath = os.path.normcase(os.path.abspath(filepath))
+    directory = os.path.normcase(os.path.abspath(directory))
+    try:
+        if os.path.commonpath((filepath, directory)) != directory:
+            return None
+    except ValueError:
+        return None
+    return os.path.relpath(filepath, directory).replace(os.sep, "/")
+
+
+def _brush_asset_args(settings, brush):
+    reference = getattr(settings, "brush_asset_reference", None)
+    if (
+        settings.brush == brush
+        and reference
+        and reference.relative_asset_identifier
+    ):
+        return dict(
+            asset_library_type=reference.asset_library_type,
+            asset_library_identifier=reference.asset_library_identifier,
+            relative_asset_identifier=reference.relative_asset_identifier,
+        )
+
+    if not brush.asset_data:
+        return None
+
+    library = brush.library
+    if library is None:
+        if not bpy.data.filepath:
+            return None
+        return dict(
+            asset_library_type='LOCAL',
+            asset_library_identifier="",
+            relative_asset_identifier=f"Brush/{brush.name}",
+        )
+
+    filepath = bpy.path.abspath(library.filepath)
+    essentials = bpy.utils.system_resource('DATAFILES', path="assets")
+    relative = _relative_asset_path(filepath, essentials) if essentials else None
+    if relative is not None:
+        return dict(
+            asset_library_type='ESSENTIALS',
+            asset_library_identifier="",
+            relative_asset_identifier=f"{relative}/Brush/{brush.name}",
+        )
+
+    for asset_library in get_uprefs().filepaths.asset_libraries:
+        relative = _relative_asset_path(filepath, bpy.path.abspath(asset_library.path))
+        if relative is not None:
+            return dict(
+                asset_library_type='CUSTOM',
+                asset_library_identifier=asset_library.name,
+                relative_asset_identifier=f"{relative}/Brush/{brush.name}",
+            )
+
+    return None
+
+
+def activate_brush(name, context=None):
+    context = context or bl_context
+    settings = paint_settings(context)
+    if not settings:
+        raise RuntimeError("A paint mode with an active brush tool is required")
+
+    brush = bpy.data.brushes.get(name)
+    if brush is None:
+        raise RuntimeError(f"Brush not found: {name}")
+    if settings.brush == brush:
+        return {'FINISHED'}
+
+    brush_property = settings.bl_rna.properties["brush"]
+    if not brush_property.is_readonly:
+        settings.brush = brush
+        return {'FINISHED'}
+
+    args = _brush_asset_args(settings, brush)
+    if args is None:
+        raise RuntimeError(f"Brush is not available as an asset: {name}")
+    return bpy.ops.brush.asset_activate(**args)
 
 
 def uname(collection, name, sep=".", width=3, check=True):
@@ -955,6 +1050,8 @@ def register():
     pme.context.add_global("paint_settings", paint_settings)
     pme.context.add_global("unified_paint_panel", unified_paint_panel)
     pme.context.add_global("template_palette", template_palette)
+    pme.context.add_global("brush_asset_selector", brush_asset_selector)
+    pme.context.add_global("activate_brush", activate_brush)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)

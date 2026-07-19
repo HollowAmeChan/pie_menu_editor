@@ -2516,8 +2516,7 @@ class PME_OT_pmi_custom_set(bpy.types.Operator):
         elif self.mode == 'BRUSH':
             pr.pmi_data.custom = (
                 "ps = paint_settings(); "
-                "%s.template_ID_preview(ps, "
-                "'brush', new='brush.add', rows=3, cols=8) "
+                "brush_asset_selector(%s, bl_context, ps) "
                 "if ps else %s"
             ) % (lt, sep)
             pr.pmi_data.sname = "Brush"

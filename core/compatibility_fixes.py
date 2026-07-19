@@ -8,6 +8,13 @@ from . import constants as CC
 _PALETTE_TEMPLATE_RE = re.compile(
     r"\b(L(?:\.box\(\))?)\.template_palette\(ps, 'palette', color=True\)"
 )
+_BRUSH_TEMPLATE_RE = re.compile(
+    r"\b(L(?:\.box\(\))?)\.template_ID_preview\("
+    r"ps, 'brush', new='brush\.add', rows=3, cols=8\)"
+)
+_BRUSH_ASSIGN_RE = re.compile(
+    r'paint_settings\(C\)\.brush = D\.brushes\["((?:\\.|[^"\\])*)"\]'
+)
 
 
 def fix(pms=None, version=None):
@@ -113,6 +120,16 @@ def fix_1_19_3(pr, pm):
         pmi.text = _PALETTE_TEMPLATE_RE.sub(
             r"template_palette(\1, ps, 'palette')", pmi.text
         )
+
+
+def fix_1_19_4(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'CUSTOM':
+            pmi.text = _BRUSH_TEMPLATE_RE.sub(
+                r"brush_asset_selector(\1, bl_context, ps)", pmi.text
+            )
+        elif pmi.mode == 'COMMAND':
+            pmi.text = _BRUSH_ASSIGN_RE.sub(r'activate_brush("\1")', pmi.text)
 
 
 def fix_json_1_17_1(pr, pm, menu):
