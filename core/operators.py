@@ -3369,10 +3369,36 @@ def register():
     pme.context.add_global("traceback", traceback)
 
 
-# def unregister():
-#     tp = WM_OT_pme_user_pie_menu_call
-#     if tp.pm_handler:
-#         tp.pm_handler_type.draw_handler_remove(
-#             tp.pm_handler, 'WINDOW')
-#         tp.pm_handler = None
-#         tp.pm_handler_type = None
+def unregister():
+    active = PME_OT_modal_base.active
+    if active is not None:
+        timer = getattr(active, "timer", None)
+        if timer is not None:
+            try:
+                bpy.context.window_manager.event_timer_remove(timer)
+            except (RuntimeError, ValueError):
+                pass
+            active.timer = None
+        try:
+            active.stop()
+        except ReferenceError:
+            pass
+        PME_OT_modal_base.active = None
+
+    sticky_instances = []
+    for instance in (
+        PME_OT_sticky_key.root_instance,
+        PME_OT_sticky_key.active_instance,
+    ):
+        if instance is not None and all(
+            instance is not item for item in sticky_instances
+        ):
+            sticky_instances.append(instance)
+    for instance in sticky_instances:
+        try:
+            instance.remove_timer()
+        except (ReferenceError, RuntimeError, ValueError):
+            pass
+    PME_OT_sticky_key.root_instance = None
+    PME_OT_sticky_key.active_instance = None
+    PME_OT_sticky_key.idx = 0
