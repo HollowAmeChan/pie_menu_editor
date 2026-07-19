@@ -140,6 +140,14 @@ def fix_1_19_6(pr, pm):
             )
 
 
+def fix_1_19_7(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'COMMAND':
+            pmi.text = pmi.text.replace(
+                "bpy.ops.mesh.faces_mirror_uv", "mesh_faces_mirror_uv"
+            )
+
+
 def fix_json_1_17_1(pr, pm, menu):
     if not pm.ed.has_hotkey:
         return

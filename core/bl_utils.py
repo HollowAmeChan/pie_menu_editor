@@ -199,6 +199,24 @@ def mesh_loop_multi_select(*args, ring=False, **kwargs):
     return legacy_operator(*args, ring=ring, **kwargs)
 
 
+def mesh_faces_mirror_uv(*args, direction='POSITIVE', precision=3, **kwargs):
+    legacy_operator = bpy.ops.mesh.faces_mirror_uv
+    try:
+        legacy_operator.get_rna_type()
+    except KeyError:
+        mesh_axis = 'POS_X' if direction == 'POSITIVE' else 'NEG_X'
+        return bpy.ops.uv.copy_mirrored_faces(
+            *args,
+            mesh_axis=mesh_axis,
+            uv_axis='X',
+            precision=precision,
+            **kwargs,
+        )
+    return legacy_operator(
+        *args, direction=direction, precision=precision, **kwargs
+    )
+
+
 def uname(collection, name, sep=".", width=3, check=True):
     is_iterable = True
     try:
@@ -1065,6 +1083,7 @@ def register():
     pme.context.add_global("brush_asset_selector", brush_asset_selector)
     pme.context.add_global("activate_brush", activate_brush)
     pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
+    pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)
