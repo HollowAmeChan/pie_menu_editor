@@ -100,6 +100,18 @@ _UNIFIED_PAINT_SETTINGS_PATH_RE = re.compile(
     r"(?:(?:bpy\.)?context|C)(?:\.scene)?\.tool_settings"
     r"\.unified_paint_settings\b"
 )
+_VIEW3D_SPACE_PATH = (
+    r"(?:(?:(?:bpy\.)?context|C)\.space_data|"
+    r"(?:(?:bpy\.)?context|C)\.area\.spaces\.active)"
+)
+_WIREFRAME_SHADING_PATH_RE = re.compile(
+    rf"(?P<space>{_VIEW3D_SPACE_PATH})\.shading"
+    r"\.show_wireframes\b"
+)
+_WIREFRAME_SHADING_OWNER_RE = re.compile(
+    rf"(?P<space>{_VIEW3D_SPACE_PATH})\.shading"
+    r"(?P<property>\s*,\s*['\"]show_wireframes['\"])"
+)
 _GN_OBJECT_PATH = (
     r"(?:"
     r"C\.(?:object|active_object)|"
@@ -426,6 +438,16 @@ def fix_1_19_20(pr, pm):
         )
         pmi.text = _BRUSH_STROKE_PATH_RE.sub(
             _replace_brush_stroke_path, pmi.text
+        )
+
+
+def fix_1_19_21(pr, pm):
+    for pmi in pm.pmis:
+        pmi.text = _WIREFRAME_SHADING_PATH_RE.sub(
+            r"\g<space>.overlay.show_wireframes", pmi.text
+        )
+        pmi.text = _WIREFRAME_SHADING_OWNER_RE.sub(
+            r"\g<space>.overlay\g<property>", pmi.text
         )
 
 
