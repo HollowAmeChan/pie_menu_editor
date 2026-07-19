@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 78.
+- Repository commits including this audit snapshot: 81.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  75.
-- Confirmed defect groups committed as `fix:`: 46.
-- Feature, documentation, and test-infrastructure commits: 29.
+  78.
+- Confirmed defect groups committed as `fix:`: 48.
+- Feature, documentation, and test-infrastructure commits: 30.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **46 confirmed and fixed defect
+The conservative bug count is therefore **48 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -71,6 +71,8 @@ coverage, not counted as bugs.
 | `d157065` | Popup sizing | Blender 5's public area duplication ignored PME's requested Popup Area dimensions and opened an oversized window. |
 | `c5d5d8d` | Property persistence | Dynamically registered Property Mode values reset to defaults after add-on disable/re-enable on both supported Blender versions. |
 | `51cafc7` | Popup lifecycle | Clearing a live persistent Popup Screen's users caused a Blender 5.2 ID reference-count underflow when the window closed. |
+| `d07f835` | UV editing | Blender 5.0/5.1 `uv.copy_mirrored_faces` still used `direction`, while Blender 5.2 replaced it with `mesh_axis` and `uv_axis`. |
+| `7fddb17` | Sculpt paint | Blender 5.0 retained `sculpt.sample_color` but rejected the `location` argument required by the Blender 5.1/5.2 replacement. |
 
 ## Validated Coverage
 
@@ -210,6 +212,16 @@ The following areas were tested without being counted as additional bugs:
   all ten menu modes, exact import/export, empty-Homefile persistence, six
   dynamic Property Mode value types, exact Popup Area sizing, and safe Popup
   destruction before the asynchronous header callback.
+- Direct operators, string-based operators, bundled example commands,
+  `bpy.types`, `bpy.context`, `bpy.data`, UILayout signatures, and Preferences
+  panel mappings were compared across Blender 4.5.8, 5.0.1, 5.1.0, and 5.2.0.
+  UV mirror commands execute both directions through the 5.0/5.1 `direction`
+  API and the 5.2 axis API. Sculpt color sampling accepts a stable `location`
+  wrapper argument across the 5.0-to-5.1 operator transition.
+- Version 1.19.43 adapts UV mirror calls to the operator's detected RNA
+  properties. Version 1.19.44 removes the new `location` argument only when
+  the installed legacy sculpt operator does not expose it. Focused migrated
+  command, helper, and menu-call tests pass on Blender 4.5, 5.0, 5.1, and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
