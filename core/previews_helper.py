@@ -39,24 +39,16 @@ class PreviewsHelper:
         return self.preview is not None and name in self.preview
 
     def refresh(self):
-        # NOTE:
-        # - This currently initializes previews only once per session.
-        # - Enum-based icons (e.g. OPEN_MODE_ITEMS in constants.py) cache their
-        #   icon_value at class definition time, so calling this again will NOT
-        #   update those enums. A true "icon refresh" would require either
-        #   re-registering the affected classes or switching to a dynamic
-        #   draw-time lookup instead of static enum icon_values.
-        if self.preview is not None:
-            return
+        if self.preview is None:
+            self.preview = bpy.utils.previews.new()
 
-        self.preview = bpy.utils.previews.new()
-        for f in os.listdir(self.path):
+        for f in sorted(os.listdir(self.path)):
             if not f.endswith(".png"):
                 continue
 
-            self.preview.load(
-                os.path.splitext(f)[0], os.path.join(self.path, f), 'IMAGE'
-            )
+            name = os.path.splitext(f)[0]
+            if name not in self.preview:
+                self.preview.load(name, os.path.join(self.path, f), 'IMAGE')
 
     def unregister(self):
         if not self.preview:
