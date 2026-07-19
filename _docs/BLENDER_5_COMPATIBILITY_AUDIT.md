@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 49.
+- Repository commits including this audit snapshot: 51.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  46.
-- Confirmed defect groups committed as `fix:`: 36.
-- Documentation and test-infrastructure commits: 10.
-- Preserved test scripts: 108 (70 smoke tests and 38 probes).
+  48.
+- Confirmed defect groups committed as `fix:`: 37.
+- Documentation and test-infrastructure commits: 11.
+- Preserved test scripts: 109 (71 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **36 confirmed and fixed defect
+The conservative bug count is therefore **37 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -61,6 +61,7 @@ coverage, not counted as bugs.
 | `e164837` | User keymaps | Empty legacy PME user-keyconfig overrides accumulated and could not invoke a menu. |
 | `0256811` | Menu polling | Scripts, previews, nested calls, and runtime menu draws bypassed menu poll checks; poll errors also escaped operators. |
 | `5d9aab1` | Scripted menu calls | `open_menu` reported unavailable menus as successful, allowed disabled execution, and leaked kwargs after invalid Stack Key slots. |
+| `0c0c33c` | Poll context | Scripted poll expressions read ambient `bpy.context` through `C` instead of the invocation context, producing stale mode and area decisions. |
 
 ## Validated Coverage
 
@@ -79,6 +80,9 @@ The following areas were tested without being counted as additional bugs:
 - Menu poll checks are consistent across hotkeys, scripts, previews, nested
   calls, embedded draws, and runtime menu classes; runtime poll errors cancel
   safely on Blender 4.5 and 5.2.
+- Scripted poll globals (`C` and PME's `bpy.context` proxy) follow the context
+  passed by Blender and restore the previous context after both successful and
+  failing polls on Blender 4.5 and 5.2.
 - F3 operator search opens before and after PME re-enable with Developer Extras
   enabled and a dynamic PME Macro registered on Blender 4.5 and 5.2.
 - `open_menu` rejects missing, disabled, poll-blocked, and invalid Stack Key
@@ -95,6 +99,10 @@ The following areas were tested without being counted as additional bugs:
 - Modal normal execution, no-area cancellation, and disable while active.
 - Side-area show/hide through public APIs.
 - All bundled examples drawing under the compatibility layer.
+- Version 1.19.32 source tests cover poll routing, all menu mode entries,
+  hold/chord hotkeys, popup area synchronization, and all bundled example
+  draws on Blender 4.5 and 5.2; its release ZIP passes the full isolated
+  install/enable/disable/re-enable lifecycle on both versions.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
