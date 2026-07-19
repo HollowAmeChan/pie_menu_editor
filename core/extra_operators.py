@@ -1377,6 +1377,146 @@ def _apply_popup_area_header(header, window_pointer, area_pointer):
     return None
 
 
+# Blender 5 deletes duplicated Screens on close, so retain public UI state
+# without taking ownership of Screen data-blocks.
+_popup_area_states = {}
+_popup_area_state_timers = set()
+_RNA_STATE_ERRORS = (
+    AttributeError,
+    ReferenceError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+)
+
+
+def _rna_scalar_state(data):
+    state = {}
+    for prop in data.bl_rna.properties:
+        if (
+            prop.identifier in {'rna_type', 'type'}
+            or prop.is_readonly
+            or prop.type in {'POINTER', 'COLLECTION'}
+            or data.is_property_readonly(prop.identifier)
+            or data.is_property_hidden(prop.identifier)
+        ):
+            continue
+        try:
+            value = getattr(data, prop.identifier)
+            if getattr(prop, 'is_array', False):
+                value = tuple(value)
+            elif isinstance(value, set):
+                value = set(value)
+            state[prop.identifier] = value
+        except _RNA_STATE_ERRORS:
+            continue
+    return state
+
+
+def _restore_rna_scalar_state(data, state):
+    properties = data.bl_rna.properties
+    for identifier, value in state.items():
+        prop = properties.get(identifier)
+        if (
+            prop is None
+            or prop.is_readonly
+            or data.is_property_readonly(identifier)
+            or data.is_property_hidden(identifier)
+        ):
+            continue
+        try:
+            current = getattr(data, identifier)
+            if getattr(prop, 'is_array', False):
+                current = tuple(current)
+            elif isinstance(current, set):
+                current = set(current)
+            if current == value:
+                continue
+            setattr(data, identifier, value)
+        except _RNA_STATE_ERRORS:
+            continue
+
+
+def _capture_popup_area_state(window_pointer, area_pointer, cache_key):
+    window_manager = getattr(bpy.context, 'window_manager', None)
+    if window_manager is None:
+        return False
+    window = next(
+        (
+            item
+            for item in window_manager.windows
+            if item.as_pointer() == window_pointer
+        ),
+        None,
+    )
+    if window is None:
+        return False
+    area = next(
+        (
+            item
+            for item in window.screen.areas
+            if item.as_pointer() == area_pointer
+        ),
+        None,
+    )
+    if area is None:
+        return False
+    _popup_area_states[cache_key] = {
+        'show_statusbar': window.screen.show_statusbar,
+        'ui_type': area.ui_type,
+        'space': _rna_scalar_state(area.spaces.active),
+    }
+    return True
+
+
+def _start_popup_area_state_timer(window, area, cache_key):
+    window_pointer = window.as_pointer()
+    area_pointer = area.as_pointer()
+
+    def capture():
+        try:
+            active = _capture_popup_area_state(
+                window_pointer,
+                area_pointer,
+                cache_key,
+            )
+        except (ReferenceError, RuntimeError):
+            active = False
+        if not active:
+            _popup_area_state_timers.discard(capture)
+            return None
+        return 0.2
+
+    _popup_area_state_timers.add(capture)
+    bpy.app.timers.register(capture, first_interval=0.2)
+
+
+def _restore_popup_area_state(window, area, cache_key):
+    state = _popup_area_states.get(cache_key)
+    if state is None:
+        return False
+    window.screen.show_statusbar = state.get(
+        'show_statusbar',
+        window.screen.show_statusbar,
+    )
+    ui_type = state.get('ui_type')
+    if ui_type:
+        try:
+            area.ui_type = ui_type
+        except (TypeError, ValueError):
+            pass
+    _restore_rna_scalar_state(area.spaces.active, state.get('space', {}))
+    return True
+
+
+def _clear_popup_area_state_cache():
+    for capture in tuple(_popup_area_state_timers):
+        if bpy.app.timers.is_registered(capture):
+            bpy.app.timers.unregister(capture)
+    _popup_area_state_timers.clear()
+    _popup_area_states.clear()
+
+
 class PME_OT_popup_area(bpy.types.Operator):
     bl_idname = "pme.popup_area"
     bl_label = "Popup Area"
@@ -1505,6 +1645,11 @@ class PME_OT_popup_area(bpy.types.Operator):
             new_window = context.window_manager.windows[-1]
 
         if new_window:
+            cached = (
+                APP_VERSION >= (5, 0, 0)
+                and not self.auto_close
+                and screen_name in _popup_area_states
+            )
             reused = screen_name in bpy.data.screens
             if reused:
                 new_window.screen = bpy.data.screens[screen_name]
@@ -1516,6 +1661,12 @@ class PME_OT_popup_area(bpy.types.Operator):
             target_area = new_window.screen.areas[0] if new_window.screen.areas else None
             if target_area:
                 target_area.ui_type = self.area
+                if cached:
+                    _restore_popup_area_state(
+                        new_window,
+                        target_area,
+                        screen_name,
+                    )
                 if self.header != 'DEFAULT':
                     header = self.header
                     window_pointer = new_window.as_pointer()
@@ -1529,12 +1680,23 @@ class PME_OT_popup_area(bpy.types.Operator):
                         first_interval=0.01,
                     )
 
-            if (not reused) and self.cmd:
+            if (not reused) and (not cached) and self.cmd:
                 SU.exec_with_override(
                     cmd=self.cmd,
                     window=new_window,
                     screen=new_window.screen,
                     area=target_area,
+                )
+
+            if (
+                APP_VERSION >= (5, 0, 0)
+                and not self.auto_close
+                and target_area is not None
+            ):
+                _start_popup_area_state_timer(
+                    new_window,
+                    target_area,
+                    screen_name,
                 )
 
         get_prefs().enable_window_kmis()
@@ -1566,5 +1728,6 @@ def register():
 
 
 def unregister():
+    _clear_popup_area_state_cache()
     if save_pre_handler in bpy.app.handlers.save_pre:
         bpy.app.handlers.save_pre.remove(save_pre_handler)
