@@ -15,6 +15,42 @@ _BRUSH_TEMPLATE_RE = re.compile(
 _BRUSH_ASSIGN_RE = re.compile(
     r'paint_settings\(C\)\.brush = D\.brushes\["((?:\\.|[^"\\])*)"\]'
 )
+_AUTOMASKING_PROPERTIES = {
+    "use_automasking_topology": "use_automasking_topology",
+    "use_automasking_face_sets": "use_automasking_face_sets",
+    "use_automasking_boundary_edges": "use_automasking_boundary_edges",
+    "use_automasking_boundary_face_sets": "use_automasking_boundary_face_sets",
+    "use_automasking_cavity": "use_automasking_cavity",
+    "use_automasking_cavity_inverted": "use_automasking_cavity_inverted",
+    "use_automasking_start_normal": "use_automasking_start_normal",
+    "use_automasking_view_normal": "use_automasking_view_normal",
+    "automasking_boundary_edges_propagation_steps": (
+        "boundary_edges_propagation_steps"
+    ),
+    "automasking_cavity_factor": "cavity_factor",
+    "automasking_cavity_blur_steps": "cavity_blur_steps",
+    "automasking_cavity_curve": "cavity_curve",
+    "automasking_cavity_curve_op": "cavity_curve_op",
+    "automasking_start_normal_limit": "start_normal_limit",
+    "automasking_start_normal_falloff": "start_normal_falloff",
+    "automasking_view_normal_limit": "view_normal_limit",
+    "automasking_view_normal_falloff": "view_normal_falloff",
+}
+_AUTOMASKING_PATH_RE = re.compile(
+    r"(?P<owner>"
+    r"paint_settings\([^)]*\)(?:\.brush)?|"
+    r"(?:bpy\.)?context(?:\.scene)?\.tool_settings\.sculpt(?:\.brush)?|"
+    r"C(?:\.scene)?\.tool_settings\.sculpt(?:\.brush)?"
+    r")\.(?P<property>"
+    + "|".join(map(re.escape, _AUTOMASKING_PROPERTIES))
+    + r")\b"
+)
+
+
+def _replace_automasking_path(match):
+    owner = match.group("owner")
+    prop = _AUTOMASKING_PROPERTIES[match.group("property")]
+    return f"mesh_automasking_settings({owner}).{prop}"
 
 
 def fix(pms=None, version=None):
@@ -165,6 +201,13 @@ def fix_1_19_9(pr, pm):
         )
         pmi.text = pmi.text.replace(
             "O.object.move_to_collection", "object_move_to_collection"
+        )
+
+
+def fix_1_19_10(pr, pm):
+    for pmi in pm.pmis:
+        pmi.text = _AUTOMASKING_PATH_RE.sub(
+            _replace_automasking_path, pmi.text
         )
 
 

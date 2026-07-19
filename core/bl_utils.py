@@ -226,6 +226,11 @@ def sculpt_sample_color(*args, **kwargs):
     return legacy_operator(*args, **kwargs)
 
 
+def mesh_automasking_settings(owner):
+    settings = getattr(owner, "mesh_automasking_settings", None)
+    return settings if settings is not None else owner
+
+
 def _scene_collections(context=None):
     context = context or bpy.context
     collections = []
@@ -1143,6 +1148,7 @@ def register():
     pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
     pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
     pme.context.add_global("sculpt_sample_color", sculpt_sample_color)
+    pme.context.add_global("mesh_automasking_settings", mesh_automasking_settings)
     pme.context.add_global("object_move_to_collection", object_move_to_collection)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
