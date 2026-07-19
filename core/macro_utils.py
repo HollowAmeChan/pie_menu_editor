@@ -8,6 +8,7 @@ from .bl_utils import uname
 
 _operators = {}
 _macros = {}
+_macro_proxies = {}
 _macro_errors = {}
 _macro_execs = []
 _exec_base = None
@@ -126,6 +127,49 @@ def _report_missing_operator(pm, missing):
     )
 
 
+def _execute_macro_proxy(self, context):
+    pm = get_prefs().pie_menus.get(self.__class__._pme_menu_name)
+    if pm is None or pm.mode != 'MACRO':
+        return {'CANCELLED'}
+    if not pm.poll(self.__class__, context):
+        return {'CANCELLED'}
+
+    result = execute_macro(pm)
+    if result is False or result is None or result == {'CANCELLED'}:
+        return {'CANCELLED'}
+    return {'FINISHED'}
+
+
+def _ensure_macro_proxy(pm):
+    tp = _macro_proxies.get(pm.name)
+    if tp is not None:
+        return tp
+
+    tp_name, tp_bl_idname = _gen_tp_id(pm.name)
+    defs = {
+        "bl_label": pm.name,
+        "bl_idname": tp_bl_idname,
+        "bl_options": {'REGISTER', 'UNDO'},
+        "_pme_menu_name": pm.name,
+        "execute": _execute_macro_proxy,
+    }
+    tp = type(tp_name, (bpy.types.Operator,), defs)
+    bpy.utils.register_class(tp)
+    _macro_proxies[pm.name] = tp
+    return tp
+
+
+def _gen_native_tp_id(proxy_tp):
+    tp_name = uname(bpy.types, proxy_tp.__name__ + "_native", sep="_")
+    return tp_name, "pme." + tp_name[len("PME_OT_") :]
+
+
+def _remove_native_macro(pm):
+    tp = _macros.pop(pm.name, None)
+    if tp is not None:
+        bpy.utils.unregister_class(tp)
+
+
 def add_macro(pm):
     if not pm.enabled:
         return False
@@ -141,15 +185,15 @@ def add_macro(pm):
     _macro_errors.pop(pm.name, None)
 
     pr = get_prefs()
-    tp_name, tp_bl_idname = _gen_tp_id(pm.name)
+    proxy_tp = _ensure_macro_proxy(pm)
+    tp_name, tp_bl_idname = _gen_native_tp_id(proxy_tp)
 
     DBG_MACRO and logh("Add Macro: %s (%s)" % (pm.name, tp_name))
 
     defs = {
         "bl_label": pm.name,
         "bl_idname": tp_bl_idname,
-        # "bl_options": {'REGISTER', 'UNDO', 'MACRO'},
-        "bl_options": {'REGISTER', 'UNDO'},
+        "bl_options": {'INTERNAL', 'REGISTER', 'UNDO'},
     }
 
     tp = type(tp_name, (bpy.types.Macro,), defs)
@@ -221,17 +265,19 @@ def add_macro(pm):
 
 def remove_macro(pm):
     _macro_errors.pop(pm.name, None)
-    tp = _macros.pop(pm.name, None)
-    if tp is None:
-        return
-
-    bpy.utils.unregister_class(tp)
+    _remove_native_macro(pm)
+    tp = _macro_proxies.pop(pm.name, None)
+    if tp is not None:
+        bpy.utils.unregister_class(tp)
 
 
 def remove_all_macros():
     for v in _macros.values():
         bpy.utils.unregister_class(v)
     _macros.clear()
+    for v in _macro_proxies.values():
+        bpy.utils.unregister_class(v)
+    _macro_proxies.clear()
     _macro_errors.clear()
 
     while len(_macro_execs) > 1:
@@ -291,7 +337,7 @@ def _fill_props(props, pm, idx=1):
 def execute_macro(pm):
     missing = _find_missing_operator(pm)
     if missing:
-        remove_macro(pm)
+        _remove_native_macro(pm)
         _report_missing_operator(pm, missing)
         return False
 
@@ -301,10 +347,9 @@ def execute_macro(pm):
             return False
         print("Macro built successfully")
 
-    tp = _macros[pm.name]
-    op = eval("bpy.ops." + tp.bl_idname)
-
     def _do_call():
+        tp = _macros[pm.name]
+        op = eval("bpy.ops." + tp.bl_idname)
         props = {}
         _fill_props(props, pm)
         return op('INVOKE_DEFAULT', True, **props)
@@ -318,7 +363,9 @@ def execute_macro(pm):
         msg = str(e)
         if "unrecognized" in msg and ("PME_OT_" in msg or "_OT_" in msg):
             try:
-                update_macro(pm)
+                _remove_native_macro(pm)
+                if not add_macro(pm):
+                    return False
                 ret = _do_call()
                 print("Macro updated and executed successfully")
                 return ret
@@ -333,19 +380,18 @@ def execute_macro(pm):
 
 
 def rename_macro(old_name, name):
-    if old_name not in _macros:
-        return
+    native_tp = _macros.pop(old_name, None)
+    if native_tp is not None:
+        bpy.utils.unregister_class(native_tp)
 
-    _macros[name] = _macros[old_name]
-    _macros[name].bl_label = name
-    del _macros[old_name]
+    proxy_tp = _macro_proxies.pop(old_name, None)
+    if proxy_tp is not None:
+        bpy.utils.unregister_class(proxy_tp)
 
-    bpy.utils.unregister_class(_macros[name])
-
-    tp_name, tp_bl_idname = _gen_tp_id(name)
-    _macros[name].__name__ = tp_name
-    _macros[name].bl_idname = tp_bl_idname
-    bpy.utils.register_class(_macros[name])
+    _macro_errors.pop(old_name, None)
+    pm = get_prefs().pie_menus.get(name)
+    if pm is not None:
+        add_macro(pm)
 
 
 def register():
