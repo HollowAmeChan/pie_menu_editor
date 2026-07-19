@@ -46,7 +46,7 @@
           "Camera", 
           "COMMAND", 
           "CAMERA_DATA", 
-          "bpy.ops.view3d.view_camera(type='CAMERA')"
+          "bpy.ops.view3d.view_camera()"
         ], 
         [
           "Persp/Ortho", 
