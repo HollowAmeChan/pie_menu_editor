@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 87.
+- Repository commits including this audit snapshot: 89.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  84.
-- Confirmed defect groups committed as `fix:`: 48.
-- Feature, documentation, and test-infrastructure commits: 36.
-- Preserved test scripts: 123 (84 smoke tests and 39 probes).
+  86.
+- Confirmed defect groups committed as `fix:`: 49.
+- Feature, documentation, and test-infrastructure commits: 37.
+- Preserved test scripts: 124 (85 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **48 confirmed and fixed defect
+The conservative bug count is therefore **49 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -73,6 +73,7 @@ coverage, not counted as bugs.
 | `51cafc7` | Popup lifecycle | Clearing a live persistent Popup Screen's users caused a Blender 5.2 ID reference-count underflow when the window closed. |
 | `d07f835` | UV editing | Blender 5.0/5.1 `uv.copy_mirrored_faces` still used `direction`, while Blender 5.2 replaced it with `mesh_axis` and `uv_axis`. |
 | `7fddb17` | Sculpt paint | Blender 5.0 retained `sculpt.sample_color` but rejected the `location` argument required by the Blender 5.1/5.2 replacement. |
+| `ee82f74` | Popup state | Safely closing Blender 5 Popup Screens discarded public editor state and reran the open command on every reopen. |
 
 ## Validated Coverage
 
@@ -153,6 +154,11 @@ The following areas were tested without being counted as additional bugs:
 - Closing a persistent Popup Area before its asynchronous header update no
   longer produces a Blender 5.2 Screen user-count error. The callback detects
   the destroyed window, returns safely, and leaves PME enabled.
+- Persistent Popup Areas retain public scalar Space RNA, the editor type, and
+  status-bar visibility across close/reopen on Blender 5.0, 5.1, and 5.2.
+  Open commands execute once as on the 4.5 reused-Screen path. Cache timers and
+  state are fully removed on add-on disable; explicit header arguments still
+  override restored state. The four-version regression uses `center=False`.
 - `keep_pie_open(layout)` retains its legacy flag behavior and returns `True`
   on Blender 4.5. On Blender 5.2 it performs zero private layout accesses and
   returns `False`, allowing user scripts to detect that Blender exposes no
@@ -248,6 +254,11 @@ The following areas were tested without being counted as additional bugs:
   properties. Version 1.19.44 removes the new `location` argument only when
   the installed legacy sculpt operator does not expose it. Focused migrated
   command, helper, and menu-call tests pass on Blender 4.5, 5.0, 5.1, and 5.2.
+- Version 1.19.45 restores safe in-session Popup editor-state memory on
+  Blender 5 without retaining or deleting Screen data-blocks. Outliner string
+  and Boolean state, status-bar state, command de-duplication, header updates,
+  exact sizing, early destruction, and disable cleanup pass across the focused
+  four-version matrix.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
@@ -286,14 +297,13 @@ outside version control.
 - Area Move and Side Area still need a non-invasive automation harness or an
   explicitly reserved interactive desktop session. Their recent mouse-driven
   results are not counted as compatibility evidence.
-- Blender 5.2 safely deletes a persistent Popup Screen when its window closes;
-  unlike the 4.5 legacy path, per-Screen layout state is therefore not cached
-  for a later reopen. Restoring that memory requires explicit state capture
-  rather than manipulating Blender's ID user count.
-  Isolated probes confirmed that fake/extra users do not prevent child-window
-  Screen deletion, cross-Workspace Screen assignment is rejected, and forced
-  Screen/Workspace data-block removal is unsafe on Blender 5.0. No such
-  deletion path is used by PME.
+- Blender 5 safely deletes a persistent Popup Screen when its window closes.
+  PME now captures and restores its public scalar editor state, but multi-Area
+  split geometry, pointer/collection RNA, and per-region view transforms are
+  not reconstructed. Isolated probes confirmed that fake/extra users do not
+  prevent child-window Screen deletion, cross-Workspace Screen assignment is
+  rejected, and forced Screen/Workspace data-block removal is unsafe on
+  Blender 5.0. No such deletion path is used by PME.
 
 This pause point is suitable for auditing completed work. It is not a claim
 that every PME workflow is fully compatible with Blender 5.2.
