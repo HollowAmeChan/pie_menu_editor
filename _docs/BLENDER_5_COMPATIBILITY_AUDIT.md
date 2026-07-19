@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 77.
+- Repository commits including this audit snapshot: 78.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  74.
+  75.
 - Confirmed defect groups committed as `fix:`: 46.
-- Feature, documentation, and test-infrastructure commits: 28.
+- Feature, documentation, and test-infrastructure commits: 29.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -206,6 +206,10 @@ The following areas were tested without being counted as additional bugs:
   changes. Version 1.19.42 closes persistent Popup windows without Blender 5.2
   Screen reference-count errors. Its isolated release ZIP lifecycle passes on
   Blender 4.5 and 5.2.
+- Blender 5.0.1 and 5.1.0 pass the focused source/API set: add-on lifecycle,
+  all ten menu modes, exact import/export, empty-Homefile persistence, six
+  dynamic Property Mode value types, exact Popup Area sizing, and safe Popup
+  destruction before the asynchronous header callback.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
@@ -248,8 +252,6 @@ outside version control.
   unlike the 4.5 legacy path, per-Screen layout state is therefore not cached
   for a later reopen. Restoring that memory requires explicit state capture
   rather than manipulating Blender's ID user count.
-- Blender 5.0 and 5.1 binaries are not part of the current matrix. Windows is
-  the intended platform scope for this upgrade.
 
 This pause point is suitable for auditing completed work. It is not a claim
 that every PME workflow is fully compatible with Blender 5.2.
