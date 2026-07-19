@@ -1,4 +1,26 @@
-# Pie Menu Editor Fork
+# Pie Menu Editor Fork - Blender 5.2 Compatibility Branch
+
+## Compatibility Branch
+
+This branch resumes targeted compatibility work on the archived PME 1.x codebase.
+It currently targets **Blender 5.2 LTS** while retaining tested support for
+**Blender 4.5 LTS**.
+
+The repository root is the Blender add-on root. Only `__init__.py` remains at
+that root; the Python implementation lives in `core/`. A checkout can therefore
+be placed directly at `scripts/addons/pie_menu_editor`.
+
+Build and validate an installable ZIP with:
+
+```console
+python -P tools/build_release_zip.py --output _dist/pme-current.zip
+```
+
+The generated ZIP contains one `pie_menu_editor` top-level directory and has
+been validated with Blender's own add-on installer on Blender 4.5 and 5.2.
+
+The archive notice below describes the status of the upstream PME-F 1.x line;
+it is retained for project history and attribution.
 
 > [!WARNING]
 > This repository is an archive of the PME 1.x maintenance line.
