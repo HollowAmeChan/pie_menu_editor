@@ -1110,6 +1110,107 @@ def _find_areas_with_header_text_support(context):
     return [area for area in context.screen.areas if hasattr(area, 'header_text_set')]
 
 
+def _win32_process_windows():
+    if os.name != 'nt':
+        return set()
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    process_id = os.getpid()
+    handles = set()
+
+    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    def callback(hwnd, _lparam):
+        owner_pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(owner_pid))
+        if owner_pid.value == process_id and user32.IsWindowVisible(hwnd):
+            handles.add(int(hwnd))
+        return True
+
+    user32.EnumWindows(callback, 0)
+    return handles
+
+
+def _resize_win32_popup_window(previous_handles, width, height):
+    if os.name != 'nt':
+        return False
+
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.windll.user32
+    new_handles = _win32_process_windows() - previous_handles
+    if len(new_handles) != 1:
+        logw(
+            "Popup Area: expected one new native window, found %d"
+            % len(new_handles)
+        )
+        return False
+
+    hwnd = next(iter(new_handles))
+    window_rect = wintypes.RECT()
+    client_rect = wintypes.RECT()
+    if not user32.GetWindowRect(hwnd, ctypes.byref(window_rect)):
+        return False
+    if not user32.GetClientRect(hwnd, ctypes.byref(client_rect)):
+        return False
+
+    outer_width = window_rect.right - window_rect.left
+    outer_height = window_rect.bottom - window_rect.top
+    client_width = client_rect.right - client_rect.left
+    client_height = client_rect.bottom - client_rect.top
+    frame_width = max(0, outer_width - client_width)
+    frame_height = max(0, outer_height - client_height)
+    target_width = int(width) + frame_width
+    target_height = int(height) + frame_height
+
+    cursor = wintypes.POINT()
+    if not user32.GetCursorPos(ctypes.byref(cursor)):
+        return False
+
+    class MONITORINFO(ctypes.Structure):
+        _fields_ = (
+            ("cbSize", wintypes.DWORD),
+            ("rcMonitor", wintypes.RECT),
+            ("rcWork", wintypes.RECT),
+            ("dwFlags", wintypes.DWORD),
+        )
+
+    monitor = user32.MonitorFromPoint(cursor, 2)
+    monitor_info = MONITORINFO()
+    monitor_info.cbSize = ctypes.sizeof(MONITORINFO)
+    if user32.GetMonitorInfoW(monitor, ctypes.byref(monitor_info)):
+        work = monitor_info.rcWork
+        target_width = min(target_width, work.right - work.left)
+        target_height = min(target_height, work.bottom - work.top)
+        left = max(
+            work.left,
+            min(cursor.x - target_width // 2, work.right - target_width),
+        )
+        top = max(
+            work.top,
+            min(cursor.y - target_height // 2, work.bottom - target_height),
+        )
+    else:
+        left = cursor.x - target_width // 2
+        top = cursor.y - target_height // 2
+
+    SWP_NOZORDER = 0x0004
+    return bool(
+        user32.SetWindowPos(
+            hwnd,
+            0,
+            left,
+            top,
+            target_width,
+            target_height,
+            SWP_NOZORDER,
+        )
+    )
+
+
 def popup_area(area, width=320, height=400, x=None, y=None):
     """
     Create a popup window by duplicating an area with specified dimensions.
@@ -1129,6 +1230,7 @@ def popup_area(area, width=320, height=400, x=None, y=None):
     window = C.window
 
     if bpy.app.version >= (5, 0, 0):
+        native_windows = _win32_process_windows()
         upr = get_uprefs()
         ui_scale = upr.view.ui_scale
         ui_line_width = upr.view.ui_line_width
@@ -1138,6 +1240,7 @@ def popup_area(area, width=320, height=400, x=None, y=None):
         try:
             with C.temp_override(area=area):
                 bpy.ops.screen.area_dupli('INVOKE_DEFAULT')
+            _resize_win32_popup_window(native_windows, width, height)
         finally:
             upr.view.ui_scale = ui_scale
             upr.view.ui_line_width = ui_line_width
