@@ -3720,6 +3720,10 @@ class PME_MT_button_context:
         self.layout.separator()
 
 
+_button_context_menu_type = None
+_button_context_menu_owned = False
+
+
 class PME_OT_context_menu(bpy.types.Operator):
     bl_idname = "pme.context_menu"
     bl_label = ""
@@ -3830,11 +3834,26 @@ def button_context_menu(self, context):
 
 
 def add_rmb_menu():
-    if not hasattr(bpy.types, "WM_MT_button_context"):
-        tp = type("WM_MT_button_context", (PME_MT_button_context, bpy.types.Menu), {})
-        bpy.utils.register_class(tp)
+    global _button_context_menu_type, _button_context_menu_owned
 
-    bpy.types.WM_MT_button_context.append(button_context_menu)
+    _button_context_menu_type = getattr(
+        bpy.types, "UI_MT_button_context_menu", None
+    )
+    _button_context_menu_owned = False
+    if not _button_context_menu_type:
+        _button_context_menu_type = getattr(
+            bpy.types, "WM_MT_button_context", None
+        )
+        if not _button_context_menu_type:
+            _button_context_menu_type = type(
+                "WM_MT_button_context",
+                (PME_MT_button_context, bpy.types.Menu),
+                {},
+            )
+            bpy.utils.register_class(_button_context_menu_type)
+            _button_context_menu_owned = True
+
+    _button_context_menu_type.append(button_context_menu)
 
 
 def register():
@@ -3932,14 +3951,20 @@ def register():
 
 
 def unregister():
+    global _button_context_menu_type, _button_context_menu_owned
+
     pr = get_prefs()
     pr.kh.unregister()
     pr.window_kmis.clear()
 
     PMIData._kmi = None
 
-    if hasattr(bpy.types, "WM_MT_button_context"):
-        bpy.types.WM_MT_button_context.remove(button_context_menu)
+    if _button_context_menu_type:
+        _button_context_menu_type.remove(button_context_menu)
+        if _button_context_menu_owned:
+            bpy.utils.unregister_class(_button_context_menu_type)
+        _button_context_menu_type = None
+        _button_context_menu_owned = False
 
     for root, dirs, files in os.walk(
         os.path.join(SCRIPT_PATH, "unregister"), followlinks=True
