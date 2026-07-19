@@ -430,7 +430,9 @@ class LayoutHelper:
         if size > 1 and (tp == "IntProperty" or tp == "FloatProperty"):
             icon = 'NONE'
 
-        is_row = CTU.is_row(self.layout)
+        # Blender 5.x replaced the C uiLayout struct with C++ layout classes.
+        # The private-memory probe is only valid on the legacy layout model.
+        is_row = bpy.app.version < (5, 0, 0) and CTU.is_row(self.layout)
         if is_row:
             if tp == "EnumProperty" and expand:
                 icon_only = True

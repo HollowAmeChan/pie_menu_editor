@@ -866,7 +866,7 @@ def panel(
         if layout is None:
             layout = pme.context.layout.box() if frame else pme.context.layout.column()
         else:
-            if CTU.is_row(layout):
+            if bpy.app.version < (5, 0, 0) and CTU.is_row(layout):
                 layout = layout.column()
 
     is_collapsed = False
