@@ -71,6 +71,24 @@ _INPUT_SAMPLES_PATH_RE = re.compile(
     r"C(?:\.scene)?\.tool_settings\.sculpt"
     r")\.input_samples\b"
 )
+_GN_OBJECT_PATH = (
+    r"(?:"
+    r"C\.(?:object|active_object)|"
+    r"(?:bpy\.)?context\.(?:object|active_object)|"
+    r"D\.objects\[[^\]]+\]|"
+    r"bpy\.data\.objects\[[^\]]+\]"
+    r")"
+)
+_GN_MODIFIER_PATH = rf"{_GN_OBJECT_PATH}\.modifiers\[[^\]]+\]"
+_GN_INPUT_PATH_RE = re.compile(
+    rf"^(?P<modifier>{_GN_MODIFIER_PATH})"
+    r"\[(?P<quote>['\"])(?P<identifier>[A-Za-z_]\w*)(?P=quote)\]$"
+)
+_GN_INPUT_ASSIGN_RE = re.compile(
+    rf"^(?P<modifier>{_GN_MODIFIER_PATH})"
+    r"\[(?P<quote>['\"])(?P<identifier>[A-Za-z_]\w*)(?P=quote)\]"
+    r"\s*=\s*(?P<value>.+)$"
+)
 
 
 def _replace_automasking_path(match):
@@ -292,6 +310,25 @@ def fix_1_19_12(pr, pm):
             ),
             pmi.text,
         )
+
+
+def fix_1_19_13(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'PROP':
+            match = _GN_INPUT_PATH_RE.fullmatch(pmi.text)
+            if match:
+                pmi.mode = 'CUSTOM'
+                pmi.text = (
+                    f"geometry_nodes_input(L, {match.group('modifier')}, "
+                    f"{match.group('identifier')!r})"
+                )
+        elif pmi.mode == 'COMMAND':
+            match = _GN_INPUT_ASSIGN_RE.fullmatch(pmi.text)
+            if match:
+                pmi.text = (
+                    f"set_geometry_nodes_input({match.group('modifier')}, "
+                    f"{match.group('identifier')!r}, {match.group('value')})"
+                )
 
 
 def fix_json_1_17_1(pr, pm, menu):

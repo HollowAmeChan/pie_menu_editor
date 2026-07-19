@@ -272,6 +272,49 @@ def paint_input_samples_owner(settings):
     return settings.brush
 
 
+def _geometry_nodes_input_field(identifier):
+    if identifier.endswith("_use_attribute"):
+        return identifier[:-14], "type"
+    if identifier.endswith("_attribute_name"):
+        return identifier[:-15], "attribute_name"
+    return identifier, "value"
+
+
+def _geometry_nodes_input(modifier, identifier):
+    properties = getattr(modifier, "properties", None)
+    if properties is None:
+        return None, None
+    input_identifier, field = _geometry_nodes_input_field(identifier)
+    return getattr(properties.inputs, input_identifier), field
+
+
+def geometry_nodes_input(layout, modifier, identifier, **kwargs):
+    item, field = _geometry_nodes_input(modifier, identifier)
+    if item is not None:
+        return layout.prop(item, field, **kwargs)
+    return layout.prop(modifier, f'["{identifier}"]', **kwargs)
+
+
+def get_geometry_nodes_input(modifier, identifier):
+    item, field = _geometry_nodes_input(modifier, identifier)
+    if item is None:
+        return modifier[identifier]
+    value = getattr(item, field)
+    return value == 'ATTRIBUTE' if field == "type" else value
+
+
+def set_geometry_nodes_input(modifier, identifier, value):
+    original_value = value
+    item, field = _geometry_nodes_input(modifier, identifier)
+    if item is not None:
+        if field == "type":
+            value = 'ATTRIBUTE' if value else 'VALUE'
+        setattr(item, field, value)
+    else:
+        modifier[identifier] = value
+    return original_value
+
+
 def _scene_collections(context=None):
     context = context or bpy.context
     collections = []
@@ -1194,6 +1237,9 @@ def register():
     pme.context.add_global("brush_curve_mapping", brush_curve_mapping)
     pme.context.add_global("set_brush_curve_preset", set_brush_curve_preset)
     pme.context.add_global("paint_input_samples_owner", paint_input_samples_owner)
+    pme.context.add_global("geometry_nodes_input", geometry_nodes_input)
+    pme.context.add_global("get_geometry_nodes_input", get_geometry_nodes_input)
+    pme.context.add_global("set_geometry_nodes_input", set_geometry_nodes_input)
     pme.context.add_global("object_move_to_collection", object_move_to_collection)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
