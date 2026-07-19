@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 40.
-- Compatibility commits after the automated-release baseline (`origin/main`):
-  37.
-- Confirmed defect groups committed as `fix:`: 33.
-- Documentation and test-infrastructure commits: 4.
-- Preserved test scripts: 106 (68 smoke tests and 38 probes).
+- Repository commits including this audit snapshot: 42.
+- Compatibility commits after the automated-release baseline (`0ec77a9`):
+  39.
+- Confirmed defect groups committed as `fix:`: 34.
+- Documentation and test-infrastructure commits: 5.
+- Preserved test scripts: 107 (69 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **33 confirmed and fixed defect
+The conservative bug count is therefore **34 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -58,6 +58,7 @@ coverage, not counted as bugs.
 | `eaf32d8` | Modal context | Timer/script invocation with no area crashed while constructing an overlay. |
 | `5518e51` | Modal lifecycle | Active modal overlays and removed RNA pointers survived add-on disable. |
 | `aa04526` | Layout wrappers | PME's panel layout wrapper rejected Blender 5.2 UILayout keywords. |
+| `e164837` | User keymaps | Empty legacy PME user-keyconfig overrides accumulated and could not invoke a menu. |
 
 ## Validated Coverage
 
@@ -71,6 +72,8 @@ The following areas were tested without being counted as additional bugs:
 - Legacy JSON migration and exact synthetic import/export round trips.
 - Public community 5.1-era configuration import and representative UI draws.
 - Editor keymap registration, including `3D View` and `3D View Generic`.
+- Empty/default PME user-keyconfig overrides are removed without changing
+  valid PME overrides or unrelated Blender shortcuts on Blender 4.5 and 5.2.
 - Complete native `UILayout` parameter coverage for PME's panel wrapper on
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
