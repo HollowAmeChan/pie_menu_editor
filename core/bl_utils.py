@@ -703,14 +703,16 @@ class PopupOperator:
             context.window.cursor_warp(self.mx, self.my)
             self.mx = -1
 
-        c_utils.set_area(context, bl_context.bl_area)
-        c_utils.set_region(context, bl_context.bl_region)
+        if bpy.app.version < (5, 0, 0):
+            c_utils.set_area(context, bl_context.bl_area)
+            c_utils.set_region(context, bl_context.bl_region)
 
         return layout
 
     def draw_post(self, context):
-        c_utils.set_area(context)
-        c_utils.set_region(context)
+        if bpy.app.version < (5, 0, 0):
+            c_utils.set_area(context)
+            c_utils.set_region(context)
 
     def execute(self, context):
         PopupOperator.active -= 1
