@@ -1,0 +1,33 @@
+# Repository and automation metadata
+/.git/
+/.github/
+/.agents/
+/.codex/
+/.claude/
+/.vscode/
+/.idea/
+/.personal/
+/.gitattributes
+/.gitignore
+/.pylintrc
+/.releaseignore
+
+# Development-only content
+/_docs/
+/_dist/
+/build/
+/tools/
+/debug/
+/data/
+/CLAUDE.md
+
+# Generated files
+__pycache__/
+*.pyc
+*.pyo
+*.blend1
+*.blend2
+*.blend@
+*.blend#
+.DS_Store
+Thumbs.db

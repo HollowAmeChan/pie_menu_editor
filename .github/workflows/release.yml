@@ -1,77 +1,47 @@
-name: Release
+name: Auto Release Install ZIP
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  build:
+  build-package-and-release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Get version from tag
-        id: version
-        run: |
-          # Extract version from tag (v1.19.2 -> 1.19.2)
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-          # Generate random string (20 chars) - using head -c to avoid pipe hang
-          RANDOM_STR=$(head -c 100 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9' | head -c 20)
-          echo "random=$RANDOM_STR" >> $GITHUB_OUTPUT
-
-          # Create filename
-          FILENAME="pme${VERSION}_${RANDOM_STR}.zip"
-          echo "filename=$FILENAME" >> $GITHUB_OUTPUT
-
-      - name: Create addon zip
-        run: |
-          # Create temp directory with correct addon name
-          mkdir -p build/pie_menu_editor
-
-          # Copy addon files (exclude dev files)
-          rsync -av --exclude='.git' \
-                    --exclude='.github' \
-                    --exclude='.claude' \
-                    --exclude='_docs' \
-                    --exclude='__pycache__' \
-                    --exclude='*.pyc' \
-                    --exclude='*.pyo' \
-                    --exclude='.venv' \
-                    --exclude='.vscode' \
-                    --exclude='.personal' \
-                    --exclude='debug' \
-                    --exclude='data' \
-                    --exclude='CLAUDE.md' \
-                    --exclude='.gitignore' \
-                    --exclude='.pylintrc' \
-                    --exclude='.DS_Store' \
-                    --exclude='Thumbs.db' \
-                    --exclude='build' \
-                    ./ build/pie_menu_editor/
-
-          # Create zip
-          cd build
-          zip -r "../${{ steps.version.outputs.filename }}" pie_menu_editor
-          cd ..
-
-          # Show contents for verification
-          echo "=== Zip contents ==="
-          unzip -l "${{ steps.version.outputs.filename }}"
-
-      - name: Create Release Draft
-        uses: softprops/action-gh-release@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          draft: true
-          name: "Pie Menu Editor Fork v${{ steps.version.outputs.version }}"
-          files: ${{ steps.version.outputs.filename }}
-          generate_release_notes: true
+          python-version: "3.13"
+
+      - name: Create Blender install ZIP and release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # -P prevents the add-on's top-level types.py from shadowing stdlib types.
+          VERSION="$(python -P tools/build_release_zip.py --print-version)"
+          BUILD_ID="$(date -u +'%Y%m%d-%H%M%S')-${GITHUB_SHA::7}"
+          RELEASE_TAG="v${VERSION}-${BUILD_ID}"
+          RELEASE_TITLE="Pie Menu Editor Fork ${VERSION} (${BUILD_ID})"
+          ZIP="_dist/pme${VERSION}_${BUILD_ID}.zip"
+
+          python -P tools/build_release_zip.py --output "$ZIP"
+          gh release create "$RELEASE_TAG" "$ZIP" \
+            --target "$GITHUB_SHA" \
+            --title "$RELEASE_TITLE" \
+            --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

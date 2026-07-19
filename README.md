@@ -53,9 +53,12 @@ This repository is preserved for:
 - legacy PME 1.x users
 - source review under the GPL license
 
-The archived source now lives under `src/pie_menu_editor`.
+The repository root is the Blender add-on root. When using a checkout directly,
+place it in Blender's `scripts/addons` directory with the folder name
+`pie_menu_editor`, or create a junction with that name.
 
-For legacy Blender use, take that directory as the add-on itself, or create a junction from your Blender add-ons folder to it.
+Release ZIP files already contain the required `pie_menu_editor` top-level
+directory and can be installed directly through Blender.
 
 This repository remains available for existing PME 1.x users as-is.
 It should not be confused with Pie Menu Editor Fork 2.x itself.
