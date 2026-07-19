@@ -3561,8 +3561,7 @@ class PMEPreferences(bpy.types.AddonPreferences):
         re_backup_filename = re.compile(
             r"backup_\d{4}\.\d{2}\.\d{2}_\d{2}\.\d{2}\.\d{2}\.json"
         )
-        if not os.path.exists(backup_folder_path):
-            os.makedirs(backup_folder_path)
+        os.makedirs(backup_folder_path, exist_ok=True)
 
         MAX_NUM_BACKUPS = 20
         backups = []
@@ -3588,16 +3587,24 @@ class PMEPreferences(bpy.types.AddonPreferences):
         if len(backups) >= MAX_NUM_BACKUPS:
             for i in range(len(backups) + 1 - MAX_NUM_BACKUPS):
                 DBG_INIT and logw("Remove backup", backups[i])
-                os.remove(os.path.join(backup_folder_path, backups[i]))
+                try:
+                    os.remove(os.path.join(backup_folder_path, backups[i]))
+                except FileNotFoundError:
+                    pass
 
         # save new backup
-        with open(new_backup_filepath, "w") as f:
-            f.write(data)
-            DBG_INIT and logi("New backup", new_backup_filepath)
-            if operator:
-                bpy.ops.pme.message_box(
-                    title="Backup Menus", message="New backup: " + new_backup_filepath
-                )
+        try:
+            with open(new_backup_filepath, "x") as f:
+                f.write(data)
+        except FileExistsError:
+            DBG_INIT and logi("Backup exists")
+            return
+
+        DBG_INIT and logi("New backup", new_backup_filepath)
+        if operator:
+            bpy.ops.pme.message_box(
+                title="Backup Menus", message="New backup: " + new_backup_filepath
+            )
 
     def get_export_data(self, export_tags=True, mode='ALL', tag="", compat=False, mark_schema=True):
         pr = self
