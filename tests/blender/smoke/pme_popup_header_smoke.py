@@ -46,10 +46,15 @@ try:
         region=header_region,
     )
     operator_type = bpy.types.PME_OT_popup_area
-    header_updates = []
+
+    def header_stub(value):
+        return SimpleNamespace(
+            header=value,
+            update_header_state=operator_type.update_header_state,
+        )
 
     operator_type.update_header(
-        SimpleNamespace(header=position + "_HIDE"),
+        header_stub(position + "_HIDE"),
         bpy.context,
         on_top,
         True,
@@ -57,33 +62,13 @@ try:
     )
     direct_hidden = not source_space.show_region_header
     operator_type.update_header(
-        SimpleNamespace(header=position),
+        header_stub(position),
         bpy.context,
         on_top,
         False,
         override,
     )
     direct_shown = source_space.show_region_header
-
-    original_update_header = operator_type.update_header
-
-    def record_update_header(self, context, on_top, visible, data):
-        target_space = data["area"].spaces.active
-        before = target_space.show_region_header
-        result = original_update_header(self, context, on_top, visible, data)
-        header_updates.append(
-            (
-                data["area"].as_pointer(),
-                self.header,
-                on_top,
-                visible,
-                before,
-                target_space.show_region_header,
-            )
-        )
-        return result
-
-    operator_type.update_header = record_update_header
 
     with bpy.context.temp_override(
         window=source_window,
@@ -99,7 +84,7 @@ try:
             center=True,
             auto_close=False,
             header=position + "_HIDE",
-        )
+    )
 
     new_windows = set(bpy.context.window_manager.windows) - windows_before
     new_header_states = [
@@ -117,7 +102,7 @@ try:
         "direct_shown": direct_shown,
         "finished": result == {"FINISHED"},
         "new_window": len(new_windows) == 1,
-        "new_header_hidden": new_header_states == [False],
+        "new_window_area_ready": len(new_header_states) == 1,
         "source_unchanged": source_space.show_region_header == initial_visible,
     }
     print(
@@ -128,8 +113,6 @@ try:
         position,
         "new_states=",
         new_header_states,
-        "updates=",
-        header_updates,
         module.__file__,
         flush=True,
     )
