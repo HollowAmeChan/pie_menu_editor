@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 64.
+- Repository commits including this audit snapshot: 66.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  61.
-- Confirmed defect groups committed as `fix:`: 41.
-- Feature, documentation, and test-infrastructure commits: 20.
-- Preserved test scripts: 117 (78 smoke tests and 39 probes).
+  63.
+- Confirmed defect groups committed as `fix:`: 42.
+- Feature, documentation, and test-infrastructure commits: 21.
+- Preserved test scripts: 118 (79 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **41 confirmed and fixed defect
+The conservative bug count is therefore **42 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -66,6 +66,7 @@ coverage, not counted as bugs.
 | `0e24c41` | Stack Key overlay | Stack Key notifications ignored the `Use Overlay` preference and displayed even when explicitly disabled. |
 | `46ca655` | Popup context | Popup drawing still rewrote private `bContext.wm.area/region` memory on Blender 5 even though public context values were already correct. |
 | `6f1136a` | Pie layout helper | Public `keep_pie_open(layout)` still dereferenced the obsolete private `uiLayout` structure on Blender 5. |
+| `6c62e49` | Re-enable persistence | Blender 5 discarded all menus and their order when PME was disabled and enabled again because preference backup was restricted to older Blender versions. |
 
 ## Validated Coverage
 
@@ -87,6 +88,10 @@ The following areas were tested without being counted as additional bugs:
   reviving when a same-named property is recreated. Values configured not to
   persist also reset to their default during menu initialization on Blender
   4.5 and 5.2, including Blender 5's separate system-property storage.
+- Disabling and re-enabling PME preserves exact menu order, mode-specific slot
+  data for all ten supported modes, and non-default scalar preferences on
+  Blender 4.5 and 5.2. Before the fix, the focused Blender 5.2 reproducer
+  returned an empty menu list after re-enable.
 - Release ZIP install, discovery, enable, disable, and re-enable in isolated
   Blender user directories.
 - All supported PME modes: pie, regular menu, dialog, script, macro, modal,
@@ -160,6 +165,10 @@ The following areas were tested without being counted as additional bugs:
   wrong-mode, disabled, poll-blocked, explicitly stopped, and missing-operator
   targets; normal Macro execution, F3 search lifecycle, and isolated release
   ZIP installation also pass on Blender 4.5 and 5.2.
+- Version 1.19.38 preserves all ten menu modes and scalar preferences across
+  add-on disable/re-enable. Lifecycle, Property Editor, exact synthetic
+  import/export, the 40-menu community fixture, app-template switching, and
+  isolated release ZIP installation pass on Blender 4.5 and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
