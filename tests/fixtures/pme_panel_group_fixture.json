@@ -1,0 +1,19 @@
+{
+  "version": "1.19.24",
+  "menus": [
+    [
+      "PME Panel Group Smoke",
+      "Window",
+      "",
+      [
+        ["View", "MENU", "", "VIEW3D_PT_view3d_properties", 0],
+        ["Collections", "MENU", "", "VIEW3D_PT_collections", 0]
+      ],
+      "PANEL",
+      "pg?pg_space=VIEW_3D&pg_region=UI&pg_context=ANY&pg_category=PME Smoke",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ]
+  ]
+}

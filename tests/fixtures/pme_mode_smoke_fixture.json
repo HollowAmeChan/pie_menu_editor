@@ -1,0 +1,86 @@
+{
+  "version": "1.19.22",
+  "menus": [
+    [
+      "PME Smoke Pie",
+      "Window",
+      "",
+      [
+        ["Pie Item", "CUSTOM", "", "L.label(text='Pie Item')", 0],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""],
+        [""]
+      ],
+      "PMENU",
+      "pm?pm_flick=True",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ],
+    [
+      "PME Smoke Dialog",
+      "Window",
+      "",
+      [["Dialog Item", "CUSTOM", "", "L.label(text='Dialog Item')", 0]],
+      "DIALOG",
+      "pd?pd_panel=1&pd_width=240",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ],
+    [
+      "PME Smoke Script",
+      "Window",
+      "",
+      [["Script Step", "COMMAND", "", "C.scene['pme_script_smoke'] = C.scene.get('pme_script_smoke', 0) + 1", 0]],
+      "SCRIPT",
+      "s?",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ],
+    [
+      "PME Smoke Macro",
+      "Window",
+      "",
+      [["Macro Step", "COMMAND", "", "C.scene['pme_macro_smoke'] = C.scene.get('pme_macro_smoke', 0) + 1", 0]],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ],
+    [
+      "PME Smoke Property",
+      "Window",
+      "",
+      [
+        ["default", "", "False"],
+        ["GET", "COMMAND", "", "return C.scene.get('pme_property_smoke', False)", 0],
+        ["SET", "COMMAND", "", "C.scene['pme_property_smoke'] = value", 0]
+      ],
+      "PROPERTY",
+      "prop?",
+      "PRESS",
+      "BOOL",
+      "PME Smoke"
+    ],
+    [
+      "PME Smoke Hidden Panels",
+      "Window",
+      "",
+      [],
+      "HPANEL",
+      "hpg?",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ]
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "version": "1.19.25",
+  "menus": [
+    [
+      "PME Modal Smoke",
+      "Window",
+      "",
+      [
+        ["Start", "INVOKE", "", "C.scene['pme_modal_invoke'] = C.scene.get('pme_modal_invoke', 0) + 1; confirm()", 0],
+        ["Finish", "FINISH", "", "C.scene['pme_modal_finish'] = C.scene.get('pme_modal_finish', 0) + 1", 0],
+        ["Cancel", "CANCEL", "", "C.scene['pme_modal_cancel'] = C.scene.get('pme_modal_cancel', 0) + 1", 0]
+      ],
+      "MODAL",
+      "mo?lock=False&block_ui=False",
+      "PRESS",
+      "",
+      "PME Smoke"
+    ]
+  ]
+}

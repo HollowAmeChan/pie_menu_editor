@@ -1,0 +1,2394 @@
+{
+  "version": "1.19.1",
+  "menus": [
+    [
+      "Popup: (Object Mode) Instances/SingleUser",
+      "Window",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Make Single User",
+          "COMMAND",
+          "",
+          "bpy.ops.object.make_single_user(object=True, obdata=True, material=False, animation=False)",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Link Objects",
+          "COMMAND",
+          "",
+          "bpy.ops.object.make_links_data(type='OBDATA')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Link Materials",
+          "COMMAND",
+          "",
+          "bpy.ops.object.make_links_data(type='MATERIAL')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "SelectLinked",
+          "COMMAND",
+          "",
+          "bpy.ops.object.select_instances_operator()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Copy Modifiers",
+          "COMMAND",
+          "",
+          "bpy.ops.object.make_links_data(type='MODIFIERS')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Transfer UV Maps",
+          "COMMAND",
+          "",
+          "bpy.ops.object.join_uvs()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: UVs",
+      "UV Editor",
+      "shift+F, NONE",
+      [
+        [
+          "Enable Heuristic",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.heuristic_enable",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Popup: (UV) UVPM_Pack",
+          "MENU",
+          "",
+          "@Popup: (UV) UVPM_Pack",
+          0
+        ],
+        [
+          "Popup: (UV) Texel Density",
+          "MENU",
+          "",
+          "@@Popup: (UV) Texel Density",
+          0
+        ],
+        [
+          "Popup: (UV) UVPM_Margin",
+          "MENU",
+          "",
+          "@Popup: (UV) UVPM_Margin",
+          0
+        ],
+        [
+          "Popup: (UV) Selection",
+          "MENU",
+          "",
+          "@Popup: (UV Extras",
+          0
+        ],
+        [
+          "Popup: (UV) CustomTargetBox",
+          "MENU",
+          "",
+          "@Popup: (UV) UVPM_CustomTargetBox",
+          0
+        ],
+        [
+          "Popup: (UV) UVPM_Pack_Options",
+          "MENU",
+          "",
+          "@Popup: (UV) UVPM_Pack_Options",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV) Texel Density",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Get Texel Density",
+          "COMMAND",
+          "NONE",
+          "bpy.ops.uv.get_texel_density()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Set Texel Density",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.set_texel_density()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Scale Mode",
+          "CUSTOM",
+          "NONE",
+          "L.prop_menu_enum(C.scene.texel_density_props, 'scale_mode', text=text, icon=icon)",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: Groom",
+      "Sculpt Curves",
+      "G, NONE",
+      [
+        [
+          "Select",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.selection_paint')",
+          0
+        ],
+        [
+          "Slide",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.slide')",
+          0
+        ],
+        [
+          "Grow/Shrink",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.grow_shrink')",
+          0
+        ],
+        [
+          "Comb",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.comb')",
+          0
+        ],
+        [
+          "Smooth",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.smooth')",
+          0
+        ],
+        [
+          "Puff",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.puff')",
+          0
+        ],
+        [
+          "Snake Hook",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.snake_hook')",
+          0
+        ],
+        [
+          "Pinch",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin_brush.pinch')",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: Combine/Separate",
+      "3D View",
+      "shift+Q, NONE",
+      [
+        [
+          "Separate",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.separate(type='SELECTED')",
+          0
+        ],
+        [
+          "Join",
+          "COMMAND",
+          "",
+          "bpy.ops.object.join()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Loose Parts",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.separate(type='LOOSE')",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV) UVPM_CustomTargetBox",
+      "UV Editor",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Enable Custom Target Box",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.custom_target_box_enable",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Edit Target Box",
+          "COMMAND",
+          "",
+          "bpy.ops.uvpackmaster3.render_main_target_box()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: UVs_Tools",
+      "UV Editor",
+      "Q, NONE",
+      [
+        [
+          "Straight",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.mio3_straight(distribute='GEOMETRY')",
+          0
+        ],
+        [
+          "Quadrify",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.zenuv_quadrify()",
+          0
+        ],
+        [
+          "Seams from Islands",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.seams_from_islands()",
+          0
+        ],
+        [
+          "UV Unwrap",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.mio3_unwrap()",
+          0
+        ],
+        [
+          "Relax Loops",
+          "COMMAND",
+          "",
+          "bpy.ops.gret.relax_loops()",
+          0
+        ],
+        [
+          "Select Split",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.select_split()",
+          0
+        ],
+        [
+          "Weld",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.univ_weld()",
+          0
+        ],
+        [
+          "Rectify",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.mio3_rectify()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Relax",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.univ_relax()",
+          0
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV) UVPM_Pack",
+      "UV Editor",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Pack Single Tile",
+          "COMMAND",
+          "",
+          "bpy.ops.uvpackmaster3.pack(mode_id='pack.single_tile', pack_op_type='0')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Pack Materials",
+          "COMMAND",
+          "",
+          "bpy.ops.uvpackmaster3.pack(mode_id='pack.groups_together', pack_op_type='0')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Pack UDIMS",
+          "COMMAND",
+          "",
+          "bpy.ops.uvpackmaster3.pack(mode_id='pack.tiles', pack_op_type='0')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Tile Count (X)",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.tile_count_x",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Tile Count (Y)",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.tile_count_y",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV Extras",
+      "UV Editor",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Select Overlap",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.select_overlap()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Select Flipped UV Faces",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.mio3_select_flipped_faces()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Orient",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.univ_orient(edge_dir='VERTICAL')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "UnStack UVs",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.unstack_uvs()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Shift UVs",
+          "COMMAND",
+          "",
+          "bpy.ops.uv.shift_uvs()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Units",
+          "PROP",
+          "NONE",
+          "C.scene.shift_x_value",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV) UVPM_Pack_Options",
+      "UV Editor",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Pack Strategy",
+          "CUSTOM",
+          "NONE",
+          "L.prop_menu_enum(C.scene.uvpm3_props.default_main_props.pack_strategy_props, 'strategy', text=text, icon=icon)",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Scale Mode",
+          "CUSTOM",
+          "NONE",
+          "L.prop_menu_enum(C.scene.uvpm3_props.default_main_props, 'scale_mode', text=text, icon=icon)",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Rotation Enable",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.rotation_enable",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Enable Island Rotation Step",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.island_rot_step_enable",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Rotation Step Value (deg)",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.island_rot_step",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (UV) UVPM_Margin",
+      "UV Editor",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "Enable Pixel Margin ",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.pixel_margin_enable",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Margin (px)",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.pixel_margin",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Border Margin (px)",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.pixel_border_margin",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Texture Size",
+          "PROP",
+          "NONE",
+          "C.scene.uvpm3_props.default_main_props.pixel_margin_tex_size",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: Object Mode A",
+      "3D View Generic",
+      "ctrl+alt+RIGHTMOUSE, NONE",
+      [
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          "Popup: Instances/SingleUser",
+          "MENU",
+          "",
+          "@Popup: (Object Mode) Instances/SingleUser",
+          0
+        ],
+        [
+          "Popup: Add Mesh",
+          "MENU",
+          "",
+          "@@Popup: Add Mesh",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Clear Normals Macro",
+          "MENU",
+          "",
+          "Macro: (Edit Mode): ClearNormals",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Popup: (Object Mode): Clean Scene",
+          "MENU",
+          "",
+          "@Popup: (Object Mode): Clean Scene",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      false,
+      ""
+    ],
+    [
+      "Pie: (Edit Mode) Selection",
+      "3D View",
+      "alt+D, NONE",
+      [
+        [
+          "Create Orientation",
+          "COMMAND",
+          "",
+          "bpy.ops.transform.create_orientation(use=True)",
+          0
+        ],
+        [
+          "Select Loop Inner-Region",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.loop_to_region()",
+          0
+        ],
+        [
+          "Popup: (Edit Mode) Selection",
+          "MENU",
+          "",
+          "@@Popup: (Edit Mode) Selection",
+          0
+        ],
+        [
+          "Select Linked All",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.select_linked()",
+          0
+        ],
+        [
+          "Popup (Edit Mode): BevelWeight",
+          "MENU",
+          "",
+          "@Popup (Edit Mode): BevelWeight",
+          0
+        ],
+        [
+          "Invert Selection",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.select_all(action='INVERT')",
+          0
+        ],
+        [
+          "EdgeRings",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.loop_multi_select(ring=True)",
+          0
+        ],
+        [
+          "EdgeLoops",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.loop_multi_select(ring=False)",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup (Edit Mode): BevelWeight",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Bevel 1",
+          "COMMAND",
+          "",
+          "bpy.ops.transform.edge_bevelweight(value=1)",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Bevel -1",
+          "COMMAND",
+          "",
+          "bpy.ops.transform.edge_bevelweight(value=-1)",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Slice",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Lasso Trim",
+          "COMMAND",
+          "MOD_BEVEL",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.lasso_trim')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Box Trim",
+          "COMMAND",
+          "MATCUBE",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.box_trim')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Line Trim",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.line_trim')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "PolyLine Trim",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.polyline_trim')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Line Project",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.line_project')",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Edit Mode) Selection",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Select Non Manifold",
+          "COMMAND",
+          "STICKY_UVS_VERT",
+          "bpy.ops.mesh.select_non_manifold()",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Checker Deselect",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.select_nth()",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Select Random",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.select_random()",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Select Linked Flat Faces",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.faces_select_linked_flat()",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Axis Select",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.select_axis()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: (Sculpt) Alt",
+      "Sculpt",
+      "alt+RIGHTMOUSE, NONE",
+      [
+        [
+          "Set Pivot Position",
+          "CUSTOM",
+          "",
+          "L.operator_menu_enum(\"sculpt.set_pivot_position\", \"mode\", text=text, icon=icon)",
+          0
+        ],
+        [
+          "Mask Ops",
+          "MENU",
+          "BRUSH_MASK",
+          "@Popup: (Sculpt) Mask Ops",
+          0
+        ],
+        [
+          "Sculpt Tools: Mask",
+          "CUSTOM",
+          "SELECT_SUBTRACT",
+          "col = L.column(); col.scale_x = 1.25; draw_menu(\"Popup: (Sculpt Tools) Mask\", layout=col)",
+          0
+        ],
+        [
+          "Popup: (Sculpt) Slice",
+          "MENU",
+          "",
+          "@@Popup: (Sculpt) Slice",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Clear Mask",
+          "COMMAND",
+          "",
+          "bpy.ops.paint.mask_flood_fill(mode='VALUE', value=0.0)",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Symmetize",
+      "Sculpt",
+      "alt+X, NONE",
+      [
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          "Direction",
+          "CUSTOM",
+          "NONE",
+          "L.column(align=True).prop(C.scene.tool_settings.sculpt, 'symmetrize_direction', expand=True)",
+          0
+        ],
+        [
+          "Symmetrize",
+          "COMMAND",
+          "",
+          "bpy.ops.sculpt.symmetrize()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: (Sculpt) Face Sets",
+      "Sculpt",
+      "ctrl+shift+RIGHTMOUSE, NONE",
+      [
+        [
+          "Loose Parts",
+          "COMMAND",
+          "SNAP_VERTEX",
+          "bpy.ops.sculpt.face_sets_init(mode='LOOSE_PARTS')",
+          0
+        ],
+        [
+          "Edit Mode Selection",
+          "COMMAND",
+          "UV_FACESEL",
+          "bpy.ops.sculpt.face_sets_create(mode='SELECTION')",
+          0
+        ],
+        [
+          "Face Set Extract",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.face_set_extract()",
+          0
+        ],
+        [
+          "Masked",
+          "COMMAND",
+          "BRUSH_MASK",
+          "bpy.ops.sculpt.face_sets_create(mode='MASKED')",
+          0
+        ],
+        [
+          "Visible",
+          "COMMAND",
+          "HIDE_OFF",
+          "bpy.ops.sculpt.face_sets_create(mode='VISIBLE')",
+          0
+        ],
+        [
+          "Normals",
+          "COMMAND",
+          "NORMALS_FACE",
+          "bpy.ops.sculpt.face_sets_init(mode='NORMALS')",
+          0
+        ],
+        [
+          "Materials",
+          "COMMAND",
+          "SHADING_TEXTURE",
+          "bpy.ops.sculpt.face_sets_init(mode='MATERIALS')",
+          0
+        ],
+        [
+          "Sharp Edges",
+          "COMMAND",
+          "MESH_ICOSPHERE",
+          "bpy.ops.sculpt.face_sets_init(mode='SHARP_EDGES')",
+          0
+        ],
+        [
+          "Sculpt Show Face Sets",
+          "PROP",
+          "NONE",
+          "C.space_data.overlay.show_sculpt_face_sets",
+          0
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Control Alt",
+      "Sculpt",
+      "ctrl+alt+RIGHTMOUSE, NONE",
+      [
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Direction",
+          "CUSTOM",
+          "UV_SYNC_SELECT",
+          "L.row(align=True).prop(paint_settings().brush, 'direction', expand=True)",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Falloff Shape",
+          "CUSTOM",
+          "PROP_ON",
+          "L.row(align=True).prop(paint_settings().brush, 'falloff_shape', expand=True)",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Curve Preset",
+          "CUSTOM",
+          "SMOOTHCURVE",
+          "L.column(align=True).prop(paint_settings().brush, 'curve_preset', expand=True)",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Input Samples",
+          "PROP",
+          "IPO_ELASTIC",
+          "C.scene.tool_settings.sculpt.input_samples",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Grab Active Vertex",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_grab_active_vertex",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Topology Auto-masking",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_automasking_topology",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Face Sets Auto-masking",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_automasking_face_sets",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Mesh Boundary Auto-masking",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_automasking_boundary_edges",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Face Sets Boundary Automasking",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_automasking_boundary_face_sets",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Use Front-Face",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_frontface",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Smooth Stroke",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.use_smooth_stroke",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Smooth Stroke Radius",
+          "PROP",
+          "NONE",
+          "paint_settings().brush.smooth_stroke_radius",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Multires Apply Base",
+          "COMMAND",
+          "",
+          "bpy.ops.object.multires_base_apply(modifier=\"Multires\", apply_heuristic=False)",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=2&pd_title=False&pd_width=200",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt Tools) Mask",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Box Mask",
+          "COMMAND",
+          "SELECT_SUBTRACT",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.box_mask')",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Lasso Mask",
+          "COMMAND",
+          "META_DATA",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.lasso_mask')",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Line Mask",
+          "COMMAND",
+          "IPO_LINEAR",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.line_mask')",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "PolyLine Mask",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.polyline_mask')",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Symmetrise",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Direction",
+          "PROP",
+          "NONE",
+          "C.scene.tool_settings.sculpt.symmetrize_direction",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Symmetrize",
+          "COMMAND",
+          "",
+          "bpy.ops.sculpt.symmetrize()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Mask Ops",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Mask Extract",
+          "COMMAND",
+          "BRUSH_TEXDRAW",
+          "bpy.ops.mesh.paint_mask_extract()",
+          0
+        ],
+        [
+          "row?size=LARGE"
+        ],
+        [
+          "Mask Slice and Fill",
+          "COMMAND",
+          "BRUSH_FLATTEN",
+          "bpy.ops.mesh.paint_mask_slice(new_object=False)",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Sculpt) Mask Tools",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Box Mask",
+          "COMMAND",
+          "SELECT_SET",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.box_mask')",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Lasso Mask",
+          "COMMAND",
+          "META_DATA",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.lasso_mask')",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Line Mask",
+          "COMMAND",
+          "DRIVER_DISTANCE",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.line_mask')",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Object Mode): Clean Scene",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Purge Scene",
+          "COMMAND",
+          "",
+          "bpy.ops.outliner.orphans_purge()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Remove Unused Slots",
+          "COMMAND",
+          "",
+          "bpy.ops.object.material_slot_remove_unused()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: (Object Mode): Edit Mode Tools",
+      "3D View",
+      "Q, NONE",
+      [
+        [
+          "Popup (Edit Mode): MiraTools",
+          "MENU",
+          "",
+          "@@Popup (Edit Mode): MiraTools",
+          0
+        ],
+        [
+          "Gstretch",
+          "MENU",
+          "",
+          "@@Popup: (Edit Mode): Spacing",
+          0
+        ],
+        [
+          "Connect Spread",
+          "COMMAND",
+          "",
+          "bpy.ops.forgotten.mesh_connect_spread()",
+          0
+        ],
+        [
+          "Circle",
+          "COMMAND",
+          "",
+          "bpy.ops.machin3.looptools_circle()",
+          0
+        ],
+        [
+          "Flatten",
+          "COMMAND",
+          "",
+          "bpy.ops.machin3.flatten()",
+          0
+        ],
+        [
+          "MACHIN3: Mesh Cut",
+          "COMMAND",
+          "",
+          "bpy.ops.machin3.mesh_cut()",
+          0
+        ],
+        [
+          "Slide Edge",
+          "MENU",
+          "",
+          "@@Popup: (Edit Mode): EdgeTools",
+          0
+        ],
+        [
+          "Offset Edges",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.offset_edges()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Rotate Face",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.rotate_face()",
+          0
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Edit Mode): EdgeTools",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Slide Edge",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.slide_edge_operator()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Bisect",
+          "COMMAND",
+          "",
+          "bpy.ops.wm.tool_set_by_id(name='builtin.bisect')",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup (Edit Mode): MiraTools",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "CurveStretch",
+          "COMMAND",
+          "",
+          "bpy.ops.mira.curve_stretch()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "LinearDeformer",
+          "COMMAND",
+          "",
+          "bpy.ops.mira.linear_deformer()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Deformer",
+          "COMMAND",
+          "",
+          "bpy.ops.mira.deformer()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: (Edit Mode): Spacing",
+      "Window",
+      "",
+      [
+        [
+          "row"
+        ],
+        [
+          "Gstretch",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.looptools_gstretch()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Space",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.looptools_space()",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Relax",
+          "COMMAND",
+          "",
+          "bpy.ops.machin3.looptools_relax()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: (Object Mode/Edit Mode): Vert IDs",
+      "3D View",
+      "ctrl+shift+V, NONE",
+      [
+        [
+          "Copy Vert IDs",
+          "COMMAND",
+          "",
+          "bpy.ops.object.copy_vert_id()",
+          0
+        ],
+        [
+          "Paste verts Ids",
+          "COMMAND",
+          "",
+          "bpy.ops.object.paste_vert_id()",
+          0
+        ],
+        [
+          "Transfer IDs using location",
+          "COMMAND",
+          "",
+          "bpy.ops.object.vert_id_transfer_proximity()",
+          0
+        ],
+        [
+          "Transfer IDs using UVs",
+          "COMMAND",
+          "",
+          "bpy.ops.object.vert_id_transfer_uv()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Corrective Smoothing",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Corrective Smooth",
+          "MENU",
+          "BRUSH_SMOOTH",
+          "Macro: Corrective Smooth",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Corrective Smooth Applied",
+          "MENU",
+          "BRUSH_SMOOTH",
+          "Macro: Corrective Smooth Applied",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "DATA_PT_modifiers_pre",
+      "Window",
+      "",
+      [
+        [
+          "row?"
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Array",
+          "COMMAND",
+          "MOD_ARRAY",
+          "bpy.ops.object.modifier_add(type='ARRAY')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Korean Bevel",
+          "MENU",
+          "MOD_BEVEL",
+          "Macro: Korean Bevel",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "spacer?hsep=COLUMN&subrow=BEGIN"
+        ],
+        [
+          "Boolean",
+          "COMMAND",
+          "MOD_BOOLEAN",
+          "bpy.ops.object.modifier_add(type='BOOLEAN')",
+          0
+        ],
+        [
+          "spacer?hsep=SPACER"
+        ],
+        [
+          "Cast",
+          "COMMAND",
+          "MOD_CAST",
+          "bpy.ops.object.modifier_add(type='CAST')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Decimate (Macro)",
+          "MENU",
+          "MOD_SOLIDIFY",
+          "Macro: Decimate",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Displace",
+          "COMMAND",
+          "MOD_DISPLACE",
+          "bpy.ops.object.modifier_add(type='DISPLACE')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Lattice",
+          "COMMAND",
+          "MOD_LATTICE",
+          "bpy.ops.object.modifier_add(type='LATTICE')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Mirror",
+          "COMMAND",
+          "MOD_MIRROR",
+          "bpy.ops.object.modifier_add(type='MIRROR')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Multiresolution",
+          "COMMAND",
+          "MOD_MULTIRES",
+          "bpy.ops.object.modifier_add(type='MULTIRES')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Remesh",
+          "COMMAND",
+          "MOD_REMESH",
+          "bpy.ops.object.modifier_add(type='REMESH')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Screw",
+          "COMMAND",
+          "MOD_SCREW",
+          "bpy.ops.object.modifier_add(type='SCREW')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Shrinkwrap",
+          "COMMAND",
+          "MOD_SHRINKWRAP",
+          "bpy.ops.object.modifier_add(type='SHRINKWRAP')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Simple Deform",
+          "COMMAND",
+          "MOD_SIMPLEDEFORM",
+          "bpy.ops.object.modifier_add(type='SIMPLE_DEFORM')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Skin",
+          "COMMAND",
+          "MOD_SKIN",
+          "bpy.ops.object.modifier_add(type='SKIN')",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Smooth Corrective (Macro)",
+          "MENU",
+          "MOD_SOLIDIFY",
+          "Macro: Corrective Smooth",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Solidify (Macro)",
+          "MENU",
+          "MOD_SOLIDIFY",
+          "Macro: Solidify (Macro)",
+          0
+        ],
+        [
+          "row?"
+        ],
+        [
+          "Subdivision",
+          "COMMAND",
+          "MOD_SUBSURF",
+          "bpy.ops.object.modifier_add(type='SUBSURF')",
+          0
+        ],
+        [
+          "spacer?hsep=COLUMN"
+        ],
+        [
+          "Weighted Normal",
+          "COMMAND",
+          "MOD_SUBSURF",
+          "bpy.ops.object.modifier_add(type='WEIGHTED_NORMAL')",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_width=100",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Pie: (Edit Mode): UVs/SelectSharp",
+      "3D View",
+      "alt+F, NONE",
+      [
+        [
+          "Mark Seam",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.mark_seam(clear=True)",
+          0
+        ],
+        [
+          "Mark Seam",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.mark_seam(clear=False)",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Shift UVs",
+          "CUSTOM",
+          "",
+          "execute_script(\"C:/Users/nikho/AppData/Roaming/Blender Foundation/Blender/Resources/Scripts/Shift_UVs.py\")",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          "Select Sharp Edges",
+          "COMMAND",
+          "",
+          "bpy.ops.mesh.edges_select_sharp()",
+          0
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ],
+        [
+          ""
+        ]
+      ],
+      "PMENU",
+      "pm?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: Corrective Smooth",
+      "Window",
+      "",
+      [
+        [
+          "Add Corrective Smooth Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')",
+          0
+        ],
+        [
+          "Smooth Type = 'LENGTH_WEIGHTED'",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].smooth_type = 'LENGTH_WEIGHTED'",
+          0
+        ],
+        [
+          "Only Smooth = True",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].use_only_smooth = True",
+          0
+        ],
+        [
+          "Repeat = 5",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].iterations = 5",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: Korean Bevel",
+      "Window",
+      "",
+      [
+        [
+          "Add Bevel Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_add(type='BEVEL')",
+          0
+        ],
+        [
+          "Clamp Overlap False",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].use_clamp_overlap = False",
+          0
+        ],
+        [
+          "Segment Count",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].segments = 2",
+          0
+        ],
+        [
+          "Profile",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].profile = 1",
+          0
+        ],
+        [
+          "Miter Outer",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].miter_outer = 'MITER_ARC'",
+          0
+        ],
+        [
+          "Limit Method",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].limit_method = 'WEIGHT'",
+          0
+        ],
+        [
+          "LoopSlide",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Bevel\"].loop_slide = False",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: Solidify (Macro)",
+      "Window",
+      "",
+      [
+        [
+          "Add Solidify Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_add(type='SOLIDIFY')",
+          0
+        ],
+        [
+          "Even Thickness",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Solidify\"].use_even_offset = True",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: Corrective Smooth Applied",
+      "Window",
+      "",
+      [
+        [
+          "Add Corrective Smooth Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_add(type='CORRECTIVE_SMOOTH')",
+          0
+        ],
+        [
+          "Smooth Type = 'LENGTH_WEIGHTED'",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].smooth_type = 'LENGTH_WEIGHTED'",
+          0
+        ],
+        [
+          "Only Smooth = True",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].use_only_smooth = True",
+          0
+        ],
+        [
+          "Repeat = 5",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"CorrectiveSmooth\"].iterations = 5",
+          0
+        ],
+        [
+          "Apply Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_apply(modifier=\"CorrectiveSmooth\")",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: Decimate",
+      "Window",
+      "",
+      [
+        [
+          "Add Decimate Modifier",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.object.modifier_add(type='DECIMATE')",
+          0
+        ],
+        [
+          "Ratio = 0.25",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Decimate\"].ratio = 0.25",
+          0
+        ],
+        [
+          "Triangulate = True",
+          "COMMAND",
+          "TEXT",
+          "bpy.context.object.modifiers[\"Decimate\"].use_collapse_triangulate = True",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Popup: Add Mesh",
+      "Window",
+      "",
+      [
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Single Vert",
+          "COMMAND",
+          "LAYER_ACTIVE",
+          "bpy.ops.mesh.primitive_vert_add()",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Sphere",
+          "COMMAND",
+          "MESH_UVSPHERE",
+          "bpy.ops.object.sphere_create()",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Cylinder",
+          "COMMAND",
+          "MESH_CYLINDER",
+          "bpy.ops.object.cylinder_create()",
+          0
+        ],
+        [
+          "row?size=LARGER"
+        ],
+        [
+          "Cube",
+          "COMMAND",
+          "MATCUBE",
+          "bpy.ops.object.box_create()",
+          0
+        ]
+      ],
+      "DIALOG",
+      "pd?pd_panel=1",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ],
+    [
+      "Macro: (Edit Mode): ClearNormals",
+      "3D View",
+      "",
+      [
+        [
+          "Clear Custom Normals",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.mesh.customdata_custom_splitnormals_clear()",
+          0
+        ],
+        [
+          "Clear Sharp",
+          "COMMAND",
+          "BLENDER",
+          "bpy.ops.mesh.mark_sharp(clear=True)",
+          0
+        ]
+      ],
+      "MACRO",
+      "m?",
+      "PRESS",
+      "",
+      "",
+      true,
+      ""
+    ]
+  ],
+  "schema": "PME-F"
+}

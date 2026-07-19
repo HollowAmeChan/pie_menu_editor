@@ -132,6 +132,7 @@ def validate_archive(output: Path) -> int:
         ".claude",
         "_dist",
         "build",
+        "tests",
         "tools",
     }
     for member in members:

@@ -17,6 +17,7 @@
 /_dist/
 /build/
 /tools/
+/tests/
 /debug/
 /data/
 /CLAUDE.md

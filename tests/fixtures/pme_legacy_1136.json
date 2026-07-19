@@ -1,0 +1,1 @@
+[["PME Legacy Pie", "3D View, Object Mode", "F13", [["Legacy", "COMMAND", "", "print('legacy pie')", 0]], "PMENU", "pm?", "PRESS", "", ""], ["PME Legacy Sticky", "Window", "F14", [["On Press", "COMMAND", "", "print('press')", 0], ["On Release", "COMMAND", "", "print('release')", 0]], "STICKY", "sk?block_ui=True", "PRESS", "", ""]]

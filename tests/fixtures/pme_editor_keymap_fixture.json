@@ -1,0 +1,14 @@
+{
+  "version": "1.19.24",
+  "menus": [
+    ["PME KM 3D View", "3D View", "ctrl+shift+F13", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM 3D View Generic", "3D View Generic", "ctrl+shift+F14", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Object", "Object Non-modal", "ctrl+shift+F15", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Mesh", "Mesh", "ctrl+shift+F16", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Sculpt", "Sculpt", "ctrl+shift+F17", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Node", "Node Editor", "ctrl+shift+F18", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Image", "Image", "ctrl+shift+F19", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Image Generic", "Image Generic", "ctrl+shift+F20", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"],
+    ["PME KM Multi", "3D View; Node Editor", "ctrl+shift+F21", [["Item", "CUSTOM", "", "L.label(text='Item')", 0]], "DIALOG", "pd?", "PRESS", "", "PME Keymap"]
+  ]
+}
