@@ -761,10 +761,14 @@ def resize_area(area, width, direction='RIGHT'):
 
 
 def keep_pie_open(layout):
+    if APP_VERSION >= (5, 0, 0):
+        return False
+
     layout_p = c_layout(layout)
     block_p = layout_p.root.contents.block.contents
     block_p.flag |= UI_BLOCK_KEEP_OPEN
     # block_p.dt = UI_EMBOSS
+    return True
 
 
 def register():
