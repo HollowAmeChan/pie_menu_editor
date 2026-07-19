@@ -2,12 +2,13 @@ import bpy
 import bpy.utils.previews
 import os
 from . import pme
+from .addon import ADDON_PATH
 
 
 class PreviewsHelper:
 
     def __init__(self, folder="icons"):
-        self.path = os.path.join(os.path.dirname(__file__), folder)
+        self.path = os.path.join(ADDON_PATH, folder)
         self.preview = None
 
     def get_icon(self, name):

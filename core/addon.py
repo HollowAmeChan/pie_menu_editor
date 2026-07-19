@@ -13,8 +13,9 @@ if TYPE_CHECKING:
 
 VERSION = None
 BL_VERSION = None
-ADDON_ID = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-ADDON_PATH = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
+CORE_PATH = os.path.dirname(os.path.abspath(__file__))
+ADDON_PATH = os.path.normpath(os.path.dirname(CORE_PATH))
+ADDON_ID = os.path.basename(ADDON_PATH)
 SCRIPT_PATH = os.path.join(ADDON_PATH, "scripts/")
 SAFE_MODE = "--pme-safe-mode" in sys.argv
 ICON_ENUM_ITEMS = (
