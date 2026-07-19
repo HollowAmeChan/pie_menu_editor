@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 66.
+- Repository commits including this audit snapshot: 67.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  63.
+  64.
 - Confirmed defect groups committed as `fix:`: 42.
-- Feature, documentation, and test-infrastructure commits: 21.
+- Feature, documentation, and test-infrastructure commits: 22.
 - Preserved test scripts: 118 (79 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -83,7 +83,9 @@ The following areas were tested without being counted as additional bugs:
   set on both versions.
 - Header extensions with PME's `_right` suffix register on the underlying
   Blender Header type, draw only in the right-aligned region, and remove their
-  callback when the menu is deleted on Blender 4.5 and 5.2.
+  callback when the menu is deleted on Blender 4.5 and 5.2. False and failing
+  Poll scripts suppress the extension without leaking exceptions into the
+  Header draw callback.
 - Property Mode values are removed with their runtime RNA property instead of
   reviving when a same-named property is recreated. Values configured not to
   persist also reset to their default during menu initialization on Blender

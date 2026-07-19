@@ -24,7 +24,9 @@ def finish(success, checks=None):
 
 
 def run():
+    area = None
     menu = None
+    original_area_type = None
     original_draw_layout = None
     try:
         from pie_menu_editor.core import ed_base
@@ -52,22 +54,60 @@ def run():
 
         ed_base.draw_pme_layout = tracked_draw
         owner = SimpleNamespace(layout=SimpleNamespace(column=lambda **kwargs: None))
+        window = bpy.context.window
+        area = next(item for item in window.screen.areas if item.type == "VIEW_3D")
+        original_area_type = area.type
+        area.type = "TOPBAR"
+        left_region = next(
+            item for item in area.regions if item.alignment == "LEFT"
+        )
+        right_region = next(
+            item for item in area.regions if item.alignment == "RIGHT"
+        )
+
+        def draw_in_region(region):
+            with bpy.context.temp_override(
+                window=window, screen=window.screen, area=area, region=region
+            ):
+                callback(owner, bpy.context)
+
         if callback:
-            callback(owner, SimpleNamespace(region=SimpleNamespace(alignment="LEFT")))
+            menu.poll_cmd = "return False"
+            draw_in_region(right_region)
+            false_poll_calls = len(draw_calls)
+
+            menu.poll_cmd = "return 1 / 0"
+            error_poll_raised = False
+            try:
+                draw_in_region(right_region)
+            except Exception:
+                error_poll_raised = True
+            error_poll_calls = len(draw_calls) - false_poll_calls
+
+            menu.poll_cmd = "return True"
+            draw_in_region(left_region)
             left_calls = len(draw_calls)
-            callback(owner, SimpleNamespace(region=SimpleNamespace(alignment="RIGHT")))
+            draw_in_region(right_region)
             right_calls = len(draw_calls) - left_calls
         else:
+            false_poll_calls = 0
+            error_poll_calls = 0
+            error_poll_raised = False
             left_calls = 0
             right_calls = 0
 
         ed_base.draw_pme_layout = original_draw_layout
         original_draw_layout = None
+        area.type = original_area_type
+        original_area_type = None
         prefs.remove_pm(menu)
         menu = None
 
         checks = {
             "registered_on_real_header": registered,
+            "false_poll_hidden": false_poll_calls == 0,
+            "error_poll_hidden": error_poll_calls == 0,
+            "poll_error_contained": not error_poll_raised,
             "hidden_in_left_region": left_calls == 0,
             "drawn_in_right_region": right_calls == 1,
             "registry_cleaned": MENU_NAME not in ed_base.EXTENDED_PANELS,
@@ -80,6 +120,8 @@ def run():
     finally:
         if original_draw_layout is not None:
             ed_base.draw_pme_layout = original_draw_layout
+        if area is not None and original_area_type is not None:
+            area.type = original_area_type
         if menu is not None:
             try:
                 get_prefs().remove_pm(menu)
