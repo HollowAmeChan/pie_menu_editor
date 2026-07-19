@@ -8,17 +8,53 @@ from pathlib import Path
 addon_root = None
 runtime_script = None
 lifecycle_scripts = []
+version_suffix = "%d%d" % bpy.app.version[:2]
+
+
+def marker_id(name):
+    return "%s_%s" % (name, version_suffix)
 
 
 def marker(name):
-    return bpy.app.driver_namespace.get(name, 0)
+    return bpy.app.driver_namespace.get(marker_id(name), 0)
+
+
+def prepare_lifecycle_scripts():
+    global addon_root
+    addon_root = Path(__file__).resolve().parents[3]
+    for folder, name in (
+        ("autorun", "PME_AUTORUN_SMOKE"),
+        ("register", "PME_REGISTER_SMOKE"),
+        ("unregister", "PME_UNREGISTER_SMOKE"),
+    ):
+        script_dir = addon_root / "scripts" / folder
+        script_dir.mkdir(parents=True, exist_ok=True)
+        script = script_dir / ("pme_lifecycle_smoke_%s.py" % version_suffix)
+        marker_name = marker_id(name)
+        script.write_text(
+            "key = %r\n"
+            "bpy.app.driver_namespace[key] = "
+            "bpy.app.driver_namespace.get(key, 0) + 1\n" % marker_name,
+            encoding="utf-8",
+        )
+        lifecycle_scripts.append(script)
 
 
 def cleanup():
     paths = list(lifecycle_scripts)
+    for folder in ("autorun", "register", "unregister"):
+        paths.extend(
+            (addon_root / "scripts" / folder).glob(
+                "__pycache__/pme_lifecycle_smoke_*.*.pyc"
+            )
+        )
     if runtime_script:
         paths.append(runtime_script)
-        paths.extend(runtime_script.parent.glob("__pycache__/pme_runtime_smoke.*.pyc"))
+        paths.extend(
+            runtime_script.parent.glob(
+                "__pycache__/%s.*.pyc" % runtime_script.stem
+            )
+        )
     for filepath in paths:
         try:
             filepath.unlink(missing_ok=True)
@@ -112,19 +148,19 @@ def run_cached_script_checks():
         from pie_menu_editor.core.ui_utils import execute_script
 
         addon_root = Path(pie_menu_editor.__file__).parent
-        runtime_script = addon_root / "scripts" / "pme_runtime_smoke.py"
-        lifecycle_scripts.extend(
-            [
-                addon_root / "scripts" / folder / "pme_lifecycle_smoke.py"
-                for folder in ("autorun", "register", "unregister")
-            ]
+        runtime_script = addon_root / "scripts" / (
+            "pme_runtime_smoke_%s.py" % version_suffix
         )
 
         preferences = get_prefs()
         preferences.cache_scripts = True
         runtime_script.write_text("return_value = kwargs['value'] + 1\n", encoding="utf-8")
         first = execute_script(str(runtime_script), value=10)
-        pycs = list(runtime_script.parent.glob("__pycache__/pme_runtime_smoke.*.pyc"))
+        pycs = list(
+            runtime_script.parent.glob(
+                "__pycache__/%s.*.pyc" % runtime_script.stem
+            )
+        )
 
         runtime_script.write_text("return_value = kwargs['value'] + 2\n", encoding="utf-8")
         future = runtime_script.stat().st_mtime + 2
@@ -164,8 +200,9 @@ def enable():
         "PME_REGISTER_SMOKE",
         "PME_UNREGISTER_SMOKE",
     ):
-        bpy.app.driver_namespace.pop(name, None)
+        bpy.app.driver_namespace.pop(marker_id(name), None)
     try:
+        prepare_lifecycle_scripts()
         module = addon_utils.enable(
             "pie_menu_editor", default_set=True, persistent=False, handle_error=None
         )
