@@ -48,7 +48,32 @@ _AUTOMASKING_PATH_RE = re.compile(
 _BRUSH_PATH = (
     r"paint_settings\([^)]*\)\.brush|"
     r"(?:bpy\.)?context(?:\.scene)?\.tool_settings\.[A-Za-z_]+\.brush|"
-    r"C(?:\.scene)?\.tool_settings\.[A-Za-z_]+\.brush"
+    r"C(?:\.scene)?\.tool_settings\.[A-Za-z_]+\.brush|"
+    r"(?:bpy\.data|D)\.brushes\[[^\]]+\]"
+)
+_BRUSH_STROKE_METHODS = {
+    "use_airbrush": "AIRBRUSH",
+    "use_anchor": "ANCHORED",
+    "use_space": "SPACE",
+    "use_line": "LINE",
+    "use_curve": "CURVE",
+    "use_restore_mesh": "DRAG_DOT",
+}
+_BRUSH_STROKE_PROPERTIES_RE = "|".join(map(re.escape, _BRUSH_STROKE_METHODS))
+_BRUSH_STROKE_PROP_RE = re.compile(
+    r"(?P<layout>\bL(?:\.\w+\([^()\n]*\))*)\.prop\("
+    r"(?P<brush>[^,\n]+?),\s*['\"](?P<property>"
+    + _BRUSH_STROKE_PROPERTIES_RE
+    + r")[\"'](?P<kwargs>(?:,\s*[^()\n]*)?)\)"
+)
+_BRUSH_STROKE_PATH_RE = re.compile(
+    rf"(?P<brush>{_BRUSH_PATH})\."
+    rf"(?P<property>{_BRUSH_STROKE_PROPERTIES_RE})\b"
+)
+_BRUSH_STROKE_ASSIGN_RE = re.compile(
+    rf"(?P<path>(?P<brush>{_BRUSH_PATH})\."
+    rf"(?P<property>{_BRUSH_STROKE_PROPERTIES_RE}))"
+    r"\s*=\s*(?P<value>not\s+(?P=path)|True|False)"
 )
 _CURVE_PRESET_PROP_RE = re.compile(
     r"(?P<layout>\bL(?:\.\w+\([^()\n]*\))*)\.prop\("
@@ -116,6 +141,30 @@ def _replace_curve_control(match, helper):
         f"{helper}({match.group('layout')}, {match.group('brush')}"
         f"{match.group('kwargs')})"
     )
+
+
+def _replace_brush_stroke_control(match):
+    method = _BRUSH_STROKE_METHODS[match.group("property")]
+    return (
+        f"brush_stroke_method({match.group('layout')}, "
+        f"{match.group('brush')}, {method!r}{match.group('kwargs')})"
+    )
+
+
+def _replace_brush_stroke_path(match):
+    method = _BRUSH_STROKE_METHODS[match.group("property")]
+    return (
+        f"brush_stroke_method_enabled({match.group('brush')}, {method!r})"
+    )
+
+
+def _replace_brush_stroke_assignment(match):
+    brush = match.group("brush")
+    method = _BRUSH_STROKE_METHODS[match.group("property")]
+    value = match.group("value")
+    if value.startswith("not"):
+        value = f"not brush_stroke_method_enabled({brush}, {method!r})"
+    return f"set_brush_stroke_method({brush}, {method!r}, {value})"
 
 
 def fix(pms=None, version=None):
@@ -354,6 +403,30 @@ def fix_1_19_14(pr, pm):
 def fix_1_19_19(pr, pm):
     for pmi in pm.pmis:
         pmi.text = _UNIFIED_PAINT_SETTINGS_PATH_RE.sub("ups()", pmi.text)
+
+
+def fix_1_19_20(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'PROP':
+            match = _BRUSH_STROKE_PATH_RE.fullmatch(pmi.text)
+            if match:
+                method = _BRUSH_STROKE_METHODS[match.group("property")]
+                pmi.mode = 'CUSTOM'
+                pmi.text = (
+                    f"brush_stroke_method(L, {match.group('brush')}, "
+                    f"{method!r})"
+                )
+                continue
+
+        pmi.text = _BRUSH_STROKE_PROP_RE.sub(
+            _replace_brush_stroke_control, pmi.text
+        )
+        pmi.text = _BRUSH_STROKE_ASSIGN_RE.sub(
+            _replace_brush_stroke_assignment, pmi.text
+        )
+        pmi.text = _BRUSH_STROKE_PATH_RE.sub(
+            _replace_brush_stroke_path, pmi.text
+        )
 
 
 def fix_json_1_17_1(pr, pm, menu):

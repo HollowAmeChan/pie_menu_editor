@@ -226,6 +226,22 @@ def sculpt_sample_color(*args, **kwargs):
     return legacy_operator(*args, **kwargs)
 
 
+def brush_stroke_method(layout, brush, method, **kwargs):
+    return layout.prop_enum(brush, "stroke_method", method, **kwargs)
+
+
+def brush_stroke_method_enabled(brush, method):
+    return brush.stroke_method == method
+
+
+def set_brush_stroke_method(brush, method, enabled=True):
+    if enabled:
+        brush.stroke_method = method
+    elif brush.stroke_method == method:
+        brush.stroke_method = 'DOTS'
+    return {'FINISHED'}
+
+
 def mesh_automasking_settings(owner):
     settings = getattr(owner, "mesh_automasking_settings", None)
     return settings if settings is not None else owner
@@ -1248,6 +1264,11 @@ def register():
     pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
     pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
     pme.context.add_global("sculpt_sample_color", sculpt_sample_color)
+    pme.context.add_global("brush_stroke_method", brush_stroke_method)
+    pme.context.add_global(
+        "brush_stroke_method_enabled", brush_stroke_method_enabled
+    )
+    pme.context.add_global("set_brush_stroke_method", set_brush_stroke_method)
     pme.context.add_global("mesh_automasking_settings", mesh_automasking_settings)
     pme.context.add_global("brush_curve_preset", brush_curve_preset)
     pme.context.add_global("brush_curve_mapping", brush_curve_mapping)
