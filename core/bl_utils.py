@@ -229,9 +229,11 @@ def mesh_faces_mirror_uv(*args, direction='POSITIVE', precision=3, **kwargs):
 def sculpt_sample_color(*args, **kwargs):
     legacy_operator = bpy.ops.sculpt.sample_color
     try:
-        legacy_operator.get_rna_type()
+        properties = legacy_operator.get_rna_type().properties
     except KeyError:
         return bpy.ops.paint.sample_color(*args, **kwargs)
+    if 'location' not in properties:
+        kwargs.pop('location', None)
     return legacy_operator(*args, **kwargs)
 
 

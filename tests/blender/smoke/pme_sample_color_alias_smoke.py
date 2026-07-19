@@ -62,7 +62,11 @@ def run():
 
         checks = {
             "migration": item.text == "sculpt_sample_color()",
-            "helper_called": bool(helper_result),
+            "helper_result": (
+                "FINISHED" in helper_result
+                if bpy.app.version >= (5, 1, 0)
+                else "PASS_THROUGH" in helper_result
+            ),
             "command_executed": bool(command_result),
             "menu_drawn": "CANCELLED" in menu_result,
         }
