@@ -476,6 +476,7 @@ class PME_OT_overlay(bpy.types.Operator):
     bl_options = {'INTERNAL'}
 
     is_running = False
+    active_instance = None
 
     text: bpy.props.StringProperty(options={'SKIP_SAVE'})
     alignment: bpy.props.EnumProperty(
@@ -510,7 +511,24 @@ class PME_OT_overlay(bpy.types.Operator):
         options={'SKIP_SAVE'},
     )
 
+    def _finish(self, context):
+        if getattr(self, "timer", None):
+            try:
+                context.window_manager.event_timer_remove(self.timer)
+            except (RuntimeError, ValueError):
+                pass
+            self.timer = None
+
+        cls = type(self)
+        if cls.active_instance is self:
+            cls.active_instance = None
+            cls.is_running = False
+
     def modal(self, context, event):
+        if getattr(self, "cancelled", False):
+            self._finish(context)
+            return {'CANCELLED'}
+
         if event.type == 'TIMER':
             num_handlers = 0
             active_areas = set()
@@ -531,9 +549,7 @@ class PME_OT_overlay(bpy.types.Operator):
                     area.tag_redraw()
 
             if not num_handlers:
-                context.window_manager.event_timer_remove(self.timer)
-                self.timer = None
-                PME_OT_overlay.is_running = False
+                self._finish(context)
                 return {'FINISHED'}
 
         return {'PASS_THROUGH'}
@@ -571,6 +587,8 @@ class PME_OT_overlay(bpy.types.Operator):
 
         if not PME_OT_overlay.is_running:
             PME_OT_overlay.is_running = True
+            PME_OT_overlay.active_instance = self
+            self.cancelled = False
             context.window_manager.modal_handler_add(self)
             self.timer = context.window_manager.event_timer_add(
                 0.1, window=bpy.context.window
@@ -594,3 +612,21 @@ def register():
     #     list(opr.color), round(opr.size * TablePainter.col_style_scale))
 
     pme.context.add_global("overlay", overlay)
+
+
+def unregister():
+    for space in space_groups.values():
+        if space.handler:
+            try:
+                space.type.draw_handler_remove(space.handler, 'WINDOW')
+            except (RuntimeError, ValueError):
+                pass
+            space.handler = None
+        space.text = None
+        space.data = None
+
+    instance = PME_OT_overlay.active_instance
+    if instance is not None:
+        instance.cancelled = True
+    PME_OT_overlay.active_instance = None
+    PME_OT_overlay.is_running = False
