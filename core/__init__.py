@@ -462,6 +462,19 @@ def unregister():
         timer = None
         return
 
+    # Blender can refresh an add-on immediately after installing it, before the
+    # wait-context operator has called on_context(). None of the module-level
+    # register hooks have run at that point, so their unregister hooks must not
+    # run either.
+    if not hasattr(bpy.types.WindowManager, "pme"):
+        if load_pre_handler in bpy.app.handlers.load_pre:
+            bpy.app.handlers.load_pre.remove(load_pre_handler)
+        if load_post_handler in bpy.app.handlers.load_post:
+            bpy.app.handlers.load_post.remove(load_post_handler)
+        if load_post_context in bpy.app.handlers.load_post:
+            bpy.app.handlers.load_post.remove(load_post_context)
+        return
+
     if APP_VERSION < (5, 0, 0):
         global re_enable_data
         re_enable_data = property_utils.to_dict(get_prefs())
