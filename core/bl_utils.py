@@ -204,11 +204,20 @@ def mesh_faces_mirror_uv(*args, direction='POSITIVE', precision=3, **kwargs):
     try:
         legacy_operator.get_rna_type()
     except KeyError:
-        mesh_axis = 'POS_X' if direction == 'POSITIVE' else 'NEG_X'
-        return bpy.ops.uv.copy_mirrored_faces(
+        operator = bpy.ops.uv.copy_mirrored_faces
+        properties = operator.get_rna_type().properties
+        if 'mesh_axis' in properties:
+            mesh_axis = 'POS_X' if direction == 'POSITIVE' else 'NEG_X'
+            return operator(
+                *args,
+                mesh_axis=mesh_axis,
+                uv_axis='X',
+                precision=precision,
+                **kwargs,
+            )
+        return operator(
             *args,
-            mesh_axis=mesh_axis,
-            uv_axis='X',
+            direction=direction,
             precision=precision,
             **kwargs,
         )
