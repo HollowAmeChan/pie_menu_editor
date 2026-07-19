@@ -39,6 +39,16 @@ class WM_MT_pme:
 
 pme_menu_classes = {}
 
+HEADER_MENU_TYPES = {
+    "TIMELINE": (
+        "TIME_MT_editor_menus"
+        if hasattr(bpy.types, "TIME_MT_editor_menus")
+        else "DOPESHEET_MT_editor_menus"
+    ),
+    "IMAGE": "IMAGE_MT_editor_menus",
+    "SEQUENCE": "SEQUENCER_MT_editor_menus",
+}
+
 
 def get_pme_menu_class(name):
     if name not in pme_menu_classes:
@@ -103,39 +113,46 @@ def header_menu(areas):
             if pm.mode != 'DIALOG' or not prop.pd_panel and not prop.pd_box:
                 row = row.box().row()
 
-            def get_space_data_attribute(self, attr):
-                if attr == "space_data":
-                    return sd
-                del bpy.types.Context.__getattribute__
-                return getattr(self, attr)
+            context_getattribute = None
+            if area == "CLIP":
+                context_getattribute = bpy.types.Context.__getattribute__
 
-            bpy.types.Context.__getattribute__ = get_space_data_attribute
+                def get_space_data_attribute(self, attr):
+                    if attr == "space_data":
+                        return sd
+                    return context_getattribute(self, attr)
 
-            if hasattr(tp, "draw_collapsible"):
-                row.emboss = 'PULLDOWN_MENU'
-                tp.draw_collapsible(ctx, row)
-            else:
-                CLayout.use_mouse_over_open = True
-                tp.draw_menus(row, ctx)
+                bpy.types.Context.__getattribute__ = get_space_data_attribute
+
+            try:
+                if hasattr(tp, "draw_collapsible"):
+                    row.emboss = 'PULLDOWN_MENU'
+                    tp.draw_collapsible(ctx, row)
+                else:
+                    CLayout.use_mouse_over_open = True
+                    tp.draw_menus(row, ctx)
+            finally:
                 CLayout.use_mouse_over_open = None
+                if context_getattribute:
+                    bpy.types.Context.__getattribute__ = context_getattribute
 
     if not isinstance(areas, list):
         areas = [areas]
-
-    menu_types = dict(
-        TIMELINE="TIME_MT_editor_menus",
-        IMAGE="MASK_MT_editor_menus",
-        SEQUENCE="SEQUENCER_MT_editor_menus",
-    )
 
     try:
         col = pme.context.layout.column()
         for a in areas:
             if not a or a == 'CURRENT':
-                a = ctx.area.type
+                if (
+                    ctx.area.type == 'DOPESHEET_EDITOR'
+                    and getattr(ctx.space_data, "mode", None) == 'TIMELINE'
+                ):
+                    a = 'TIMELINE'
+                else:
+                    a = ctx.area.type
             a = a.replace("_EDITOR", "").replace("_", "")
 
-            draw_menus(a, menu_types, col)
+            draw_menus(a, HEADER_MENU_TYPES, col)
     except:
         print_exc()
 
