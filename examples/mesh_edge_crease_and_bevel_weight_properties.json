@@ -10,7 +10,7 @@
           "GET", 
           "COMMAND", 
           "", 
-          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and bm.edges.layers.crease.verify(); e = me and find_by(bm.edges, \"select\", True); return e[l] if e else 0"
+          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and (bm.edges.layers.float.get(\"crease_edge\") or bm.edges.layers.float.new(\"crease_edge\")); e = me and find_by(bm.edges, \"select\", True); return e[l] if e else 0"
         ], 
         [
           "min", 
@@ -26,7 +26,7 @@
           "SET", 
           "COMMAND", 
           "", 
-          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and bm.edges.layers.crease.verify(); me and [e.__setitem__(l, value) for e in bm.edges if e.select]; me and bmesh.update_edit_mesh(me)"
+          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and (bm.edges.layers.float.get(\"crease_edge\") or bm.edges.layers.float.new(\"crease_edge\")); me and [e.__setitem__(l, value) for e in bm.edges if e.select]; me and bmesh.update_edit_mesh(me)"
         ], 
         [
           "step", 
@@ -64,13 +64,13 @@
           "GET", 
           "COMMAND", 
           "", 
-          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and bm.edges.layers.bevel_weight.verify(); e = me and find_by(bm.edges, \"select\", True); return e[l] if e else 0"
+          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and (bm.edges.layers.float.get(\"bevel_weight_edge\") or bm.edges.layers.float.new(\"bevel_weight_edge\")); e = me and find_by(bm.edges, \"select\", True); return e[l] if e else 0"
         ], 
         [
           "SET", 
           "COMMAND", 
           "", 
-          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and bm.edges.layers.bevel_weight.verify(); me and [e.__setitem__(l, value) for e in bm.edges if e.select]; me and bmesh.update_edit_mesh(me)"
+          "import bmesh; obj = C.edit_object; me = obj and obj.type == 'MESH' and obj.data; bm = me and bmesh.from_edit_mesh(me); l = me and (bm.edges.layers.float.get(\"bevel_weight_edge\") or bm.edges.layers.float.new(\"bevel_weight_edge\")); me and [e.__setitem__(l, value) for e in bm.edges if e.select]; me and bmesh.update_edit_mesh(me)"
         ]
       ], 
       "PROPERTY", 

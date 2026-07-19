@@ -89,6 +89,16 @@ _GN_INPUT_ASSIGN_RE = re.compile(
     r"\[(?P<quote>['\"])(?P<identifier>[A-Za-z_]\w*)(?P=quote)\]"
     r"\s*=\s*(?P<value>.+)$"
 )
+_BMESH_EDGE_LAYER_PATHS = {
+    "bm.edges.layers.crease.verify()": (
+        '(bm.edges.layers.float.get("crease_edge") or '
+        'bm.edges.layers.float.new("crease_edge"))'
+    ),
+    "bm.edges.layers.bevel_weight.verify()": (
+        '(bm.edges.layers.float.get("bevel_weight_edge") or '
+        'bm.edges.layers.float.new("bevel_weight_edge"))'
+    ),
+}
 
 
 def _replace_automasking_path(match):
@@ -329,6 +339,12 @@ def fix_1_19_13(pr, pm):
                     f"set_geometry_nodes_input({match.group('modifier')}, "
                     f"{match.group('identifier')!r}, {match.group('value')})"
                 )
+
+
+def fix_1_19_14(pr, pm):
+    for pmi in pm.pmis:
+        for legacy, current in _BMESH_EDGE_LAYER_PATHS.items():
+            pmi.text = pmi.text.replace(legacy, current)
 
 
 def fix_json_1_17_1(pr, pm, menu):
