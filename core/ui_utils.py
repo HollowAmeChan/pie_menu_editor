@@ -275,34 +275,36 @@ def draw_menu(name, frame=False, dx=0, dy=0, layout=None):
 def open_menu(name, slot=None, **kwargs):
     pr = get_prefs()
     if name in pr.pie_menus:
+        pm = pr.pie_menus[name]
+        if not pm.poll(WM_OT_pme_user_pie_menu_call, bpy.context):
+            return False
+
         invoke_mode = 'RELEASE'
         if pme.context.pm and pme.context.pm.mode == 'SCRIPT':
             invoke_mode = 'HOTKEY'
 
-        pme.context.exec_user_locals.update(kwargs)
-
         if slot is None:
             slot = -1
         elif isinstance(slot, str):
-            # pmi_name = slot
-            slot = pr.pie_menus[name].pmis.find(slot)
+            slot = pm.pmis.find(slot)
             if slot == -1:
                 return False
-            # pm = pr.pie_menus[name]
-            # for i, pmi in enumerate(pm.pmis):
-            #     if pmi.name == pmi_name:
-            #         slot = i
-            #         break
+        elif not isinstance(slot, int):
+            return False
 
-        bpy.ops.wm.pme_user_pie_menu_call(
-            'INVOKE_DEFAULT',
-            pie_menu_name=name,
-            # invoke_mode=pme.context.last_operator.invoke_mode)
-            invoke_mode=invoke_mode,
-            slot=slot,
-        )
+        if pm.mode == 'SCRIPT' and slot != -1 and not 0 <= slot < len(pm.pmis):
+            return False
 
-        pme.context.exec_user_locals.clear()
+        pme.context.exec_user_locals.update(kwargs)
+        try:
+            bpy.ops.wm.pme_user_pie_menu_call(
+                'INVOKE_DEFAULT',
+                pie_menu_name=name,
+                invoke_mode=invoke_mode,
+                slot=slot,
+            )
+        finally:
+            pme.context.exec_user_locals.clear()
         return True
 
     return False

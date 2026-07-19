@@ -100,6 +100,23 @@ try:
             invoke_mode="SUB",
             keymap="Window",
         )
+        true_marker_after_valid = bpy.context.scene.get(TRUE_MARKER, 0)
+        invalid_slot_result = package.ui_utils.open_menu(
+            true_menu.name, "Missing Slot", leaked_value=True
+        )
+        locals_after_invalid_slot = dict(package.pme.context.exec_user_locals)
+        invalid_index_result = package.ui_utils.open_menu(
+            true_menu.name, 99, leaked_index=True
+        )
+        locals_after_invalid_index = dict(package.pme.context.exec_user_locals)
+        true_menu.enabled = False
+        disabled_open_result = package.ui_utils.open_menu(true_menu.name)
+        disabled_result = bpy.ops.wm.pme_user_pie_menu_call(
+            "INVOKE_DEFAULT",
+            pie_menu_name=true_menu.name,
+            invoke_mode="SUB",
+            keymap="Window",
+        )
 
     marker = bpy.context.scene.get(MARKER, 0)
     true_marker = bpy.context.scene.get(TRUE_MARKER, 0)
@@ -110,11 +127,20 @@ try:
         "poll_error_is_safe_false": not error_poll_raised and error_poll is False,
         "sub_cancelled": sub_result == {"CANCELLED"},
         "preview_completed": preview_result == {"FINISHED"},
-        "script_open_recognized": open_result is True,
+        "poll_blocked_open_rejected": open_result is False,
         "hotkey_passed_through": hotkey_result == {"PASS_THROUGH"},
         "error_entry_cancelled": error_result == {"CANCELLED"},
         "no_script_side_effects": marker == 0,
-        "valid_script_executed": true_result == {"CANCELLED"} and true_marker == 1,
+        "valid_script_executed": (
+            true_result == {"CANCELLED"} and true_marker_after_valid == 1
+        ),
+        "invalid_slot_rejected": invalid_slot_result is False,
+        "invalid_slot_locals_cleared": not locals_after_invalid_slot,
+        "invalid_index_rejected": invalid_index_result is False,
+        "invalid_index_locals_cleared": not locals_after_invalid_index,
+        "disabled_open_rejected": disabled_open_result is False,
+        "disabled_entry_cancelled": disabled_result == {"CANCELLED"},
+        "disabled_script_not_executed": true_marker == 1,
     }
     print(
         TAG + "_DATA",
@@ -131,6 +157,10 @@ try:
             "hotkey": hotkey_result,
             "error": error_result,
             "true": true_result,
+            "invalid_slot": invalid_slot_result,
+            "invalid_index": invalid_index_result,
+            "disabled_open": disabled_open_result,
+            "disabled": disabled_result,
         },
         "error_poll_raised=",
         error_poll_raised,

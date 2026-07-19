@@ -712,6 +712,9 @@ class PMItem(bpy.types.PropertyGroup):
     )
 
     def poll(self, cls=None, context=None):
+        if not self.enabled:
+            return False
+
         if self.poll_cmd == CC.DEFAULT_POLL:
             return True
 
