@@ -1,4 +1,5 @@
 import bpy
+from sys import exc_info
 from . import pme
 from . import c_utils as CTU
 from .addon import get_prefs, print_exc, ic
@@ -218,7 +219,8 @@ class LayoutHelper:
         if not message:
             message = format_exception(0)
 
-        print_exc()
+        if exc_info()[0] is not None:
+            print_exc()
         self.operator(
             PME_OT_message_box.bl_idname,
             txt,

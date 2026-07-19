@@ -1435,7 +1435,12 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
         elif pmi.mode == 'COMMAND':
             op_bl_idname, args, pos_args = operator_utils.find_operator(pmi.text)
 
-            if op_bl_idname and not pos_args:
+            op = operator_utils.operator(op_bl_idname) if op_bl_idname else None
+            if op_bl_idname and op is None:
+                text, *_ = pmi.parse()
+                lh.error(text, f"Operator not found: {op_bl_idname}")
+
+            elif op_bl_idname and not pos_args:
                 # for i, arg in enumerate(args):
                 #     args[i] = "p.%s;" % arg
                 # args = "".join(args)
@@ -1443,7 +1448,6 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
                 # p = None
                 text, icon, *_ = pmi.parse()
                 try:
-                    exec("str(bpy.ops.%s.idname)" % op_bl_idname)
                     p = lh.operator(op_bl_idname, text, icon)
                     operator_utils.apply_properties(p, args, pm, pmi)
                 except:
