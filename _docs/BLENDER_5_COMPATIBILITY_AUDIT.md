@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 44.
+- Repository commits including this audit snapshot: 46.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  41.
+  43.
 - Confirmed defect groups committed as `fix:`: 35.
-- Documentation and test-infrastructure commits: 6.
+- Documentation and test-infrastructure commits: 8.
 - Preserved test scripts: 108 (70 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -78,6 +78,8 @@ The following areas were tested without being counted as additional bugs:
 - Menu poll checks are consistent across hotkeys, scripts, previews, nested
   calls, embedded draws, and runtime menu classes; runtime poll errors cancel
   safely on Blender 4.5 and 5.2.
+- F3 operator search opens before and after PME re-enable with Developer Extras
+  enabled and a dynamic PME Macro registered on Blender 4.5 and 5.2.
 - Complete native `UILayout` parameter coverage for PME's panel wrapper on
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
