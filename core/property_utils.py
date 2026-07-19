@@ -163,6 +163,39 @@ class DynamicPG(bpy.types.PropertyGroup):
         return getattr(pgvars, var)
 
 
+_RUNTIME_PROPERTIES_KEY = "__pme_runtime_properties__"
+
+
+def _property_storage(obj, create=False):
+    if APP_VERSION >= (5, 0, 0) and hasattr(obj, "bl_system_properties_get"):
+        return obj.bl_system_properties_get(do_create=create)
+    return obj
+
+
+def _runtime_property_values(obj, annotated):
+    if obj.__class__.__name__ != "UserProperties":
+        return {}
+
+    storage = _property_storage(obj)
+    if storage is None:
+        return {}
+
+    values = {}
+    for prop in obj.bl_rna.properties:
+        key = prop.identifier
+        if key == "rna_type" or key in annotated or key not in storage:
+            continue
+        value = storage[key]
+        if isinstance(value, BPyPropArray):
+            value = list(value)
+        elif hasattr(value, "to_list"):
+            value = value.to_list()
+        elif not isinstance(value, (bool, int, float, str, list, tuple)):
+            continue
+        values[key] = value
+    return values
+
+
 def to_dict(obj):
     dct = {}
 
@@ -171,12 +204,17 @@ def to_dict(obj):
     except:
         pass
 
-    if not hasattr(obj.__class__, "__annotations__"):
+    annotations = getattr(obj.__class__, "__annotations__", {})
+    runtime_values = _runtime_property_values(obj, annotations)
+    if runtime_values:
+        dct[_RUNTIME_PROPERTIES_KEY] = runtime_values
+
+    if not annotations:
         return dct
 
     pdtype = getattr(bpy.props, "_PropertyDeferred", tuple)
-    for k in obj.__class__.__annotations__:
-        pd = obj.__class__.__annotations__[k]
+    for k in annotations:
+        pd = annotations[k]
         pfunc = getattr(pd, "function", None) or pd[0]
         pkeywords = pd.keywords if hasattr(pd, "keywords") else pd[1]
         if (
@@ -216,7 +254,13 @@ def to_dict(obj):
 
 def from_dict(obj, dct):
     for k, value in dct.items():
-        if isinstance(value, dict):
+        if k == _RUNTIME_PROPERTIES_KEY:
+            storage = _property_storage(obj, create=True)
+            if storage is not None:
+                for prop_name, prop_value in value.items():
+                    storage[prop_name] = prop_value
+
+        elif isinstance(value, dict):
             from_dict(getattr(obj, k), value)
 
         elif isinstance(value, list):
