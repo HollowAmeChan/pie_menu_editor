@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 67.
+- Repository commits including this audit snapshot: 70.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  64.
-- Confirmed defect groups committed as `fix:`: 42.
-- Feature, documentation, and test-infrastructure commits: 22.
-- Preserved test scripts: 118 (79 smoke tests and 39 probes).
+  67.
+- Confirmed defect groups committed as `fix:`: 43.
+- Feature, documentation, and test-infrastructure commits: 24.
+- Preserved test scripts: 120 (81 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **42 confirmed and fixed defect
+The conservative bug count is therefore **43 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -67,6 +67,7 @@ coverage, not counted as bugs.
 | `46ca655` | Popup context | Popup drawing still rewrote private `bContext.wm.area/region` memory on Blender 5 even though public context values were already correct. |
 | `6f1136a` | Pie layout helper | Public `keep_pie_open(layout)` still dereferenced the obsolete private `uiLayout` structure on Blender 5. |
 | `6c62e49` | Re-enable persistence | Blender 5 discarded all menus and their order when PME was disabled and enabled again because preference backup was restricted to older Blender versions. |
+| `1ec8c98` | Macro operator safety | Public generated Macro operator IDs exposed Blender's native Macro directly, allowing stale child operators to crash Blender 5.2 before Python poll guards ran. |
 
 ## Validated Coverage
 
@@ -94,6 +95,15 @@ The following areas were tested without being counted as additional bugs:
   data for all ten supported modes, and non-default scalar preferences on
   Blender 4.5 and 5.2. Before the fix, the focused Blender 5.2 reproducer
   returned an empty menu list after re-enable.
+- Command Editor Apply updates the command editor's RNA value and the final
+  stored menu item on Blender 4.5 and 5.2. This ruled out a suspected Blender
+  5 system-property storage regression for the statically registered
+  `PMIData.cmd` property.
+- Existing generated `bpy.ops.pme.macro_*` IDs now resolve to ordinary
+  operator proxies that validate the menu, Poll, and dependencies before
+  entering an internal native Macro. A dependency removed after registration
+  returns `CANCELLED`, stops later slots, removes the unsafe native type, and
+  leaves the public proxy available on Blender 4.5 and 5.2.
 - Release ZIP install, discovery, enable, disable, and re-enable in isolated
   Blender user directories.
 - All supported PME modes: pie, regular menu, dialog, script, macro, modal,
@@ -171,6 +181,11 @@ The following areas were tested without being counted as additional bugs:
   add-on disable/re-enable. Lifecycle, Property Editor, exact synthetic
   import/export, the 40-menu community fixture, app-template switching, and
   isolated release ZIP installation pass on Blender 4.5 and 5.2.
+- Version 1.19.39 routes generated public Macro operator IDs through safe
+  proxies. Direct valid and stale-dependency calls, missing and nested
+  dependencies, the supported `invoke_macro` API, all menu modes, F3 search,
+  add-on lifecycle, and isolated release ZIP installation pass on Blender 4.5
+  and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
@@ -200,13 +215,6 @@ outside version control.
 - Major installed third-party add-ons were enabled, representative menus were
   drawn, and one external operator was executed through PME, but every
   external operator was not executed.
-- PME entry points now prevent native Macro execution after an operator
-  dependency disappears, and `bpy.ops.pme.invoke_macro` is the supported
-  external script entry point. A script that directly invokes PME's generated
-  internal `bpy.ops.pme.macro_*` operator can still bypass the wrapper;
-  Blender 5.2 polls stale native Macro children before Python `Macro.poll()`
-  and can crash. Removing this residual risk requires replacing the legacy
-  native-Macro exposure rather than another poll guard.
 - Platform coverage is Windows only.
 - Blender versions other than 4.5 and 5.2 are not part of the current matrix.
 
