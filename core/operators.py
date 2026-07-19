@@ -952,6 +952,9 @@ class PME_OT_modal_base:
                 self.timer = bpy.context.window_manager.event_timer_add(
                     0.01, window=bpy.context.window
                 )
+            self.stop()
+            self.finished = True
+            return True
 
         self.execute_pm(self.pm, 'FINISH')
         self.stop()
@@ -965,6 +968,9 @@ class PME_OT_modal_base:
                 self.timer = bpy.context.window_manager.event_timer_add(
                     0.01, window=bpy.context.window
                 )
+            self.stop()
+            self.cancelled = True
+            return True
 
         self.execute_pm(self.pm, 'CANCEL')
         self.stop()
