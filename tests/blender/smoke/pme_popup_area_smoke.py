@@ -49,7 +49,7 @@ def open_popup_area():
             area="VIEW_3D",
             width=REQUESTED_SIZE[0],
             height=REQUESTED_SIZE[1],
-            center=True,
+            center=False,
             auto_close=False,
         )
         print("PME_POPUP_AREA_CALL_RETURN", result, flush=True)
