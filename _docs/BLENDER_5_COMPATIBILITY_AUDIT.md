@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 82.
+- Repository commits including this audit snapshot: 84.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  79.
+  81.
 - Confirmed defect groups committed as `fix:`: 48.
-- Feature, documentation, and test-infrastructure commits: 31.
+- Feature, documentation, and test-infrastructure commits: 33.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -223,6 +223,14 @@ The following areas were tested without being counted as additional bugs:
   UV mirror commands execute both directions through the 5.0/5.1 `direction`
   API and the 5.2 axis API. Sculpt color sampling accepts a stable `location`
   wrapper argument across the 5.0-to-5.1 operator transition.
+- Full signatures for the 56 directly used Blender operators were compared
+  across 4.5, 5.0, 5.1, and 5.2. `object.move_to_collection` is the only
+  parameter-set difference: its index-to-session-UID wrapper passes all four
+  nested collection targets by both representations on Blender 5.0 and 5.1.
+- Brush curve migration, UI property selection, six preset mappings, and menu
+  drawing pass on all four versions. The test now detects
+  `curve_distance_falloff_preset` from Brush RNA instead of incorrectly
+  assuming it first appeared in Blender 5.2; it is already present in 5.0.
 - Version 1.19.43 adapts UV mirror calls to the operator's detected RNA
   properties. Version 1.19.44 removes the new `location` argument only when
   the installed legacy sculpt operator does not expose it. Focused migrated
@@ -269,6 +277,10 @@ outside version control.
   unlike the 4.5 legacy path, per-Screen layout state is therefore not cached
   for a later reopen. Restoring that memory requires explicit state capture
   rather than manipulating Blender's ID user count.
+  Isolated probes confirmed that fake/extra users do not prevent child-window
+  Screen deletion, cross-Workspace Screen assignment is rejected, and forced
+  Screen/Workspace data-block removal is unsafe on Blender 5.0. No such
+  deletion path is used by PME.
 
 This pause point is suitable for auditing completed work. It is not a claim
 that every PME workflow is fully compatible with Blender 5.2.
