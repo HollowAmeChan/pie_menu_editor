@@ -231,6 +231,41 @@ def mesh_automasking_settings(owner):
     return settings if settings is not None else owner
 
 
+def _brush_curve_property(brush, legacy, current):
+    return current if current in brush.bl_rna.properties else legacy
+
+
+def brush_curve_preset(layout, owner, **kwargs):
+    prop = _brush_curve_property(
+        owner, "curve_preset", "curve_distance_falloff_preset"
+    )
+    return layout.prop(owner, prop, **kwargs)
+
+
+def brush_curve_mapping(layout, owner, **kwargs):
+    prop = _brush_curve_property(owner, "curve", "curve_distance_falloff")
+    return layout.template_curve_mapping(owner, prop, **kwargs)
+
+
+def set_brush_curve_preset(*args, shape='SMOOTH', brush=None, **kwargs):
+    if kwargs:
+        unexpected = next(iter(kwargs))
+        raise TypeError(f"Unexpected keyword argument: {unexpected}")
+    brush = brush or paint_settings().brush
+    if brush is None:
+        raise RuntimeError("A paint mode with an active brush is required")
+    shape = {
+        'MAX': 'CONSTANT',
+        'LINE': 'LIN',
+        'ROUND': 'SPHERE',
+    }.get(shape, shape)
+    prop = _brush_curve_property(
+        brush, "curve_preset", "curve_distance_falloff_preset"
+    )
+    setattr(brush, prop, shape)
+    return {'FINISHED'}
+
+
 def _scene_collections(context=None):
     context = context or bpy.context
     collections = []
@@ -1149,6 +1184,9 @@ def register():
     pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
     pme.context.add_global("sculpt_sample_color", sculpt_sample_color)
     pme.context.add_global("mesh_automasking_settings", mesh_automasking_settings)
+    pme.context.add_global("brush_curve_preset", brush_curve_preset)
+    pme.context.add_global("brush_curve_mapping", brush_curve_mapping)
+    pme.context.add_global("set_brush_curve_preset", set_brush_curve_preset)
     pme.context.add_global("object_move_to_collection", object_move_to_collection)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)

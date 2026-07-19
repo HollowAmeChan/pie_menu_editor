@@ -45,12 +45,38 @@ _AUTOMASKING_PATH_RE = re.compile(
     + "|".join(map(re.escape, _AUTOMASKING_PROPERTIES))
     + r")\b"
 )
+_BRUSH_PATH = (
+    r"paint_settings\([^)]*\)\.brush|"
+    r"(?:bpy\.)?context(?:\.scene)?\.tool_settings\.[A-Za-z_]+\.brush|"
+    r"C(?:\.scene)?\.tool_settings\.[A-Za-z_]+\.brush"
+)
+_CURVE_PRESET_PROP_RE = re.compile(
+    r"(?P<layout>\bL(?:\.\w+\([^()\n]*\))*)\.prop\("
+    r"(?P<brush>[^,\n]+?),\s*['\"]curve_preset['\"]"
+    r"(?P<kwargs>(?:,\s*[^()\n]*)?)\)"
+)
+_CURVE_MAPPING_RE = re.compile(
+    r"(?P<layout>\bL(?:\.\w+\([^()\n]*\))*)\.template_curve_mapping\("
+    r"(?P<brush>[^,\n]+?),\s*['\"]curve['\"]"
+    r"(?P<kwargs>(?:,\s*[^()\n]*)?)\)"
+)
+_CURVE_PRESET_PATH_RE = re.compile(
+    rf"^(?P<brush>{_BRUSH_PATH})\.curve_preset$"
+)
+_CURVE_PATH_RE = re.compile(rf"^(?P<brush>{_BRUSH_PATH})\.curve$")
 
 
 def _replace_automasking_path(match):
     owner = match.group("owner")
     prop = _AUTOMASKING_PROPERTIES[match.group("property")]
     return f"mesh_automasking_settings({owner}).{prop}"
+
+
+def _replace_curve_control(match, helper):
+    return (
+        f"{helper}({match.group('layout')}, {match.group('brush')}"
+        f"{match.group('kwargs')})"
+    )
 
 
 def fix(pms=None, version=None):
@@ -209,6 +235,45 @@ def fix_1_19_10(pr, pm):
         pmi.text = _AUTOMASKING_PATH_RE.sub(
             _replace_automasking_path, pmi.text
         )
+
+
+def fix_1_19_11(pr, pm):
+    for pmi in pm.pmis:
+        pmi.text = _CURVE_PRESET_PROP_RE.sub(
+            lambda match: _replace_curve_control(
+                match, "brush_curve_preset"
+            ),
+            pmi.text,
+        )
+        pmi.text = _CURVE_MAPPING_RE.sub(
+            lambda match: _replace_curve_control(
+                match, "brush_curve_mapping"
+            ),
+            pmi.text,
+        )
+
+        if pmi.mode == 'PROP':
+            match = _CURVE_PRESET_PATH_RE.fullmatch(pmi.text)
+            if match:
+                pmi.mode = 'CUSTOM'
+                pmi.text = f"brush_curve_preset(L, {match.group('brush')})"
+                continue
+            match = _CURVE_PATH_RE.fullmatch(pmi.text)
+            if match:
+                pmi.mode = 'CUSTOM'
+                pmi.text = (
+                    f"brush_curve_mapping(L, {match.group('brush')}, "
+                    "brush=True)"
+                )
+                continue
+
+        if pmi.mode == 'COMMAND':
+            pmi.text = pmi.text.replace(
+                "bpy.ops.brush.curve_preset", "set_brush_curve_preset"
+            )
+            pmi.text = pmi.text.replace(
+                "O.brush.curve_preset", "set_brush_curve_preset"
+            )
 
 
 def fix_json_1_17_1(pr, pm, menu):
