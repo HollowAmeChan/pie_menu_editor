@@ -2499,7 +2499,7 @@ class PME_OT_pmi_custom_set(bpy.types.Operator):
         elif self.mode == 'ACTIVE_PALETTE':
             pr.pmi_data.custom = (
                 "ps = paint_settings(); "
-                "%s.template_palette(ps, 'palette', color=True) "
+                "template_palette(%s, ps, 'palette') "
                 "if ps else %s"
             ) % (lt, sep)
             pr.pmi_data.sname = "Active Palette"

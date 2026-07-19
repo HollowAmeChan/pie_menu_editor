@@ -5,6 +5,11 @@ from .debug_utils import *
 from . import constants as CC
 
 
+_PALETTE_TEMPLATE_RE = re.compile(
+    r"\b(L(?:\.box\(\))?)\.template_palette\(ps, 'palette', color=True\)"
+)
+
+
 def fix(pms=None, version=None):
     DBG_INIT and logh("PME Fixes")
     pr = get_prefs()
@@ -99,6 +104,15 @@ def fix_1_17_1(pr, pm):
         return
 
     pm.km_name = (CC.KEYMAP_SPLITTER + " ").join(pm.km_name.split(","))
+
+
+def fix_1_19_3(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode != 'CUSTOM':
+            continue
+        pmi.text = _PALETTE_TEMPLATE_RE.sub(
+            r"template_palette(\1, ps, 'palette')", pmi.text
+        )
 
 
 def fix_json_1_17_1(pr, pm, menu):

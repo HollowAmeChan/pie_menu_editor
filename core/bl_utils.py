@@ -84,6 +84,14 @@ def unified_paint_panel():
     return UnifiedPaintPanel
 
 
+def template_palette(layout, data, property, color=True):
+    parameters = bpy.types.UILayout.bl_rna.functions["template_palette"].parameters
+    if "color" in parameters:
+        layout.template_palette(data, property, color=color)
+    else:
+        layout.template_palette(data, property)
+
+
 def uname(collection, name, sep=".", width=3, check=True):
     is_iterable = True
     try:
@@ -946,6 +954,7 @@ def register():
     pme.context.add_global("bpy", bl_bpy)
     pme.context.add_global("paint_settings", paint_settings)
     pme.context.add_global("unified_paint_panel", unified_paint_panel)
+    pme.context.add_global("template_palette", template_palette)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)
