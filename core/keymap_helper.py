@@ -766,6 +766,32 @@ class KeymapHelper:
         self.keymap_items = None
 
 
+def remove_empty_pme_user_keymap_items():
+    keyconfig = bpy.context.window_manager.keyconfigs.user
+    if not keyconfig:
+        return 0
+
+    removed = 0
+    for keymap in keyconfig.keymaps:
+        for item in list(keymap.keymap_items):
+            if item.idname != "wm.pme_user_pie_menu_call":
+                continue
+
+            properties = item.properties
+            has_non_default_property = any(
+                getattr(properties, prop.identifier) != prop.default
+                for prop in properties.bl_rna.properties
+                if prop.identifier != "rna_type"
+            )
+            if has_non_default_property:
+                continue
+
+            keymap.keymap_items.remove(item)
+            removed += 1
+
+    return removed
+
+
 class Hotkey(DynamicPG):
     lock = False
 
@@ -1489,5 +1515,9 @@ class StackKey:
 
 
 def register():
+    removed = remove_empty_pme_user_keymap_items()
+    if removed:
+        logi("Removed %d empty PME user keymap item(s)" % removed)
+
     pme.context.add_global("SK", StackKey)
     pme.context.add_global("call_operator", call_operator)
