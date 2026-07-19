@@ -440,6 +440,14 @@ def register():
         bpy.utils.register_class(invalid_prefs)
 
 
+def _unregister_idle_wait_classes():
+    for cls in (PME_OT_wait_context, PME_OT_wait_keymaps):
+        if cls.instances:
+            continue
+        if getattr(bpy.types, cls.__name__, None) is cls:
+            bpy.utils.unregister_class(cls)
+
+
 def unregister():
     if bpy.app.background:
         return
@@ -473,6 +481,7 @@ def unregister():
             bpy.app.handlers.load_post.remove(load_post_handler)
         if load_post_context in bpy.app.handlers.load_post:
             bpy.app.handlers.load_post.remove(load_post_context)
+        _unregister_idle_wait_classes()
         return
 
     if APP_VERSION < (5, 0, 0):
@@ -504,3 +513,4 @@ def unregister():
         bpy.app.handlers.load_post.remove(load_post_context)
 
     unregister_module()
+    _unregister_idle_wait_classes()
