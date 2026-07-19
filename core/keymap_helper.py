@@ -1,6 +1,6 @@
 import bpy
 from . import constants as CC
-from .addon import get_uprefs, print_exc
+from .addon import get_prefs, get_uprefs, print_exc
 from .property_utils import DynamicPG, to_py_value
 from .debug_utils import *
 from . import c_utils as CTU
@@ -1495,7 +1495,7 @@ class StackKey:
 
             if StackKey.idx == cur_idx and len(cpm.pmis) > 1:
                 selection_state.update()
-                if slot == -1:
+                if slot == -1 and get_prefs().overlay.overlay:
                     bpy.ops.pme.overlay('INVOKE_DEFAULT', text=pmi.name)
 
         except:
