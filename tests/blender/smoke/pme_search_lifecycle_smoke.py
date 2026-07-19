@@ -4,6 +4,21 @@ import traceback
 
 
 results = []
+macro_name = "PME Developer Search Macro"
+
+
+def prepare_search_state(module):
+    package = module.core
+    if not hasattr(bpy.types.WindowManager, "pme"):
+        for waiter in package.PME_OT_wait_context.instances:
+            waiter.cancelled = True
+        package.on_context()
+    bpy.context.preferences.view.show_developer_ui = True
+    prefs = package.addon.get_prefs()
+    if macro_name not in prefs.pie_menus:
+        macro = prefs.add_pm("MACRO", macro_name)
+        macro.pmis[0].text = "bpy.ops.wm.redraw_timer(iterations=1)"
+    return macro_name in package.macro_utils._macros
 
 
 def finish(success):
@@ -31,9 +46,20 @@ def search_after_reenable():
 
 
 def verify():
-    success = len(results) == 2 and all(
-        "FINISHED" in result or "RUNNING_MODAL" in result or "INTERFACE" in result
-        for _, result in results
+    search_results = [
+        item for item in results if item[0] in {"initial", "reenabled"}
+    ]
+    macro_results = [item for item in results if item[0].endswith("_macro")]
+    success = (
+        len(search_results) == 2
+        and all(
+            "FINISHED" in result
+            or "RUNNING_MODAL" in result
+            or "INTERFACE" in result
+            for _, result in search_results
+        )
+        and len(macro_results) == 2
+        and all(value for _, value in macro_results)
     )
     return finish(success)
 
@@ -45,6 +71,7 @@ def reenable():
             "pie_menu_editor", default_set=True, persistent=False, handle_error=None
         )
         print("PME_SEARCH_REENABLE", module.__file__ if module else None, flush=True)
+        results.append(("reenabled_macro", prepare_search_state(module)))
         bpy.app.timers.register(search_after_reenable, first_interval=1.0)
     except Exception:
         traceback.print_exc()
@@ -62,6 +89,7 @@ def enable():
             "pie_menu_editor", default_set=True, persistent=False, handle_error=None
         )
         print("PME_SEARCH_ENABLE", module.__file__ if module else None, flush=True)
+        results.append(("initial_macro", prepare_search_state(module)))
         bpy.app.timers.register(search_initial, first_interval=1.0)
     except Exception:
         traceback.print_exc()
