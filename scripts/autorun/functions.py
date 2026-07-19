@@ -2,7 +2,13 @@
 
 
 def ups():
-    return bpy.context.tool_settings.unified_paint_settings
+    settings = paint_settings()
+    if settings is not None:
+        value = getattr(settings, "unified_paint_settings", None)
+        if value is not None:
+            return value
+
+    return getattr(bpy.context.tool_settings, "unified_paint_settings", None)
 
 
 def brush(use_ups=False):

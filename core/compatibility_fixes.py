@@ -71,6 +71,10 @@ _INPUT_SAMPLES_PATH_RE = re.compile(
     r"C(?:\.scene)?\.tool_settings\.sculpt"
     r")\.input_samples\b"
 )
+_UNIFIED_PAINT_SETTINGS_PATH_RE = re.compile(
+    r"(?:(?:bpy\.)?context|C)(?:\.scene)?\.tool_settings"
+    r"\.unified_paint_settings\b"
+)
 _GN_OBJECT_PATH = (
     r"(?:"
     r"C\.(?:object|active_object)|"
@@ -345,6 +349,11 @@ def fix_1_19_14(pr, pm):
     for pmi in pm.pmis:
         for legacy, current in _BMESH_EDGE_LAYER_PATHS.items():
             pmi.text = pmi.text.replace(legacy, current)
+
+
+def fix_1_19_19(pr, pm):
+    for pmi in pm.pmis:
+        pmi.text = _UNIFIED_PAINT_SETTINGS_PATH_RE.sub("ups()", pmi.text)
 
 
 def fix_json_1_17_1(pr, pm, menu):
