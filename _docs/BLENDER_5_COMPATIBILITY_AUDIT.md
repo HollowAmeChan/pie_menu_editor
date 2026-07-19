@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 46.
+- Repository commits including this audit snapshot: 49.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  43.
-- Confirmed defect groups committed as `fix:`: 35.
-- Documentation and test-infrastructure commits: 8.
+  46.
+- Confirmed defect groups committed as `fix:`: 36.
+- Documentation and test-infrastructure commits: 10.
 - Preserved test scripts: 108 (70 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **35 confirmed and fixed defect
+The conservative bug count is therefore **36 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -60,6 +60,7 @@ coverage, not counted as bugs.
 | `aa04526` | Layout wrappers | PME's panel layout wrapper rejected Blender 5.2 UILayout keywords. |
 | `e164837` | User keymaps | Empty legacy PME user-keyconfig overrides accumulated and could not invoke a menu. |
 | `0256811` | Menu polling | Scripts, previews, nested calls, and runtime menu draws bypassed menu poll checks; poll errors also escaped operators. |
+| `5d9aab1` | Scripted menu calls | `open_menu` reported unavailable menus as successful, allowed disabled execution, and leaked kwargs after invalid Stack Key slots. |
 
 ## Validated Coverage
 
@@ -80,6 +81,10 @@ The following areas were tested without being counted as additional bugs:
   safely on Blender 4.5 and 5.2.
 - F3 operator search opens before and after PME re-enable with Developer Extras
   enabled and a dynamic PME Macro registered on Blender 4.5 and 5.2.
+- `open_menu` rejects missing, disabled, poll-blocked, and invalid Stack Key
+  targets while clearing temporary execution locals on Blender 4.5 and 5.2.
+- Autorun, register, unregister, and cached script lifecycle tests are
+  self-contained, parallel-safe across Blender versions, and leave no files.
 - Complete native `UILayout` parameter coverage for PME's panel wrapper on
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
@@ -92,7 +97,7 @@ The following areas were tested without being counted as additional bugs:
 - All bundled examples drawing under the compatibility layer.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
-  version 1.19.30.
+  version 1.19.31.
 - Eight installed third-party dependencies enabled together with the real
   configuration, reducing missing-operator layout reports from 98 to 51.
 - A MACHIN3tools operator executed through a PME script menu and changed
@@ -113,7 +118,7 @@ outside version control.
 ## Remaining Gaps At Pause Point
 
 - The full 85-menu configuration passes on Blender 4.5 and 5.2 at version
-  1.19.30 with identical exported JSON and equivalent captured error sets.
+  1.19.31 with identical exported JSON and equivalent captured error sets.
 - PME's hold and chord state machines are covered, but operating-system-level
   keyboard queue dispatch is not an automated interaction matrix.
 - Major installed third-party add-ons were enabled, representative menus were
