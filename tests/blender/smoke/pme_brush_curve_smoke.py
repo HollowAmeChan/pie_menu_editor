@@ -85,7 +85,7 @@ def run():
             brush_curve_preset(layout, brush, expand=True)
             expected_property = (
                 "curve_distance_falloff_preset"
-                if bpy.app.version >= (5, 2, 0)
+                if "curve_distance_falloff_preset" in brush.bl_rna.properties
                 else "curve_preset"
             )
             shape_results = []
@@ -100,7 +100,7 @@ def run():
             }
             for shape, current in expected_shapes.items():
                 result = set_brush_curve_preset(shape=shape)
-                expected = current if bpy.app.version >= (5, 2, 0) else current
+                expected = current
                 actual = getattr(brush, expected_property)
                 shape_values.append((shape, actual, expected))
                 shape_results.append("FINISHED" in result and actual == expected)
