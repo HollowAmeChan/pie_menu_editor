@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 55.
+- Repository commits including this audit snapshot: 57.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  52.
-- Confirmed defect groups committed as `fix:`: 39.
-- Documentation and test-infrastructure commits: 13.
-- Preserved test scripts: 111 (73 smoke tests and 38 probes).
+  54.
+- Confirmed defect groups committed as `fix:`: 40.
+- Documentation and test-infrastructure commits: 14.
+- Preserved test scripts: 112 (74 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **39 confirmed and fixed defect
+The conservative bug count is therefore **40 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -64,6 +64,7 @@ coverage, not counted as bugs.
 | `0c0c33c` | Poll context | Scripted poll expressions read ambient `bpy.context` through `C` instead of the invocation context, producing stale mode and area decisions. |
 | `5adee96` | Macro safety | Missing or later-unregistered operators could leave half-built native Macros and crash Blender in `WM_operator_poll`. |
 | `0e24c41` | Stack Key overlay | Stack Key notifications ignored the `Use Overlay` preference and displayed even when explicitly disabled. |
+| `46ca655` | Popup context | Popup drawing still rewrote private `bContext.wm.area/region` memory on Blender 5 even though public context values were already correct. |
 
 ## Validated Coverage
 
@@ -94,6 +95,10 @@ The following areas were tested without being counted as additional bugs:
 - Stack Key notifications stay hidden when `Use Overlay` is disabled or a
   specific slot is requested, display during normal cycling when enabled, and
   remove their handler and running state after expiry on Blender 4.5 and 5.2.
+- Popup operators retain the legacy private context path on Blender 4.5 but
+  make zero `c_utils.set_area/set_region` calls on Blender 5.2. Popup draw
+  `context`, `bpy.context`, and PME's `C` still resolve to the source View3D
+  area and region on both versions.
 - F3 operator search opens before and after PME re-enable with Developer Extras
   enabled and a dynamic PME Macro registered on Blender 4.5 and 5.2.
 - `open_menu` rejects missing, disabled, poll-blocked, and invalid Stack Key
@@ -121,6 +126,9 @@ The following areas were tested without being counted as additional bugs:
 - Version 1.19.34 passes Stack Key visibility, normal overlay expiry, active
   overlay disable cleanup, normal script/Stack Key execution, and isolated
   release ZIP installation on Blender 4.5 and 5.2.
+- Version 1.19.35 passes popup context routing, Popup Dialog mode, embedded
+  panel popups, user and add-on Preferences popups, and isolated release ZIP
+  installation on Blender 4.5 and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
   version 1.19.31.
