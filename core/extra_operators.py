@@ -963,6 +963,44 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         area.ui_type = space_type
         area.ui_type = a_type
 
+    def configure_side_area(self, side_area, main_area):
+        if APP_VERSION >= (5, 0, 0):
+            side_area.ui_type = self.area
+            return
+
+        CTU.swap_spaces(side_area, main_area, side_area.ui_type)
+        self.add_space(main_area, self.area)
+        side_area.ui_type = self.area
+        CTU.swap_spaces(side_area, main_area, self.area)
+
+    @staticmethod
+    def resize_side_area(context, area, target_size, direction):
+        if APP_VERSION < (5, 0, 0):
+            CTU.resize_area(area, target_size, direction=direction)
+            return
+
+        horizontal = direction in {'LEFT', 'RIGHT'}
+        current_size = area.width if horizontal else area.height
+        delta = int(target_size) - current_size
+        if abs(delta) <= 1:
+            return
+
+        x = area.x + (area.width if direction == 'RIGHT' else 0)
+        y = area.y + (area.height if direction == 'TOP' else 0)
+        if horizontal:
+            y = area.y + area.height // 2
+        else:
+            x = area.x + area.width // 2
+        if direction in {'LEFT', 'BOTTOM'}:
+            delta = -delta
+
+        with context.temp_override(area=None, region=None):
+            bpy.ops.pme.timeout(
+                'INVOKE_DEFAULT',
+                delay=0.0001,
+                cmd=f"bpy.ops.screen.area_move(x={x}, y={y}, delta={delta})",
+            )
+
     def move_header(self, area):
         if self.header != "DEFAULT":
             SU.move_header(
@@ -1138,13 +1176,10 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         ):
             target_width = self._clamp_side_width(context, a)
             self.save_sidebars(l)
-            CTU.swap_spaces(l, a, l.ui_type)
-            self.add_space(a, self.area)
-            l.ui_type = self.area
-            CTU.swap_spaces(l, a, self.area)
+            self.configure_side_area(l, a)
 
             if l.width != target_width:
-                CTU.resize_area(l, target_width, direction="RIGHT")
+                self.resize_side_area(context, l, target_width, direction="RIGHT")
                 SU.redraw_screen()
 
             self.restore_sidebars(l)
@@ -1159,13 +1194,10 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         ):
             target_width = self._clamp_side_width(context, a)
             self.save_sidebars(r)
-            CTU.swap_spaces(r, a, r.ui_type)
-            self.add_space(a, self.area)
-            r.ui_type = self.area
-            CTU.swap_spaces(r, a, self.area)
+            self.configure_side_area(r, a)
 
             if r.width != target_width:
-                CTU.resize_area(r, target_width, direction="LEFT")
+                self.resize_side_area(context, r, target_width, direction="LEFT")
                 SU.redraw_screen()
 
             self.restore_sidebars(r)
@@ -1189,13 +1221,10 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and t.ui_type != self.area
         ):
             self.save_sidebars(t)
-            CTU.swap_spaces(t, a, t.ui_type)
-            self.add_space(a, self.area)
-            t.ui_type = self.area
-            CTU.swap_spaces(t, a, self.area)
+            self.configure_side_area(t, a)
 
             if t.height != self.width:
-                CTU.resize_area(t, self.width, direction="BOTTOM")
+                self.resize_side_area(context, t, self.width, direction="BOTTOM")
                 SU.redraw_screen()
 
             self.restore_sidebars(t)
@@ -1209,13 +1238,10 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and b.ui_type != self.area
         ):
             self.save_sidebars(b)
-            CTU.swap_spaces(b, a, b.ui_type)
-            self.add_space(a, self.area)
-            b.ui_type = self.area
-            CTU.swap_spaces(b, a, self.area)
+            self.configure_side_area(b, a)
 
             if b.height != self.width:
-                CTU.resize_area(b, self.width, direction="TOP")
+                self.resize_side_area(context, b, self.width, direction="TOP")
                 SU.redraw_screen()
 
             self.restore_sidebars(b)
@@ -1242,7 +1268,8 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             if self.side == "RIGHT":
                 factor = 1 - factor
 
-            self.add_space(a, self.area)
+            if APP_VERSION < (5, 0, 0):
+                self.add_space(a, self.area)
             mouse = {}
             area_split_props = operator_utils.get_rna_type(
                 bpy.ops.screen.area_split
@@ -1259,7 +1286,8 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
 
             new_area = context.screen.areas[-1]
             new_area.ui_type = self.area
-            CTU.swap_spaces(new_area, a, self.area)
+            if APP_VERSION < (5, 0, 0):
+                CTU.swap_spaces(new_area, a, self.area)
 
             self.restore_sidebars(new_area)
             self.move_header(new_area)
@@ -1275,7 +1303,8 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             if self.side == "TOP":
                 factor = 1 - factor
 
-            self.add_space(a, self.area)
+            if APP_VERSION < (5, 0, 0):
+                self.add_space(a, self.area)
             mouse = {}
             area_split_props = operator_utils.get_rna_type(
                 bpy.ops.screen.area_split
@@ -1292,7 +1321,8 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
 
             new_area = context.screen.areas[-1]
             new_area.ui_type = self.area
-            CTU.swap_spaces(new_area, a, self.area)
+            if APP_VERSION < (5, 0, 0):
+                CTU.swap_spaces(new_area, a, self.area)
 
             self.restore_sidebars(new_area)
             self.move_header(new_area)
