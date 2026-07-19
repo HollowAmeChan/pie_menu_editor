@@ -6,7 +6,14 @@ import traceback
 
 
 TAG = "PME_ACTIVE_MODAL_DISABLE_SMOKE"
-FIXTURE = Path(os.environ["PME_MODAL_FIXTURE"])
+FIXTURE = Path(
+    os.environ.get(
+        "PME_MODAL_FIXTURE",
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "pme_modal_fixture.json",
+    )
+)
 state = {"step": 0, "checks": {}}
 
 

@@ -6,7 +6,14 @@ import traceback
 
 
 TAG = "PME_EDITOR_KEYMAP_SMOKE"
-FIXTURE = Path(os.environ["PME_KEYMAP_FIXTURE"])
+FIXTURE = Path(
+    os.environ.get(
+        "PME_KEYMAP_FIXTURE",
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "pme_editor_keymap_fixture.json",
+    )
+)
 EXPECTED = {
     "PME KM 3D View": ["3D View"],
     "PME KM 3D View Generic": ["3D View Generic"],
