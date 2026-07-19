@@ -61,6 +61,40 @@ class PME_OT_modal_dummy(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
 
+PREFERENCES_PANEL_CANDIDATES = {
+    "INTERFACE": ("USERPREF_PT_interface_menus", "USERPREF_PT_interface"),
+    "VIEWPORT": ("USERPREF_PT_viewport_display", "USERPREF_PT_view_3d"),
+    "LIGHTS": ("USERPREF_PT_studiolight_lights", "USERPREF_PT_lights"),
+    "EDITING": ("USERPREF_PT_edit_objects", "USERPREF_PT_edit"),
+    "ANIMATION": ("USERPREF_PT_animation_keyframes", "USERPREF_PT_animation"),
+    "EXTENSIONS": ("USERPREF_PT_extensions", "USERPREF_PT_addons"),
+    "ADDONS": ("USERPREF_PT_addons",),
+    "THEMES": ("USERPREF_PT_theme",),
+    "ASSETS": ("USERPREF_PT_assets",),
+    "INPUT": ("USERPREF_PT_input_keyboard", "USERPREF_PT_input"),
+    "NAVIGATION": ("USERPREF_PT_navigation_orbit", "USERPREF_PT_navigation"),
+    "KEYMAP": ("USERPREF_PT_keymap",),
+    "SYSTEM": (
+        "USERPREF_PT_system_os_settings",
+        "USERPREF_PT_system_general",
+        "USERPREF_PT_system",
+    ),
+    "SAVE_LOAD": ("USERPREF_PT_save_preferences", "USERPREF_PT_saveload_blend"),
+    "FILE_PATHS": ("USERPREF_PT_file_paths_data", "USERPREF_PT_file"),
+    "FILES": ("USERPREF_PT_file_paths_data", "USERPREF_PT_file"),
+    "DEVELOPER_TOOLS": ("USERPREF_PT_developer_tools",),
+    "EXPERIMENTAL": ("USERPREF_PT_experimental_new_features",),
+}
+
+
+def preferences_panel_type(section):
+    for panel_name in PREFERENCES_PANEL_CANDIDATES.get(section, ()):
+        panel_type = getattr(bpy.types, panel_name, None)
+        if panel_type is not None:
+            return panel_type
+    return None
+
+
 class PME_OT_none(bpy.types.Operator):
     bl_idname = "pme.none"
     bl_label = ""
@@ -180,12 +214,23 @@ class PME_OT_popup_user_preferences(PopupOperator, bpy.types.Operator):
         items=(
             ('CURRENT', "Current", ""),
             ('INTERFACE', "Interface", ""),
+            ('VIEWPORT', "Viewport", ""),
+            ('LIGHTS', "Lights", ""),
             ('EDITING', "Editing", ""),
+            ('ANIMATION', "Animation", ""),
+            ('EXTENSIONS', "Extensions", ""),
             ('INPUT', "Input", ""),
+            ('NAVIGATION', "Navigation", ""),
+            ('KEYMAP', "Keymap", ""),
             ('ADDONS', "Add-ons", ""),
             ('THEMES', "Themes", ""),
+            ('ASSETS', "Assets", ""),
             ('FILES', "File", ""),
+            ('FILE_PATHS', "File Paths", ""),
+            ('SAVE_LOAD', "Save & Load", ""),
             ('SYSTEM', "System", ""),
+            ('DEVELOPER_TOOLS', "Developer Tools", ""),
+            ('EXPERIMENTAL', "Experimental", ""),
         ),
     )
     width: bpy.props.IntProperty(
@@ -205,30 +250,26 @@ class PME_OT_popup_user_preferences(PopupOperator, bpy.types.Operator):
         col = self.layout.column(align=True)
         col.row(align=True).prop(upr, "active_section", expand=True)
 
-        if upr.active_section == 'INTERFACE':
-            tp = bpy.types.USERPREF_PT_interface
-        elif upr.active_section == 'EDITING':
-            tp = bpy.types.USERPREF_PT_edit
-        elif upr.active_section == 'INPUT':
-            tp = bpy.types.USERPREF_PT_input
-        elif upr.active_section == 'ADDONS':
-            tp = bpy.types.USERPREF_PT_addons
-        elif upr.active_section == 'THEMES':
-            tp = bpy.types.USERPREF_PT_theme
-        elif upr.active_section == 'FILES':
-            tp = bpy.types.USERPREF_PT_file
-        elif upr.active_section == 'SYSTEM':
-            tp = getattr(bpy.types, "USERPREF_PT_system", None) or getattr(
-                bpy.types, "USERPREF_PT_system_general", None
-            )
-
-        pme.context.layout = col
-        panel(tp, frame=True, header=False, poll=False)
+        tp = preferences_panel_type(getattr(upr, "active_section", "INTERFACE"))
+        if tp is None:
+            col.label(text="No compatible preferences panel found")
+        else:
+            pme.context.layout = col
+            panel(tp, frame=True, header=False, poll=False)
 
     def invoke(self, context, event):
         if self.tab != 'CURRENT':
             try:
-                get_uprefs().active_section = self.tab
+                preferences = get_uprefs()
+                valid_sections = {
+                    item.identifier
+                    for item in preferences.bl_rna.properties["active_section"].enum_items
+                }
+                section = self.tab
+                if section == "FILES" and "FILES" not in valid_sections:
+                    section = "FILE_PATHS"
+                if section in valid_sections:
+                    preferences.active_section = section
             except:
                 pass
 
