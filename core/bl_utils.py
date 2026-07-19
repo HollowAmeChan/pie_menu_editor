@@ -187,6 +187,18 @@ def activate_brush(name, context=None):
     return bpy.ops.brush.asset_activate(**args)
 
 
+def mesh_loop_multi_select(*args, ring=False, **kwargs):
+    legacy_operator = bpy.ops.mesh.loop_multi_select
+    try:
+        legacy_operator.get_rna_type()
+    except KeyError:
+        operator_name = (
+            "select_edge_ring_multi" if ring else "select_edge_loop_multi"
+        )
+        return getattr(bpy.ops.mesh, operator_name)(*args, **kwargs)
+    return legacy_operator(*args, ring=ring, **kwargs)
+
+
 def uname(collection, name, sep=".", width=3, check=True):
     is_iterable = True
     try:
@@ -1052,6 +1064,7 @@ def register():
     pme.context.add_global("template_palette", template_palette)
     pme.context.add_global("brush_asset_selector", brush_asset_selector)
     pme.context.add_global("activate_brush", activate_brush)
+    pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)

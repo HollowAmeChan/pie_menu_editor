@@ -132,6 +132,14 @@ def fix_1_19_4(pr, pm):
             pmi.text = _BRUSH_ASSIGN_RE.sub(r'activate_brush("\1")', pmi.text)
 
 
+def fix_1_19_6(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'COMMAND':
+            pmi.text = pmi.text.replace(
+                "bpy.ops.mesh.loop_multi_select", "mesh_loop_multi_select"
+            )
+
+
 def fix_json_1_17_1(pr, pm, menu):
     if not pm.ed.has_hotkey:
         return
