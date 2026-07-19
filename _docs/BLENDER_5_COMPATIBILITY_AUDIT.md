@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 81.
+- Repository commits including this audit snapshot: 82.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  78.
+  79.
 - Confirmed defect groups committed as `fix:`: 48.
-- Feature, documentation, and test-infrastructure commits: 30.
+- Feature, documentation, and test-infrastructure commits: 31.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -212,6 +212,11 @@ The following areas were tested without being counted as additional bugs:
   all ten menu modes, exact import/export, empty-Homefile persistence, six
   dynamic Property Mode value types, exact Popup Area sizing, and safe Popup
   destruction before the asynchronous header callback.
+- On Blender 5.0.1 and 5.1.0, the 40-menu community fixture imports, migrates,
+  and draws its representative Object menu. All 11 bundled example files
+  import into 16 menus; all 8 visible menus and 38 items draw without errors.
+  The community fixture reports the same 13 unavailable third-party operators
+  on both versions, with no additional Blender API failures.
 - Direct operators, string-based operators, bundled example commands,
   `bpy.types`, `bpy.context`, `bpy.data`, UILayout signatures, and Preferences
   panel mappings were compared across Blender 4.5.8, 5.0.1, 5.1.0, and 5.2.0.
