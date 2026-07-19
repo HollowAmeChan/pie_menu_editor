@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 70.
+- Repository commits including this audit snapshot: 71.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  67.
+  68.
 - Confirmed defect groups committed as `fix:`: 43.
-- Feature, documentation, and test-infrastructure commits: 24.
+- Feature, documentation, and test-infrastructure commits: 25.
 - Preserved test scripts: 120 (81 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -187,8 +187,9 @@ The following areas were tested without being counted as additional bugs:
   add-on lifecycle, and isolated release ZIP installation pass on Blender 4.5
   and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
-  drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
-  version 1.19.31.
+  drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
+  normalized signatures for all 144 captured layout/script reports at version
+  1.19.39.
 - Eight installed third-party dependencies enabled together with the real
   configuration, reducing missing-operator layout reports from 98 to 51.
 - A MACHIN3tools operator executed through a PME script menu and changed
@@ -209,7 +210,8 @@ outside version control.
 ## Remaining Gaps At Pause Point
 
 - The full 85-menu configuration passes on Blender 4.5 and 5.2 at version
-  1.19.31 with identical exported JSON and equivalent captured error sets.
+  1.19.39 with byte-identical exported JSON and equivalent captured error
+  signatures.
 - PME's hold and chord state machines are covered, but operating-system-level
   keyboard queue dispatch is not an automated interaction matrix.
 - Major installed third-party add-ons were enabled, representative menus were
