@@ -1093,7 +1093,7 @@ class PME_OT_key_state_init(bpy.types.Operator):
 class PME_OT_mouse_btn_state(bpy.types.Operator, CTU.HeadModalHandler):
     bl_idname = "pme.mouse_btn_state"
     bl_label = "Internal (PME)"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'MODAL_PRIORITY'}
 
     inst = None
 

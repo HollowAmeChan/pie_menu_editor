@@ -595,14 +595,7 @@ class HeadModalHandler:
                 self.finished = True
                 return {'PASS_THROUGH'}
 
-        if self.move_flag:
-            self.move_flag = False
-            if not move_modal_handler(context.window, self):
-                self.finished = True
-
-        if event.type != 'TIMER':
-            self.move_flag = True
-        elif self.finished:
+        if event.type == 'TIMER' and self.finished:
             context.window_manager.event_timer_remove(self.timer)
             self.timer = None
             self.finish()
@@ -611,7 +604,6 @@ class HeadModalHandler:
         return {'PASS_THROUGH'}
 
     def execute(self, context):
-        self.move_flag = False
         self.finished = False
 
         self.timer = context.window_manager.event_timer_add(
@@ -766,45 +758,6 @@ def resize_area(area, width, direction='RIGHT'):
             area_p.v4.contents.vec.y -= dy
 
 
-def move_modal_handler(window, operator):
-    a_operator = operator.as_pointer()
-    w = cast(window.as_pointer(), POINTER(wmWindow)).contents
-    p_eh = POINTER(wmEventHandler)
-    p_op = POINTER(wmOperator)
-    p_h_first = cast(w.modalhandlers.first, p_eh)
-
-    if not p_h_first:
-        return False
-
-    h_first = h = p_h_first.contents
-
-    p_o = cast(h.op, p_op)
-    if p_o:
-        o = p_o.contents
-        if addressof(o) == a_operator:
-            return True
-
-    while h:
-        p_o = cast(h.op, p_op)
-        if p_o:
-            o = p_o.contents
-            if addressof(o) == a_operator:
-                p_h_prev = cast(h.prev, p_eh)
-                p_h_next = cast(h.next, p_eh)
-                if p_h_prev:
-                    p_h_prev.contents.next = p_h_next
-                if p_h_next:
-                    p_h_next.contents.prev = p_h_prev
-                h.prev = None
-                h.next = p_h_first
-                w.modalhandlers.first = addressof(h)
-                h_first.prev = cast(w.modalhandlers.first, p_eh)
-                return True
-
-        h = cast(h.next, p_eh)
-        h = h and h.contents
-
-    return False
 
 
 def keep_pie_open(layout):

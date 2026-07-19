@@ -1354,7 +1354,7 @@ class PME_OT_modal(PME_OT_modal_base, bpy.types.Operator):
 class PME_OT_restore_pie_prefs(bpy.types.Operator, CTU.HeadModalHandler):
     bl_idname = "pme.restore_pie_prefs"
     bl_label = "Internal (PME)"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'MODAL_PRIORITY'}
 
     def finish(self):
         get_prefs().pie_menu_prefs.restore()
