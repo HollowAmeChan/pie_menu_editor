@@ -43,6 +43,31 @@ class PME_OT_macro_exec1(bpy.types.Operator):
         return PME_OT_macro_exec_base.execute(self, context)
 
 
+class PME_OT_invoke_macro(bpy.types.Operator):
+    bl_idname = "pme.invoke_macro"
+    bl_label = "Invoke PME Macro"
+    bl_description = "Execute a stored PME Macro by menu name"
+    bl_options = {'INTERNAL'}
+
+    menu_name: bpy.props.StringProperty(
+        name="Macro Name",
+        maxlen=MAX_STR_LEN,
+        options={'SKIP_SAVE'},
+    )
+
+    def execute(self, context):
+        pm = get_prefs().pie_menus.get(self.menu_name)
+        if pm is None or pm.mode != 'MACRO':
+            return {'CANCELLED'}
+        if not pm.poll(self.__class__, context):
+            return {'CANCELLED'}
+
+        result = MAU.execute_macro(pm)
+        if result is False or result is None or result == {'CANCELLED'}:
+            return {'CANCELLED'}
+        return {'FINISHED'}
+
+
 class Editor(EditorBase):
 
     def __init__(self):
