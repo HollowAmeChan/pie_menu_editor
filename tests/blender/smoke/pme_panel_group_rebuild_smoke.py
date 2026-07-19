@@ -6,7 +6,14 @@ import traceback
 
 
 TAG = "PME_PANEL_GROUP_REBUILD_SMOKE"
-FIXTURE = Path(os.environ["PME_PANEL_FIXTURE"])
+FIXTURE = Path(
+    os.environ.get(
+        "PME_PANEL_FIXTURE",
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "pme_panel_group_fixture.json",
+    )
+)
 checks = {}
 warnings = []
 success = False

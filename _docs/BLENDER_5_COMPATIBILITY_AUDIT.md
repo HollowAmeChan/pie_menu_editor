@@ -1,21 +1,21 @@
 # Blender 5 Compatibility Audit
 
-Snapshot date: 2026-07-19
+Snapshot date: 2026-07-20
 
 Target: Blender 5.2 LTS, with Blender 4.5 LTS retained as the compatibility
 baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 38.
+- Repository commits including this audit snapshot: 40.
 - Compatibility commits after the automated-release baseline (`origin/main`):
-  35.
-- Confirmed defect groups committed as `fix:`: 32.
-- Documentation and test-infrastructure commits: 3.
-- Preserved test scripts: 105 (67 smoke tests and 38 probes).
+  37.
+- Confirmed defect groups committed as `fix:`: 33.
+- Documentation and test-infrastructure commits: 4.
+- Preserved test scripts: 106 (68 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **32 confirmed and fixed defect
+The conservative bug count is therefore **33 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -57,6 +57,7 @@ coverage, not counted as bugs.
 | `2aeddc6` | Overlay lifecycle | Active overlay draw handlers and timers survived add-on disable. |
 | `eaf32d8` | Modal context | Timer/script invocation with no area crashed while constructing an overlay. |
 | `5518e51` | Modal lifecycle | Active modal overlays and removed RNA pointers survived add-on disable. |
+| `aa04526` | Layout wrappers | PME's panel layout wrapper rejected Blender 5.2 UILayout keywords. |
 
 ## Validated Coverage
 
@@ -70,6 +71,8 @@ The following areas were tested without being counted as additional bugs:
 - Legacy JSON migration and exact synthetic import/export round trips.
 - Public community 5.1-era configuration import and representative UI draws.
 - Editor keymap registration, including `3D View` and `3D View Generic`.
+- Complete native `UILayout` parameter coverage for PME's panel wrapper on
+  Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
   and active-operator cleanup on Blender 4.5 and 5.2.
 - Panel Group rebuild, reorder, removal, and repeated unregister.
