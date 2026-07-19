@@ -732,12 +732,16 @@ class PMItem(bpy.types.PropertyGroup):
         if not pme.context.exe(poll_method_co, exec_globals):
             return True
 
+        previous_context = BU.bl_context.context
+        BU.bl_context.set_context(context)
         BU.bl_context.reset(context)
         try:
             return bool(exec_globals["poll"](cls, context))
         except Exception:
             print_exc()
             return False
+        finally:
+            BU.bl_context.set_context(previous_context)
 
     @property
     def is_new(self):

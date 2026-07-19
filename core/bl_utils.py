@@ -456,30 +456,26 @@ class BlContext:
                 return mod
 
     def __getattr__(self, attr):
-        # if not BlContext.context:
-        #     BlContext.context = bpy.context
-
-        C = bpy.context
-        BlContext.context = _bpy.context
+        C = BlContext.context or _bpy.context
 
         texture_context = self.texture_context
 
         if attr == "preferences":
-            return getattr(_bpy.context, "preferences", None)
+            return getattr(C, "preferences", None)
 
         elif attr == "space_data":
             if self.areas:
                 value = self.area_map[self.areas[-1]]
             else:
-                value = getattr(_bpy.context, attr, None)
+                value = getattr(C, attr, None)
 
             if not value:
                 value = BlContext.bl_space_data
 
         else:
-            value = getattr(_bpy.context, attr, None)
+            value = getattr(C, attr, None)
 
-        ao = getattr(BlContext.context, "active_object", None)
+        ao = getattr(C, "active_object", None)
 
         if not value:
             try:
@@ -505,12 +501,12 @@ class BlContext:
 
                 elif attr == "world":
                     value = (
-                        hasattr(BlContext.context, "scene")
-                        and BlContext.context.scene.world
+                        hasattr(C, "scene")
+                        and C.scene.world
                     )
 
                 elif attr == "brush":
-                    ps = paint_settings(BlContext.context)
+                    ps = paint_settings(C)
                     value = ps.brush if ps and hasattr(ps, "brush") else None
 
                 elif attr == "bone":
@@ -570,7 +566,7 @@ class BlContext:
                         value = None
 
                 elif attr == "pose_bone":
-                    value = BlContext.context.active_pose_bone
+                    value = C.active_pose_bone
 
                 elif attr in BlContext.mods:
                     value = self.get_modifier_by_type(ao, BlContext.mods[attr])
