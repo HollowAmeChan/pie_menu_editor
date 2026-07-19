@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 84.
+- Repository commits including this audit snapshot: 86.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  81.
+  83.
 - Confirmed defect groups committed as `fix:`: 48.
-- Feature, documentation, and test-infrastructure commits: 33.
+- Feature, documentation, and test-infrastructure commits: 35.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -231,6 +231,15 @@ The following areas were tested without being counted as additional bugs:
   drawing pass on all four versions. The test now detects
   `curve_distance_falloff_preset` from Brush RNA instead of incorrectly
   assuming it first appeared in Blender 5.2; it is already present in 5.0.
+- Blender 5.0.1 and 5.1.0 pass focused runtime tests for automasking, brush
+  stroke methods, brush-asset switching, Geometry Nodes modifier inputs,
+  palette/brush special UI, unified paint settings, wireframe paths, and all
+  native UILayout parameters used by PME.
+- Editor keymaps, empty user-keymap cleanup, short/hold/chord hotkey state,
+  normal and no-area modal execution, mode entry, and disable while a modal is
+  active pass on Blender 5.0.1 and 5.1.0. The four tests backed by committed
+  fixtures now resolve those fixtures by default and still allow environment
+  overrides, so a missing variable cannot strand a Blender test process.
 - Version 1.19.43 adapts UV mirror calls to the operator's detected RNA
   properties. Version 1.19.44 removes the new `location` argument only when
   the installed legacy sculpt operator does not expose it. Focused migrated
