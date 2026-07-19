@@ -5,7 +5,7 @@ from . import ui_utils as UU
 from . import panel_utils as PAU
 from . import macro_utils as MAU
 from . import utils as U
-from .addon import get_prefs, temp_prefs, ic_fb
+from .addon import get_prefs, temp_prefs, ic_fb, print_exc
 from . import keymap_helper as KH
 from . import pme
 from .ui import tag_redraw
@@ -715,8 +715,10 @@ class PMItem(bpy.types.PropertyGroup):
         if self.poll_cmd == CC.DEFAULT_POLL:
             return True
 
+        context = context or bpy.context
+
         if self.name not in self.poll_methods:
-            self.update_poll_cmd(bpy.context)
+            self.update_poll_cmd(context)
 
         poll_method_co = self.poll_methods[self.name]
         if poll_method_co is None:
@@ -727,8 +729,12 @@ class PMItem(bpy.types.PropertyGroup):
         if not pme.context.exe(poll_method_co, exec_globals):
             return True
 
-        BU.bl_context.reset(bpy.context)
-        return exec_globals["poll"](cls, BU.bl_context)
+        BU.bl_context.reset(context)
+        try:
+            return bool(exec_globals["poll"](cls, context))
+        except Exception:
+            print_exc()
+            return False
 
     @property
     def is_new(self):

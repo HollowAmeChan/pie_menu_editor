@@ -14,6 +14,13 @@ from .operators import WM_OT_pme_user_pie_menu_call
 class WM_MT_pme:
     bl_label = ""
 
+    @classmethod
+    def poll(cls, context):
+        pr = get_prefs()
+        if cls.bl_label not in pr.pie_menus:
+            return False
+        return pr.pie_menus[cls.bl_label].poll(cls, context)
+
     def draw(self, context):
         pr = get_prefs()
         pm = pr.pie_menus[self.bl_label]
@@ -218,6 +225,10 @@ def execute_script(path, **kwargs):
 def draw_menu(name, frame=False, dx=0, dy=0, layout=None):
     pr = get_prefs()
     if name in pr.pie_menus:
+        pm = pr.pie_menus[name]
+        if not pm.poll(WM_OT_pme_user_pie_menu_call, bpy.context):
+            return False
+
         lh.save()
         if layout:
             lh.lt(layout)
@@ -244,9 +255,7 @@ def draw_menu(name, frame=False, dx=0, dy=0, layout=None):
 
         lh.column()
 
-        draw_pme_layout(
-            pr.pie_menus[name], lh.layout, WM_OT_pme_user_pie_menu_call._draw_item
-        )
+        draw_pme_layout(pm, lh.layout, WM_OT_pme_user_pie_menu_call._draw_item)
 
         if dx < 0:
             drow = orow.row(align=True)

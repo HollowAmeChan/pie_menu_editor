@@ -66,6 +66,9 @@ def gen_header_draw(pm_name):
                 # temporarily unavailable; skip drawing instead of raising.
                 return
 
+            if not pm.poll(self.__class__, context):
+                return
+
             draw_pme_layout(
                 pm,
                 self.layout.column(align=True),
@@ -83,6 +86,9 @@ def gen_menu_draw(pm_name):
         except Exception:
             return
 
+        if not pm.poll(self.__class__, context):
+            return
+
         WM_OT_pme_user_pie_menu_call.draw_rm(pm, self.layout)
 
     return _draw
@@ -93,6 +99,9 @@ def gen_panel_draw(pm_name):
         try:
             pm = get_prefs().pie_menus[pm_name]
         except Exception:
+            return
+
+        if not pm.poll(self.__class__, context):
             return
 
         draw_pme_layout(

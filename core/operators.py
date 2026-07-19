@@ -2152,8 +2152,10 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
             None,
         )
 
-        if self.invoke_mode == 'HOTKEY' and not cpm.poll(self.__class__, context):
-            return {'PASS_THROUGH'}
+        if not cpm.poll(self.__class__, context):
+            if self.invoke_mode == 'HOTKEY':
+                return {'PASS_THROUGH'}
+            return {'CANCELLED'}
 
         if (
             cpm.open_mode == 'HOLD'
@@ -2335,6 +2337,10 @@ class WM_OT_pme_user_dialog_call(bpy.types.Operator, PopupOperator):
     def invoke(self, context, event):
         pr = get_prefs()
         if self.pie_menu_name not in pr.pie_menus:
+            return {'CANCELLED'}
+
+        pm = pr.pie_menus[self.pie_menu_name]
+        if not pm.poll(self.__class__, context):
             return {'CANCELLED'}
 
         pme.context.event = event
