@@ -517,6 +517,7 @@ class PLayout:
         text_ctxt="",
         translate=True,
         icon='NONE',
+        placeholder="",
         expand=False,
         slider=False,
         toggle=False,
@@ -526,6 +527,8 @@ class PLayout:
         emboss=True,
         index=-1,
         icon_value=0,
+        invert_checkbox=False,
+        text_align='LEFT',
     ):
         if text is None:
             prop = data.bl_rna.properties[property]
@@ -567,6 +570,8 @@ class PLayout:
         text_ctxt="",
         translate=True,
         icon='NONE',
+        results_are_suggestions=False,
+        item_search_property="",
     ):
         PLayout.btn_operator(PLayout.prop_name(data, property, "Search"))
 
@@ -578,14 +583,23 @@ class PLayout:
         icon='NONE',
         emboss=True,
         icon_value=0,
+        depress=False,
+        search_weight=0.0,
+        properties=None,
     ):
         PLayout.btn_operator(text if text else "", icon, icon_value)
 
-    def operator_enum(operator, property):
+    def operator_enum(operator, property, icon_only=False):
         PLayout.btn_operator(operator)
 
     def operator_menu_enum(
-        operator, property, text="", text_ctxt="", translate=True, icon='NONE'
+        operator,
+        property,
+        text="",
+        text_ctxt="",
+        translate=True,
+        icon='NONE',
+        properties=None,
     ):
         PLayout.btn_operator(operator)
 
@@ -595,10 +609,31 @@ class PLayout:
     def menu(menu, text="", text_ctxt="", translate=True, icon='NONE', icon_value=0):
         PLayout.btn_operator(text, icon, icon_value)
 
-    def template_ID(data, property, new="", open="", unlink=""):
+    def template_ID(
+        data,
+        property,
+        new="",
+        open="",
+        unlink="",
+        filter='ALL',
+        live_icon=False,
+        text="",
+        text_ctxt="",
+        translate=True,
+    ):
         PLayout.btn_operator(PLayout.prop_name(data, property, "ID"))
 
-    def template_ID_preview(data, property, new="", open="", unlink="", rows=0, cols=0):
+    def template_ID_preview(
+        data,
+        property,
+        new="",
+        open="",
+        unlink="",
+        rows=0,
+        cols=0,
+        filter='ALL',
+        hide_buttons=False,
+    ):
         PLayout.btn_operator(PLayout.prop_name(data, property, "ID Preview"))
 
     def template_any_ID(
@@ -621,14 +656,23 @@ class PLayout:
         PLayout.btn_operator("Preview")
 
     def template_curve_mapping(
-        data, property, type='NONE', levels=False, brush=False, use_negative_slope=False
+        data,
+        property,
+        type='NONE',
+        levels=False,
+        brush=False,
+        use_negative_slope=False,
+        show_tone=False,
+        show_presets=False,
     ):
         PLayout.btn_operator("Curve Mapping")
 
     def template_color_ramp(data, property, expand=False):
         PLayout.btn_operator("Color Ramp")
 
-    def template_icon_view(data, property, show_labels=False, scale=5.0):
+    def template_icon_view(
+        data, property, show_labels=False, scale=5.0, scale_popup=5.0
+    ):
         PLayout.btn_operator("Icon View")
 
     def template_histogram(data, property):
@@ -697,6 +741,8 @@ class PLayout:
         maxrows=5,
         type='DEFAULT',
         columns=9,
+        sort_reverse=False,
+        sort_lock=False,
     ):
         PLayout.btn_operator("List")
 

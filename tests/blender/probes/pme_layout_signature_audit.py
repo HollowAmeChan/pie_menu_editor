@@ -23,19 +23,27 @@ for node in layout.body:
     }
 
 rna_functions = bpy.types.UILayout.bl_rna.functions
-result = {}
+missing_result = {}
+compat_extra = {}
 for name, signature in python_methods.items():
     if name not in rna_functions:
         continue
     rna_params = [p.identifier for p in rna_functions[name].parameters]
     missing = [name for name in rna_params if name not in signature["params"]]
     extra = [name for name in signature["params"] if name not in rna_params]
-    if missing or extra:
-        result[name] = {
-            "missing": missing,
-            "extra": extra,
-            "python": signature["params"],
-            "rna": rna_params,
-        }
+    if missing and not signature["kwargs"]:
+        missing_result[name] = missing
+    if extra:
+        compat_extra[name] = extra
 
+result = {
+    "blender": bpy.app.version_string,
+    "missing": missing_result,
+    "compat_extra": compat_extra,
+}
 print("PME_LAYOUT_SIGNATURES=" + json.dumps(result, sort_keys=True), flush=True)
+print(
+    "PME_LAYOUT_SIGNATURE_RESULT",
+    "OK" if not missing_result else "FAILED",
+    flush=True,
+)
