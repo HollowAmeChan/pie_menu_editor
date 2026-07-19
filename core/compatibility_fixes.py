@@ -64,6 +64,13 @@ _CURVE_PRESET_PATH_RE = re.compile(
     rf"^(?P<brush>{_BRUSH_PATH})\.curve_preset$"
 )
 _CURVE_PATH_RE = re.compile(rf"^(?P<brush>{_BRUSH_PATH})\.curve$")
+_INPUT_SAMPLES_PATH_RE = re.compile(
+    r"(?P<owner>"
+    r"paint_settings\([^)]*\)|"
+    r"(?:bpy\.)?context(?:\.scene)?\.tool_settings\.sculpt|"
+    r"C(?:\.scene)?\.tool_settings\.sculpt"
+    r")\.input_samples\b"
+)
 
 
 def _replace_automasking_path(match):
@@ -274,6 +281,17 @@ def fix_1_19_11(pr, pm):
             pmi.text = pmi.text.replace(
                 "O.brush.curve_preset", "set_brush_curve_preset"
             )
+
+
+def fix_1_19_12(pr, pm):
+    for pmi in pm.pmis:
+        pmi.text = _INPUT_SAMPLES_PATH_RE.sub(
+            lambda match: (
+                f"paint_input_samples_owner({match.group('owner')})."
+                "input_samples"
+            ),
+            pmi.text,
+        )
 
 
 def fix_json_1_17_1(pr, pm, menu):

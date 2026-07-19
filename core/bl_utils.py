@@ -266,6 +266,12 @@ def set_brush_curve_preset(*args, shape='SMOOTH', brush=None, **kwargs):
     return {'FINISHED'}
 
 
+def paint_input_samples_owner(settings):
+    if "input_samples" in settings.bl_rna.properties:
+        return settings
+    return settings.brush
+
+
 def _scene_collections(context=None):
     context = context or bpy.context
     collections = []
@@ -1187,6 +1193,7 @@ def register():
     pme.context.add_global("brush_curve_preset", brush_curve_preset)
     pme.context.add_global("brush_curve_mapping", brush_curve_mapping)
     pme.context.add_global("set_brush_curve_preset", set_brush_curve_preset)
+    pme.context.add_global("paint_input_samples_owner", paint_input_samples_owner)
     pme.context.add_global("object_move_to_collection", object_move_to_collection)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
