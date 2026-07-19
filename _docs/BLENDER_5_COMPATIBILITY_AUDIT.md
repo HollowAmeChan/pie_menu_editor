@@ -7,15 +7,15 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 71.
+- Repository commits including this audit snapshot: 77.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  68.
-- Confirmed defect groups committed as `fix:`: 43.
-- Feature, documentation, and test-infrastructure commits: 25.
-- Preserved test scripts: 120 (81 smoke tests and 39 probes).
+  74.
+- Confirmed defect groups committed as `fix:`: 46.
+- Feature, documentation, and test-infrastructure commits: 28.
+- Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **43 confirmed and fixed defect
+The conservative bug count is therefore **46 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -68,6 +68,9 @@ coverage, not counted as bugs.
 | `6f1136a` | Pie layout helper | Public `keep_pie_open(layout)` still dereferenced the obsolete private `uiLayout` structure on Blender 5. |
 | `6c62e49` | Re-enable persistence | Blender 5 discarded all menus and their order when PME was disabled and enabled again because preference backup was restricted to older Blender versions. |
 | `1ec8c98` | Macro operator safety | Public generated Macro operator IDs exposed Blender's native Macro directly, allowing stale child operators to crash Blender 5.2 before Python poll guards ran. |
+| `d157065` | Popup sizing | Blender 5's public area duplication ignored PME's requested Popup Area dimensions and opened an oversized window. |
+| `c5d5d8d` | Property persistence | Dynamically registered Property Mode values reset to defaults after add-on disable/re-enable on both supported Blender versions. |
+| `51cafc7` | Popup lifecycle | Clearing a live persistent Popup Screen's users caused a Blender 5.2 ID reference-count underflow when the window closed. |
 
 ## Validated Coverage
 
@@ -95,6 +98,11 @@ The following areas were tested without being counted as additional bugs:
   data for all ten supported modes, and non-default scalar preferences on
   Blender 4.5 and 5.2. Before the fix, the focused Blender 5.2 reproducer
   returned an empty menu list after re-enable.
+- Loading an empty Homefile preserves exact menu order, all mode-specific data
+  and slots for all ten modes, and scalar preferences on Blender 4.5 and 5.2.
+- Bool, Int Vector, Float Vector, String, Enum, and Enum Flag Property Mode
+  values survive both empty-Homefile loading and add-on disable/re-enable on
+  Blender 4.5 and 5.2.
 - Command Editor Apply updates the command editor's RNA value and the final
   stored menu item on Blender 4.5 and 5.2. This ruled out a suspected Blender
   5 system-property storage regression for the statically registered
@@ -136,6 +144,13 @@ The following areas were tested without being counted as additional bugs:
   make zero `c_utils.set_area/set_region` calls on Blender 5.2. Popup draw
   `context`, `bpy.context`, and PME's `C` still resolve to the source View3D
   area and region on both versions.
+- Non-invasive Popup Area tests use `center=False` and therefore do not move
+  the system cursor. Requested 320 by 240 client dimensions, synchronous
+  creation, header visibility/position updates, automatic closing, and a
+  header callback after early window destruction pass on Blender 4.5 and 5.2.
+- Closing a persistent Popup Area before its asynchronous header update no
+  longer produces a Blender 5.2 Screen user-count error. The callback detects
+  the destroyed window, returns safely, and leaves PME enabled.
 - `keep_pie_open(layout)` retains its legacy flag behavior and returns `True`
   on Blender 4.5. On Blender 5.2 it performs zero private layout accesses and
   returns `False`, allowing user scripts to detect that Blender exposes no
@@ -154,7 +169,6 @@ The following areas were tested without being counted as additional bugs:
 - App-template reload with preference data and custom preview icons.
 - Overlay drawing, normal expiration, and disable while active.
 - Modal normal execution, no-area cancellation, and disable while active.
-- Side-area show/hide through public APIs.
 - All bundled examples drawing under the compatibility layer.
 - Version 1.19.32 source tests cover poll routing, all menu mode entries,
   hold/chord hotkeys, popup area synchronization, and all bundled example
@@ -186,6 +200,12 @@ The following areas were tested without being counted as additional bugs:
   dependencies, the supported `invoke_macro` API, all menu modes, F3 search,
   add-on lifecycle, and isolated release ZIP installation pass on Blender 4.5
   and 5.2.
+- Version 1.19.40 restores exact Popup Area client sizing on Blender 5.2 while
+  retaining the Blender 4.5 path. Version 1.19.41 preserves six representative
+  dynamic Property Mode value types across Homefile and add-on lifecycle
+  changes. Version 1.19.42 closes persistent Popup windows without Blender 5.2
+  Screen reference-count errors. Its isolated release ZIP lifecycle passes on
+  Blender 4.5 and 5.2.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
@@ -202,6 +222,10 @@ The following areas were tested without being counted as additional bugs:
 - Synthetic and community fixtures: `tests/fixtures/`
 - Execution and data-handling notes: `tests/README.md`
 
+The test README marks Area Move, Dynamic Modes, and Side Area scripts as
+interactive-only because they use cursor warping or simulated input. Results
+from the interrupted mouse-driven batch are excluded from this audit.
+
 The original temporary copies and generated output were not used as the source
 of truth after this snapshot. Private configuration data, generated RNA/API
 snapshots, `.blend` files, logs, and installed-release directories remain
@@ -217,8 +241,15 @@ outside version control.
 - Major installed third-party add-ons were enabled, representative menus were
   drawn, and one external operator was executed through PME, but every
   external operator was not executed.
-- Platform coverage is Windows only.
-- Blender versions other than 4.5 and 5.2 are not part of the current matrix.
+- Area Move and Side Area still need a non-invasive automation harness or an
+  explicitly reserved interactive desktop session. Their recent mouse-driven
+  results are not counted as compatibility evidence.
+- Blender 5.2 safely deletes a persistent Popup Screen when its window closes;
+  unlike the 4.5 legacy path, per-Screen layout state is therefore not cached
+  for a later reopen. Restoring that memory requires explicit state capture
+  rather than manipulating Blender's ID user count.
+- Blender 5.0 and 5.1 binaries are not part of the current matrix. Windows is
+  the intended platform scope for this upgrade.
 
 This pause point is suitable for auditing completed work. It is not a claim
 that every PME workflow is fully compatible with Blender 5.2.
