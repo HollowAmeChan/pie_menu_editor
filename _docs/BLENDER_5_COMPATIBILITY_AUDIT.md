@@ -7,11 +7,11 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 86.
+- Repository commits including this audit snapshot: 87.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  83.
+  84.
 - Confirmed defect groups committed as `fix:`: 48.
-- Feature, documentation, and test-infrastructure commits: 35.
+- Feature, documentation, and test-infrastructure commits: 36.
 - Preserved test scripts: 123 (84 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -240,6 +240,10 @@ The following areas were tested without being counted as additional bugs:
   active pass on Blender 5.0.1 and 5.1.0. The four tests backed by committed
   fixtures now resolve those fixtures by default and still allow environment
   overrides, so a missing variable cannot strand a Blender test process.
+- Panel Group rebuild/reorder/removal, right-side Header extensions and Poll
+  errors, Overlay disable cleanup, Stack Key visibility/expiry, generated
+  Macro proxies, the public Macro invocation API, and Developer Search across
+  add-on re-enable pass on Blender 5.0.1 and 5.1.0.
 - Version 1.19.43 adapts UV mirror calls to the operator's detected RNA
   properties. Version 1.19.44 removes the new `location` argument only when
   the installed legacy sculpt operator does not expose it. Focused migrated
