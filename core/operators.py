@@ -1263,6 +1263,9 @@ class PME_OT_modal_base:
         if self.pm_name not in pr.pie_menus:
             return {'CANCELLED'}
 
+        if context.area is None:
+            return {'CANCELLED'}
+
         if PME_OT_modal_base.active:
             return {'CANCELLED'}
 
