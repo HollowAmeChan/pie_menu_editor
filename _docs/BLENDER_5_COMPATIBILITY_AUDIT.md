@@ -7,12 +7,12 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 62.
+- Repository commits including this audit snapshot: 63.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  59.
+  60.
 - Confirmed defect groups committed as `fix:`: 41.
-- Feature, documentation, and test-infrastructure commits: 18.
-- Preserved test scripts: 114 (76 smoke tests and 38 probes).
+- Feature, documentation, and test-infrastructure commits: 19.
+- Preserved test scripts: 116 (77 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **41 confirmed and fixed defect
@@ -72,6 +72,17 @@ coverage, not counted as bugs.
 The following areas were tested without being counted as additional bugs:
 
 - Add-on source enable/disable/re-enable on Blender 4.5 and 5.2.
+- Core operator calls, string-based operator references, `bpy.types`,
+  `bpy.context`, `bpy.data`, `UILayout` wrapper arguments, and all bundled
+  example calls were re-audited against Blender 4.5 and 5.2. Reported missing
+  symbols are confined to version-gated compatibility branches or deliberate
+  legacy migration aliases.
+- Blender 5.2 adds `ACTIONZONE_REGION_QUAD` but removes no event identifiers
+  present in 4.5. PME keymap route names have the same missing legacy fallback
+  set on both versions.
+- Header extensions with PME's `_right` suffix register on the underlying
+  Blender Header type, draw only in the right-aligned region, and remove their
+  callback when the menu is deleted on Blender 4.5 and 5.2.
 - Release ZIP install, discovery, enable, disable, and re-enable in isolated
   Blender user directories.
 - All supported PME modes: pie, regular menu, dialog, script, macro, modal,
