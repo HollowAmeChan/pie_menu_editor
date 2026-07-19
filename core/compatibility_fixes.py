@@ -156,6 +156,18 @@ def fix_1_19_8(pr, pm):
             )
 
 
+def fix_1_19_9(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode != 'COMMAND':
+            continue
+        pmi.text = pmi.text.replace(
+            "bpy.ops.object.move_to_collection", "object_move_to_collection"
+        )
+        pmi.text = pmi.text.replace(
+            "O.object.move_to_collection", "object_move_to_collection"
+        )
+
+
 def fix_json_1_17_1(pr, pm, menu):
     if not pm.ed.has_hotkey:
         return

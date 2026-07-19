@@ -226,6 +226,55 @@ def sculpt_sample_color(*args, **kwargs):
     return legacy_operator(*args, **kwargs)
 
 
+def _scene_collections(context=None):
+    context = context or bpy.context
+    collections = []
+    visited = set()
+
+    def visit(collection):
+        pointer = collection.as_pointer()
+        if pointer in visited:
+            return
+        visited.add(pointer)
+        collections.append(collection)
+        for child in collection.children:
+            visit(child)
+
+    visit(context.scene.collection)
+    return collections
+
+
+def object_move_to_collection(
+    *args, collection_index=-1, collection_uid=-1, **kwargs
+):
+    collections = _scene_collections()
+    parameters = bpy.ops.object.move_to_collection.get_rna_type().properties
+    if collection_index >= len(collections):
+        raise IndexError(f"Collection index out of range: {collection_index}")
+
+    if "collection_uid" in parameters:
+        if collection_uid < 0 and collection_index >= 0:
+            collection_uid = collections[collection_index].session_uid
+        if collection_uid >= 0:
+            kwargs["collection_uid"] = collection_uid
+    else:
+        if collection_index < 0 and collection_uid >= 0:
+            collection_index = next(
+                (
+                    index
+                    for index, collection in enumerate(collections)
+                    if collection.session_uid == collection_uid
+                ),
+                -1,
+            )
+            if collection_index < 0:
+                raise ValueError(f"Collection UID not found: {collection_uid}")
+        if collection_index >= 0:
+            kwargs["collection_index"] = collection_index
+
+    return bpy.ops.object.move_to_collection(*args, **kwargs)
+
+
 def uname(collection, name, sep=".", width=3, check=True):
     is_iterable = True
     try:
@@ -1094,6 +1143,7 @@ def register():
     pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
     pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
     pme.context.add_global("sculpt_sample_color", sculpt_sample_color)
+    pme.context.add_global("object_move_to_collection", object_move_to_collection)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)
