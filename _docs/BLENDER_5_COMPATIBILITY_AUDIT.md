@@ -7,12 +7,12 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 63.
+- Repository commits including this audit snapshot: 64.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  60.
+  61.
 - Confirmed defect groups committed as `fix:`: 41.
-- Feature, documentation, and test-infrastructure commits: 19.
-- Preserved test scripts: 116 (77 smoke tests and 39 probes).
+- Feature, documentation, and test-infrastructure commits: 20.
+- Preserved test scripts: 117 (78 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **41 confirmed and fixed defect
@@ -83,6 +83,10 @@ The following areas were tested without being counted as additional bugs:
 - Header extensions with PME's `_right` suffix register on the underlying
   Blender Header type, draw only in the right-aligned region, and remove their
   callback when the menu is deleted on Blender 4.5 and 5.2.
+- Property Mode values are removed with their runtime RNA property instead of
+  reviving when a same-named property is recreated. Values configured not to
+  persist also reset to their default during menu initialization on Blender
+  4.5 and 5.2, including Blender 5's separate system-property storage.
 - Release ZIP install, discovery, enable, disable, and re-enable in isolated
   Blender user directories.
 - All supported PME modes: pie, regular menu, dialog, script, macro, modal,
