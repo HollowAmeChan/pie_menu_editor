@@ -1510,7 +1510,8 @@ class PME_OT_popup_area(bpy.types.Operator):
                 new_window.screen = bpy.data.screens[screen_name]
             else:
                 new_window.screen.name = screen_name
-                new_window.screen.user_clear()
+                if APP_VERSION < (5, 0, 0) or self.auto_close:
+                    new_window.screen.user_clear()
 
             target_area = new_window.screen.areas[0] if new_window.screen.areas else None
             if target_area:

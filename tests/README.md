@@ -40,6 +40,21 @@ Run the same script with the 4.5 executable for a two-version comparison.
 Some UI and modal scripts require a normal window and intentionally terminate
 Blender after printing their result.
 
+## Input Safety
+
+The default regression set must not move the system cursor. The following
+scripts exercise features whose implementation uses `cursor_warp` or simulated
+input and are interactive-only:
+
+```text
+pme_area_move_smoke.py
+pme_dynamic_modes_smoke.py
+pme_sidearea_smoke.py
+```
+
+Do not run them while another desktop session is active. Their results count as
+audit evidence only when cursor control was explicitly reserved for the test.
+
 ## Release ZIP Install
 
 Build the archive with Blender's bundled Python:
@@ -110,6 +125,10 @@ pme_macro_missing_operator_smoke.py
 pme_invoke_macro_api_smoke.py
 pme_stack_key_overlay_visibility_smoke.py
 pme_popup_context_memory_smoke.py
+pme_popup_area_smoke.py
+pme_popup_area_sync_smoke.py
+pme_popup_auto_close_smoke.py
+pme_popup_destroy_before_header_smoke.py
 pme_keep_pie_open_safety_smoke.py
 pme_panel_group_rebuild_smoke.py
 pme_overlay_disable_smoke.py

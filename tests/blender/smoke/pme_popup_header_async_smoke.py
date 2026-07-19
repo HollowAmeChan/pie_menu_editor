@@ -142,7 +142,7 @@ try:
             area="VIEW_3D",
             width=320,
             height=240,
-            center=True,
+            center=False,
             auto_close=False,
             header=target_position + "_HIDE",
         )

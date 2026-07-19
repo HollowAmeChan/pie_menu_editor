@@ -88,7 +88,7 @@ try:
             area="VIEW_3D",
             width=320,
             height=240,
-            center=True,
+            center=False,
             auto_close=True,
         )
     new_windows = set(bpy.context.window_manager.windows) - windows_before
