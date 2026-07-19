@@ -3,7 +3,7 @@ import addon_utils
 from bpy.app import version as APP_VERSION
 from bpy.app.handlers import persistent
 from .addon import ADDON_ID, get_prefs, get_uprefs
-from .bl_utils import PopupOperator, popup_area, ctx_dict, area_header_text_set
+from .bl_utils import PopupOperator, popup_area, area_header_text_set
 from .panel_utils import panel, panel_label, bl_panel_enum_items
 from .constants import (
     PME_TEMP_SCREEN,
@@ -1331,6 +1331,52 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         return {"FINISHED"}
 
 
+def _apply_popup_area_header(header, window_pointer, area_pointer):
+    window = next(
+        (
+            item
+            for item in bpy.context.window_manager.windows
+            if item.as_pointer() == window_pointer
+        ),
+        None,
+    )
+    if window is None:
+        return None
+
+    area = next(
+        (
+            item
+            for item in window.screen.areas
+            if item.as_pointer() == area_pointer
+        ),
+        None,
+    )
+    if area is None:
+        return None
+
+    region = next(
+        (item for item in area.regions if item.type == 'HEADER'),
+        None,
+    )
+    if region is None:
+        return None
+
+    override = SU.get_override_args(
+        window=window,
+        screen=window.screen,
+        area=area,
+        region=region,
+    )
+    PME_OT_popup_area.update_header_state(
+        bpy.context,
+        header,
+        region.alignment == 'TOP',
+        area.spaces.active.show_region_header,
+        override,
+    )
+    return None
+
+
 class PME_OT_popup_area(bpy.types.Operator):
     bl_idname = "pme.popup_area"
     bl_label = "Popup Area"
@@ -1383,11 +1429,12 @@ class PME_OT_popup_area(bpy.types.Operator):
         options={'SKIP_SAVE'},
     )
 
-    def update_header(self, context, on_top, visible, d):
-        if self.header == 'DEFAULT':
+    @staticmethod
+    def update_header_state(context, header, on_top, visible, d):
+        if header == 'DEFAULT':
             return
 
-        if 'TOP' in self.header:
+        if 'TOP' in header:
             if not on_top:
                 with context.temp_override(**d):
                     bpy.ops.screen.region_flip()
@@ -1396,14 +1443,15 @@ class PME_OT_popup_area(bpy.types.Operator):
                 with context.temp_override(**d):
                     bpy.ops.screen.region_flip()
 
-        if 'HIDE' in self.header:
+        if 'HIDE' in header:
             if visible:
-                with context.temp_override(**d):
-                    bpy.ops.screen.header()
+                d["area"].spaces.active.show_region_header = False
         else:
             if not visible:
-                with context.temp_override(**d):
-                    bpy.ops.screen.header()
+                d["area"].spaces.active.show_region_header = True
+
+    def update_header(self, context, on_top, visible, d):
+        self.update_header_state(context, self.header, on_top, visible, d)
 
     def execute(self, context):
         return {'FINISHED'}
@@ -1422,22 +1470,6 @@ class PME_OT_popup_area(bpy.types.Operator):
         screen_name += area_name
 
         area = context.area or context.screen.areas[0]
-
-        rh, rw = None, None
-        for r in area.regions:
-            if r.type == 'HEADER':
-                rh = r
-            elif r.type == 'WINDOW':
-                rw = r
-
-        header_dict = ctx_dict(area=area, region=rh)
-        header_visible = rh.height > 1
-        if header_visible:
-            header_on_top = rw.y == area.y
-        else:
-            header_on_top = rh.y > area.y
-
-        self.update_header(context, header_on_top, header_visible, header_dict)
 
         window = context.window
         windows = [w for w in context.window_manager.windows]
@@ -1483,6 +1515,18 @@ class PME_OT_popup_area(bpy.types.Operator):
             target_area = new_window.screen.areas[0] if new_window.screen.areas else None
             if target_area:
                 target_area.ui_type = self.area
+                if self.header != 'DEFAULT':
+                    header = self.header
+                    window_pointer = new_window.as_pointer()
+                    area_pointer = target_area.as_pointer()
+                    bpy.app.timers.register(
+                        lambda: _apply_popup_area_header(
+                            header,
+                            window_pointer,
+                            area_pointer,
+                        ),
+                        first_interval=0.01,
+                    )
 
             if (not reused) and self.cmd:
                 SU.exec_with_override(
@@ -1491,8 +1535,6 @@ class PME_OT_popup_area(bpy.types.Operator):
                     screen=new_window.screen,
                     area=target_area,
                 )
-
-        self.update_header(context, header_on_top, header_visible, header_dict)
 
         get_prefs().enable_window_kmis()
 
