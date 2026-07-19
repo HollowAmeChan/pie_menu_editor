@@ -7,12 +7,12 @@ baseline.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 37.
+- Repository commits including this audit snapshot: 38.
 - Compatibility commits after the automated-release baseline (`origin/main`):
-  34.
+  35.
 - Confirmed defect groups committed as `fix:`: 32.
-- Documentation and test-infrastructure commits: 2.
-- Preserved test scripts: 103 (65 smoke tests and 38 probes).
+- Documentation and test-infrastructure commits: 3.
+- Preserved test scripts: 105 (67 smoke tests and 38 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **32 confirmed and fixed defect
@@ -70,6 +70,8 @@ The following areas were tested without being counted as additional bugs:
 - Legacy JSON migration and exact synthetic import/export round trips.
 - Public community 5.1-era configuration import and representative UI draws.
 - Editor keymap registration, including `3D View` and `3D View Generic`.
+- Short-press fallback, long-hold activation, chord matching, chord timeout,
+  and active-operator cleanup on Blender 4.5 and 5.2.
 - Panel Group rebuild, reorder, removal, and repeated unregister.
 - App-template reload with preference data and custom preview icons.
 - Overlay drawing, normal expiration, and disable while active.
@@ -77,7 +79,12 @@ The following areas were tested without being counted as additional bugs:
 - Side-area show/hide through public APIs.
 - All bundled examples drawing under the compatibility layer.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
-  drawn items, with exact 4.5/5.2 round-trip comparisons during the campaign.
+  drawn items, with exact 4.5/5.2 round-trip and error-set comparisons at
+  version 1.19.27.
+- Eight installed third-party dependencies enabled together with the real
+  configuration, reducing missing-operator layout reports from 98 to 51.
+- A MACHIN3tools operator executed through a PME script menu and changed
+  Blender from Object Mode to Edit Mode.
 
 ## Evidence Location
 
@@ -93,14 +100,13 @@ outside version control.
 
 ## Remaining Gaps At Pause Point
 
-- The full 85-menu configuration passed on Blender 4.5 at version 1.19.27.
-  Its last complete Blender 5.2 exact round-trip run was earlier in the same
-  campaign; the 1.19.24-1.19.27 lifecycle changes have targeted 5.2 coverage,
-  but the broad 85-menu 5.2 rerun remains pending.
-- Real keyboard-event coverage for sticky, chord, hold, and release timing is
-  not a complete interaction matrix.
-- Third-party add-on integrations were enabled and representative menus were
-  drawn, but every external operator was not executed.
+- The full 85-menu configuration passes on Blender 4.5 and 5.2 at version
+  1.19.27 with identical exported JSON and equivalent captured error sets.
+- PME's hold and chord state machines are covered, but operating-system-level
+  keyboard queue dispatch is not an automated interaction matrix.
+- Major installed third-party add-ons were enabled, representative menus were
+  drawn, and one external operator was executed through PME, but every
+  external operator was not executed.
 - Platform coverage is Windows only.
 - Blender versions other than 4.5 and 5.2 are not part of the current matrix.
 

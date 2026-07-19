@@ -5,7 +5,7 @@ temporary directories during the Blender 4.5 and 5.2 upgrade.
 
 ## Inventory
 
-- `blender/smoke/`: 65 end-to-end or focused regression scripts.
+- `blender/smoke/`: 67 end-to-end or focused regression scripts.
 - `blender/probes/`: 38 API discovery and diagnostic scripts.
 - `fixtures/`: 6 reusable JSON configurations.
 
@@ -107,8 +107,10 @@ pme_panel_group_rebuild_smoke.py
 pme_overlay_disable_smoke.py
 pme_active_modal_disable_smoke.py
 pme_modal_runtime_smoke.py
+pme_hotkey_runtime_smoke.py
 pme_popup_header_async_smoke.py
 pme_app_template_session_smoke.py
+pme_third_party_operator_smoke.py
 ```
 
 Run focused scripts next to a changed subsystem. Use the probes when a Blender
