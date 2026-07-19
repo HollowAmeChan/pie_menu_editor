@@ -1100,8 +1100,9 @@ def popup_area(area, width=320, height=400, x=None, y=None):
     """
     Create a popup window by duplicating an area with specified dimensions.
 
-    This function temporarily modifies the source area's size parameters to control
-    the resulting popup window size, then restores the original values.
+    Blender 4.x temporarily modifies the source area's size parameters to control
+    the resulting popup window size. Blender 5.x uses the public duplication API
+    because the private ScrArea memory layout is no longer compatible.
 
     Args:
         area: Source area to duplicate
@@ -1112,6 +1113,21 @@ def popup_area(area, width=320, height=400, x=None, y=None):
     """
     C = bpy.context
     window = C.window
+
+    if bpy.app.version >= (5, 0, 0):
+        upr = get_uprefs()
+        ui_scale = upr.view.ui_scale
+        ui_line_width = upr.view.ui_line_width
+        upr.view.ui_scale = 1
+        upr.view.ui_line_width = 'THIN'
+
+        try:
+            with C.temp_override(area=area):
+                bpy.ops.screen.area_dupli('INVOKE_DEFAULT')
+        finally:
+            upr.view.ui_scale = ui_scale
+            upr.view.ui_line_width = ui_line_width
+        return
 
     # Get direct access to ScrArea structure via c_utils
     try:
