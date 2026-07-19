@@ -148,6 +148,14 @@ def fix_1_19_7(pr, pm):
             )
 
 
+def fix_1_19_8(pr, pm):
+    for pmi in pm.pmis:
+        if pmi.mode == 'COMMAND':
+            pmi.text = pmi.text.replace(
+                "bpy.ops.sculpt.sample_color", "sculpt_sample_color"
+            )
+
+
 def fix_json_1_17_1(pr, pm, menu):
     if not pm.ed.has_hotkey:
         return

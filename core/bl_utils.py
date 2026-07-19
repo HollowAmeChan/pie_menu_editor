@@ -217,6 +217,15 @@ def mesh_faces_mirror_uv(*args, direction='POSITIVE', precision=3, **kwargs):
     )
 
 
+def sculpt_sample_color(*args, **kwargs):
+    legacy_operator = bpy.ops.sculpt.sample_color
+    try:
+        legacy_operator.get_rna_type()
+    except KeyError:
+        return bpy.ops.paint.sample_color(*args, **kwargs)
+    return legacy_operator(*args, **kwargs)
+
+
 def uname(collection, name, sep=".", width=3, check=True):
     is_iterable = True
     try:
@@ -1084,6 +1093,7 @@ def register():
     pme.context.add_global("activate_brush", activate_brush)
     pme.context.add_global("mesh_loop_multi_select", mesh_loop_multi_select)
     pme.context.add_global("mesh_faces_mirror_uv", mesh_faces_mirror_uv)
+    pme.context.add_global("sculpt_sample_color", sculpt_sample_color)
     pme.context.add_global("re", re)
     pme.context.add_global("message_box", message_box)
     pme.context.add_global("input_box", input_box)
