@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 105.
+- Repository commits including this audit snapshot: 106.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  102.
+  103.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 50.
+- Feature, documentation, and test-infrastructure commits: 51.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -231,7 +231,12 @@ The following areas were tested without being counted as additional bugs:
   matching the unregister failure reported in Blender Artists post 5650. Two
   registered panels remain valid, repeated removal is idempotent, and no
   unregister warning or class leak occurs on Blender 4.5 or 5.2.
-- App-template reload with preference data and custom preview icons.
+- The app-template crash path from Blender Artists post 5655 passes on Blender
+  4.5, 5.0, and 5.2. After `wm.read_homefile(app_template="Sculpting")`, PME
+  preferences and menu data remain available, its preview collection remains
+  alive, and both load handlers stay singly registered. The larger private
+  configuration test additionally covers 85 menus, 759 items, and custom
+  preview icons; that user fixture remains intentionally outside the repository.
 - Overlay drawing, normal expiration, and disable while active.
 - Modal normal execution, no-area cancellation, and disable while active.
 - All bundled examples drawing under the compatibility layer.
