@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 99.
+- Repository commits including this audit snapshot: 101.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  96.
+  98.
 - Confirmed defect groups committed as `fix:`: 51.
-- Feature, documentation, and test-infrastructure commits: 45.
+- Feature, documentation, and test-infrastructure commits: 47.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -214,7 +214,11 @@ The following areas were tested without being counted as additional bugs:
   links on expansion. The regression disables tree-state file persistence, so
   it does not modify the repository or user tree state. This is validated
   coverage rather than an additional defect count.
-- Panel Group rebuild, reorder, removal, and repeated unregister.
+- Panel Group rebuild, reorder, removal, and repeated unregister. The reorder
+  now uses the real `pme.panel_item_move` operator and its `finish()` callback,
+  matching the unregister failure reported in Blender Artists post 5650. Two
+  registered panels remain valid, repeated removal is idempotent, and no
+  unregister warning or class leak occurs on Blender 4.5 or 5.2.
 - App-template reload with preference data and custom preview icons.
 - Overlay drawing, normal expiration, and disable while active.
 - Modal normal execution, no-area cancellation, and disable while active.
