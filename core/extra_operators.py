@@ -849,16 +849,34 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             "method": "adaptive_learning",
         }
 
-    def _clamp_side_width(self, context, main_area):
+    def _clamp_side_width(self, context, main_area, side_area=None):
         """Clamp requested side width to a safe range to avoid layout corruption."""
+        available_width = main_area.width
+        if APP_VERSION >= (5, 0, 0) and side_area is not None:
+            available_width += side_area.width
         window = getattr(context, "window", None)
         if window and getattr(window, "width", 0):
-            max_width = min(main_area.width, window.width) // 2
+            max_width = min(available_width, window.width) // 2
         else:
-            max_width = main_area.width // 2
+            max_width = available_width // 2
 
         max_width = max(32, int(max_width))
         return max(32, min(int(self.width), max_width))
+
+    def _clamp_side_height(self, context, main_area, side_area=None):
+        if APP_VERSION < (5, 0, 0):
+            return int(self.width)
+        available_height = main_area.height
+        if APP_VERSION >= (5, 0, 0) and side_area is not None:
+            available_height += side_area.height
+        window = getattr(context, "window", None)
+        if window and getattr(window, "height", 0):
+            max_height = min(available_height, window.height) // 2
+        else:
+            max_height = available_height // 2
+
+        max_height = max(32, int(max_height))
+        return max(32, min(int(self.width), max_height))
 
     def get_horizontal_areas(self, area):
         """Detect adjacent left/right areas using adaptive horizontal gap learning."""
@@ -1317,9 +1335,12 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and self.action in ("TOGGLE", "SHOW")
             and l.ui_type != self.area
         ):
-            target_width = self._clamp_side_width(context, a)
+            target_width = self._clamp_side_width(context, a, l)
             self.save_sidebars(l)
-            if APP_VERSION >= (5, 0, 0) and l.width != target_width:
+            if (
+                APP_VERSION >= (5, 0, 0)
+                and abs(l.width - target_width) > 12
+            ):
                 self.rebuild_side_area(
                     context,
                     a,
@@ -1331,7 +1352,7 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
                 return {"FINISHED"}
             self.configure_side_area(l, a)
 
-            if l.width != target_width:
+            if APP_VERSION < (5, 0, 0) and l.width != target_width:
                 self.resize_side_area(context, l, target_width, direction="RIGHT")
                 SU.redraw_screen()
 
@@ -1345,9 +1366,12 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and self.action in ("TOGGLE", "SHOW")
             and r.ui_type != self.area
         ):
-            target_width = self._clamp_side_width(context, a)
+            target_width = self._clamp_side_width(context, a, r)
             self.save_sidebars(r)
-            if APP_VERSION >= (5, 0, 0) and r.width != target_width:
+            if (
+                APP_VERSION >= (5, 0, 0)
+                and abs(r.width - target_width) > 12
+            ):
                 self.rebuild_side_area(
                     context,
                     a,
@@ -1359,7 +1383,7 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
                 return {"FINISHED"}
             self.configure_side_area(r, a)
 
-            if r.width != target_width:
+            if APP_VERSION < (5, 0, 0) and r.width != target_width:
                 self.resize_side_area(context, r, target_width, direction="LEFT")
                 SU.redraw_screen()
 
@@ -1383,21 +1407,30 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and self.action in ("TOGGLE", "SHOW")
             and t.ui_type != self.area
         ):
+            target_height = self._clamp_side_height(context, a, t)
             self.save_sidebars(t)
-            if APP_VERSION >= (5, 0, 0) and t.height != self.width:
+            if (
+                APP_VERSION >= (5, 0, 0)
+                and abs(t.height - target_height) > 12
+            ):
                 self.rebuild_side_area(
                     context,
                     a,
                     t,
                     "VERTICAL",
-                    self.width,
+                    target_height,
                 )
                 SU.redraw_screen()
                 return {"FINISHED"}
             self.configure_side_area(t, a)
 
-            if t.height != self.width:
-                self.resize_side_area(context, t, self.width, direction="BOTTOM")
+            if APP_VERSION < (5, 0, 0) and t.height != target_height:
+                self.resize_side_area(
+                    context,
+                    t,
+                    target_height,
+                    direction="BOTTOM",
+                )
                 SU.redraw_screen()
 
             self.restore_sidebars(t)
@@ -1410,21 +1443,30 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and self.action in ("TOGGLE", "SHOW")
             and b.ui_type != self.area
         ):
+            target_height = self._clamp_side_height(context, a, b)
             self.save_sidebars(b)
-            if APP_VERSION >= (5, 0, 0) and b.height != self.width:
+            if (
+                APP_VERSION >= (5, 0, 0)
+                and abs(b.height - target_height) > 12
+            ):
                 self.rebuild_side_area(
                     context,
                     a,
                     b,
                     "VERTICAL",
-                    self.width,
+                    target_height,
                 )
                 SU.redraw_screen()
                 return {"FINISHED"}
             self.configure_side_area(b, a)
 
-            if b.height != self.width:
-                self.resize_side_area(context, b, self.width, direction="TOP")
+            if APP_VERSION < (5, 0, 0) and b.height != target_height:
+                self.resize_side_area(
+                    context,
+                    b,
+                    target_height,
+                    direction="TOP",
+                )
                 SU.redraw_screen()
 
             self.restore_sidebars(b)
