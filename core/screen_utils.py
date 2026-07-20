@@ -193,19 +193,28 @@ class ContextOverride:
         delete_none: bool = True,
     ) -> Dict[str, Any]:
 
-        # Resolve all fields
         w = find_window(self.window, context)
         sc = find_screen(self.screen, context)
+        if sc is None and w is not None:
+            sc = w.screen
+        elif w is None and sc is not None:
+            w = next(
+                (
+                    item
+                    for item in context.window_manager.windows
+                    if item.screen == sc
+                ),
+                None,
+            )
+
         a = find_area(self.area, sc)
-        r = find_region(self.region, self.area, sc)
-        # bd = self.blend_data  # or context.blend_data
+        r = find_region(self.region, a, sc) if a is not None else None
 
         base_dict = {
             "window": w,
             "screen": sc,
             "area": a,
             "region": r,
-            # "blend_data": bd,
         }
 
         context_params = {**base_dict, **self.kwargs}
@@ -279,24 +288,15 @@ def focus_area(area, center=False, cmd=None):
 def override_context(
     area, screen=None, window=None, region='WINDOW', enter=True, **kwargs):
     context = bpy.context
-    window = find_window(window, context) or context.window
-    screen = find_screen(screen, context) or context.screen
-    area = find_area(area, screen) or context.area
-    region = find_region(region, area, screen) or area.regions[-1]
-
-    if all(v is None for v in (window, screen, area, region)):
-        oc = context.temp_override()
-        enter and oc.__enter__()
-        return oc
-
-    oc = context.temp_override(
+    override_args = ContextOverride(
         window=window,
         screen=screen,
         area=area,
         region=region,
         blend_data=context.blend_data,
-        **kwargs
-    )
+        **kwargs,
+    ).validate(context)
+    oc = context.temp_override(**override_args)
     enter and oc.__enter__()
     return oc
 
@@ -324,25 +324,14 @@ def exec_with_override(cmd, window=None, screen=None, area=None, region=None, **
     """Execute a command with a temporary bl_context"""
     try:
         context = bpy.context
-        window = find_window(window, context) or context.window
-        screen = find_screen(screen, context) or context.screen
-        area = find_area(area, screen) or context.area
-        region = (
-            find_region(region, area, screen)
-            or (area.regions[-1] if area and area.regions else None)
-        )
-
-        override_args = {
-            'window': window,
-            'screen': screen, 
-            'area': area,
-            'region': region,
-            'blend_data': context.blend_data,
-            **kwargs
-        }
-
-        # Remove None values
-        override_args = {k: v for k, v in override_args.items() if v is not None}
+        override_args = ContextOverride(
+            window=window,
+            screen=screen,
+            area=area,
+            region=region,
+            blend_data=context.blend_data,
+            **kwargs,
+        ).validate(context)
 
         with context.temp_override(**override_args):
             from . import bl_utils
