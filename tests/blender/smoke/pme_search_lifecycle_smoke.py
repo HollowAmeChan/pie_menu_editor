@@ -5,6 +5,8 @@ import traceback
 
 results = []
 macro_name = "PME Developer Search Macro"
+hidden_group_name = "PME Developer Search Hidden Panels"
+hidden_panel_name = "VIEW3D_PT_view3d_properties"
 
 
 def prepare_search_state(module):
@@ -18,7 +20,17 @@ def prepare_search_state(module):
     if macro_name not in prefs.pie_menus:
         macro = prefs.add_pm("MACRO", macro_name)
         macro.pmis[0].text = "bpy.ops.wm.redraw_timer(iterations=1)"
-    return macro_name in package.macro_utils._macros
+    if hidden_group_name not in prefs.pie_menus:
+        hidden_group = prefs.add_pm("HPANEL", hidden_group_name)
+        item = hidden_group.pmis.add()
+        item.name = "View"
+        item.mode = "EMPTY"
+        item.text = hidden_panel_name
+        hidden_group.ed.init_pm(hidden_group)
+    return (
+        macro_name in package.macro_utils._macros
+        and package.panel_utils.is_panel_hidden(hidden_panel_name)
+    )
 
 
 def finish(success):
