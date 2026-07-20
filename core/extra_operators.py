@@ -591,6 +591,16 @@ class PME_OT_area_move(bpy.types.Operator):
         return {'FINISHED'}
 
 
+_side_area_rebuild_timers = set()
+
+
+def _clear_side_area_rebuild_timers():
+    for callback in tuple(_side_area_rebuild_timers):
+        if bpy.app.timers.is_registered(callback):
+            bpy.app.timers.unregister(callback)
+    _side_area_rebuild_timers.clear()
+
+
 class PME_OT_sidearea_toggle(bpy.types.Operator):
     bl_idname = "pme.sidearea_toggle"
     bl_label = "Toggle Side Area"
@@ -977,29 +987,58 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
     def resize_side_area(context, area, target_size, direction):
         if APP_VERSION < (5, 0, 0):
             CTU.resize_area(area, target_size, direction=direction)
-            return
 
-        horizontal = direction in {'LEFT', 'RIGHT'}
-        current_size = area.width if horizontal else area.height
-        delta = int(target_size) - current_size
-        if abs(delta) <= 1:
-            return
+    def split_side_area(self, context, main_area):
+        horizontal = self.side in {'LEFT', 'RIGHT'}
+        main_size = main_area.width if horizontal else main_area.height
+        window_size = (
+            context.window.width if horizontal else context.window.height
+        )
+        target_size = max(
+            32,
+            min(int(self.width), min(main_size, window_size) // 2),
+        )
+        factor = (target_size - 1) / main_size
+        if self.side in {'RIGHT', 'TOP'}:
+            factor = 1 - factor
 
-        x = area.x + (area.width if direction == 'RIGHT' else 0)
-        y = area.y + (area.height if direction == 'TOP' else 0)
-        if horizontal:
-            y = area.y + area.height // 2
+        if APP_VERSION < (5, 0, 0):
+            self.add_space(main_area, self.area)
+
+        mouse = {}
+        area_split_props = operator_utils.get_rna_type(
+            bpy.ops.screen.area_split
+        ).properties
+        if "cursor" in area_split_props:
+            mouse["cursor"] = [main_area.x + 1, main_area.y + 1]
         else:
-            x = area.x + area.width // 2
-        if direction in {'LEFT', 'BOTTOM'}:
-            delta = -delta
+            mouse["mouse_x"] = main_area.x + 1
+            mouse["mouse_y"] = main_area.y + 1
 
-        with context.temp_override(area=None, region=None):
-            bpy.ops.pme.timeout(
-                'INVOKE_DEFAULT',
-                delay=0.0001,
-                cmd=f"bpy.ops.screen.area_move(x={x}, y={y}, delta={delta})",
+        existing_areas = {
+            area.as_pointer() for area in context.screen.areas
+        }
+        direction = "VERTICAL" if horizontal else "HORIZONTAL"
+        with context.temp_override(area=main_area):
+            bpy.ops.screen.area_split(
+                direction=direction,
+                factor=factor,
+                **mouse,
             )
+
+        new_area = next(
+            area
+            for area in context.screen.areas
+            if area.as_pointer() not in existing_areas
+        )
+        new_area.ui_type = self.area
+        if APP_VERSION < (5, 0, 0):
+            CTU.swap_spaces(new_area, main_area, self.area)
+
+        self.restore_sidebars(new_area)
+        self.move_header(new_area)
+        self.fix_area(new_area)
+        return new_area
 
     def move_header(self, area):
         if self.header != "DEFAULT":
@@ -1052,7 +1091,7 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             try:
                 with context.temp_override(area=area):
                     bpy.ops.screen.area_close()
-                return
+                return main
             except:
                 pass  # Fallback to area_join()
 
@@ -1091,6 +1130,110 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
                     bpy.ops.screen.area_join(source_xy=source, target_xy=target)
                 else:
                     bpy.ops.screen.area_join(cursor=(area.x + 2, area.y))
+
+    def rebuild_side_area(
+        self,
+        context,
+        main_area,
+        side_area,
+        direction,
+        target_size,
+    ):
+        window_pointer = context.window.as_pointer()
+        screen_pointer = context.screen.as_pointer()
+        points = (
+            (
+                main_area.x + main_area.width // 2,
+                main_area.y + main_area.height // 2,
+            ),
+            (
+                side_area.x + side_area.width // 2,
+                side_area.y + side_area.height // 2,
+            ),
+        )
+        properties = {
+            "action": "SHOW",
+            "main_area": self.main_area,
+            "area": self.area,
+            "ignore_area": self.ignore_area,
+            "side": self.side,
+            "width": int(target_size),
+            "header": self.header,
+            "ignore_areas": self.ignore_areas,
+        }
+        self.close_area(
+            context,
+            main_area,
+            side_area,
+            direction=direction,
+        )
+        attempts = 0
+
+        def split_after_join():
+            nonlocal attempts
+            attempts += 1
+            window = next(
+                (
+                    item
+                    for item in bpy.context.window_manager.windows
+                    if item.as_pointer() == window_pointer
+                ),
+                None,
+            )
+            if (
+                window is None
+                or window.screen.as_pointer() != screen_pointer
+            ):
+                _side_area_rebuild_timers.discard(split_after_join)
+                return None
+
+            screen = window.screen
+            main = next(
+                (
+                    candidate
+                    for candidate in screen.areas
+                    if candidate.ui_type == properties["main_area"]
+                    and all(
+                        candidate.x <= x <= candidate.x + candidate.width
+                        and candidate.y <= y <= candidate.y + candidate.height
+                        for x, y in points
+                    )
+                ),
+                None,
+            )
+            if main is None:
+                if attempts < 10:
+                    return 0.01
+                _side_area_rebuild_timers.discard(split_after_join)
+                return None
+
+            region = next(
+                (
+                    item
+                    for item in main.regions
+                    if item.type == "WINDOW"
+                ),
+                None,
+            )
+            try:
+                with bpy.context.temp_override(
+                    window=window,
+                    screen=screen,
+                    area=main,
+                    region=region,
+                ):
+                    bpy.ops.pme.sidearea_toggle(
+                        "EXEC_DEFAULT",
+                        **properties,
+                    )
+            except (AttributeError, ReferenceError, RuntimeError, TypeError):
+                if attempts < 10:
+                    return 0.01
+            _side_area_rebuild_timers.discard(split_after_join)
+            return None
+
+        _side_area_rebuild_timers.add(split_after_join)
+        bpy.app.timers.register(split_after_join, first_interval=0.001)
 
     def _try_close_from_side_area(self, context) -> bool:
         """If the active context is in the side area, try closing it by
@@ -1176,6 +1319,16 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         ):
             target_width = self._clamp_side_width(context, a)
             self.save_sidebars(l)
+            if APP_VERSION >= (5, 0, 0) and l.width != target_width:
+                self.rebuild_side_area(
+                    context,
+                    a,
+                    l,
+                    "HORIZONTAL",
+                    target_width,
+                )
+                SU.redraw_screen()
+                return {"FINISHED"}
             self.configure_side_area(l, a)
 
             if l.width != target_width:
@@ -1194,6 +1347,16 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         ):
             target_width = self._clamp_side_width(context, a)
             self.save_sidebars(r)
+            if APP_VERSION >= (5, 0, 0) and r.width != target_width:
+                self.rebuild_side_area(
+                    context,
+                    a,
+                    r,
+                    "HORIZONTAL",
+                    target_width,
+                )
+                SU.redraw_screen()
+                return {"FINISHED"}
             self.configure_side_area(r, a)
 
             if r.width != target_width:
@@ -1221,6 +1384,16 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and t.ui_type != self.area
         ):
             self.save_sidebars(t)
+            if APP_VERSION >= (5, 0, 0) and t.height != self.width:
+                self.rebuild_side_area(
+                    context,
+                    a,
+                    t,
+                    "VERTICAL",
+                    self.width,
+                )
+                SU.redraw_screen()
+                return {"FINISHED"}
             self.configure_side_area(t, a)
 
             if t.height != self.width:
@@ -1238,6 +1411,16 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
             and b.ui_type != self.area
         ):
             self.save_sidebars(b)
+            if APP_VERSION >= (5, 0, 0) and b.height != self.width:
+                self.rebuild_side_area(
+                    context,
+                    a,
+                    b,
+                    "VERTICAL",
+                    self.width,
+                )
+                SU.redraw_screen()
+                return {"FINISHED"}
             self.configure_side_area(b, a)
 
             if b.height != self.width:
@@ -1261,72 +1444,12 @@ class PME_OT_sidearea_toggle(bpy.types.Operator):
         elif (
             (self.side == "LEFT" and not l) or (self.side == "RIGHT" and not r)
         ) and self.action in ("TOGGLE", "SHOW"):
-            if self.width > a.width >> 1:
-                self.width = a.width >> 1
-
-            factor = (self.width - 1) / a.width
-            if self.side == "RIGHT":
-                factor = 1 - factor
-
-            if APP_VERSION < (5, 0, 0):
-                self.add_space(a, self.area)
-            mouse = {}
-            area_split_props = operator_utils.get_rna_type(
-                bpy.ops.screen.area_split
-            ).properties
-
-            if "cursor" in area_split_props:
-                mouse["cursor"] = [a.x + 1, a.y + 1]
-            else:
-                mouse["mouse_x"] = a.x + 1
-                mouse["mouse_y"] = a.y + 1
-
-            with context.temp_override(area=a):
-                bpy.ops.screen.area_split(direction="VERTICAL", factor=factor, **mouse)
-
-            new_area = context.screen.areas[-1]
-            new_area.ui_type = self.area
-            if APP_VERSION < (5, 0, 0):
-                CTU.swap_spaces(new_area, a, self.area)
-
-            self.restore_sidebars(new_area)
-            self.move_header(new_area)
-            self.fix_area(new_area)
+            self.split_side_area(context, a)
 
         elif (
             (self.side == "TOP" and not t) or (self.side == "BOTTOM" and not b)
         ) and self.action in ("TOGGLE", "SHOW"):
-            if self.width > a.height >> 1:
-                self.width = a.height >> 1
-
-            factor = (self.width - 1) / a.height
-            if self.side == "TOP":
-                factor = 1 - factor
-
-            if APP_VERSION < (5, 0, 0):
-                self.add_space(a, self.area)
-            mouse = {}
-            area_split_props = operator_utils.get_rna_type(
-                bpy.ops.screen.area_split
-            ).properties
-
-            if "cursor" in area_split_props:
-                mouse["cursor"] = [a.x + 1, a.y + 1]
-            else:
-                mouse["mouse_x"] = a.x + 1
-                mouse["mouse_y"] = a.y + 1
-
-            with context.temp_override(area=a):
-                bpy.ops.screen.area_split(direction="HORIZONTAL", factor=factor, **mouse)
-
-            new_area = context.screen.areas[-1]
-            new_area.ui_type = self.area
-            if APP_VERSION < (5, 0, 0):
-                CTU.swap_spaces(new_area, a, self.area)
-
-            self.restore_sidebars(new_area)
-            self.move_header(new_area)
-            self.fix_area(new_area)
+            self.split_side_area(context, a)
 
         return {"FINISHED"}
 
@@ -1728,6 +1851,7 @@ def register():
 
 
 def unregister():
+    _clear_side_area_rebuild_timers()
     _clear_popup_area_state_cache()
     if save_pre_handler in bpy.app.handlers.save_pre:
         bpy.app.handlers.save_pre.remove(save_pre_handler)

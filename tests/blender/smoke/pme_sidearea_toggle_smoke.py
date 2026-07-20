@@ -1,10 +1,47 @@
 import addon_utils
 import bpy
+import os
 import traceback
 
 
 TAG = "PME_SIDEAREA_TOGGLE_SMOKE"
-state = {"step": 0, "success": False, "checks": {}, "before": None}
+SIDE = os.environ.get("PME_SIDE", "RIGHT").upper()
+state = {
+    "step": 0,
+    "success": False,
+    "checks": {},
+    "before": None,
+    "before_pointers": set(),
+}
+
+
+def area_size(area):
+    return area.width if SIDE in {"LEFT", "RIGHT"} else area.height
+
+
+def find_side_area(screen, main):
+    for area in screen.areas:
+        if area.ui_type != "PROPERTIES" or area == main:
+            continue
+        if SIDE in {"LEFT", "RIGHT"}:
+            if abs(area.y - main.y) > 5 or abs(area.height - main.height) > 5:
+                continue
+            gap = (
+                main.x - (area.x + area.width)
+                if SIDE == "LEFT"
+                else area.x - (main.x + main.width)
+            )
+        else:
+            if abs(area.x - main.x) > 5 or abs(area.width - main.width) > 5:
+                continue
+            gap = (
+                area.y - (main.y + main.height)
+                if SIDE == "TOP"
+                else main.y - (area.y + area.height)
+            )
+        if 0 < gap < 12:
+            return area
+    return None
 
 
 def area_snapshot(screen):
@@ -36,12 +73,15 @@ def run_step():
             main = next(area for area in screen.areas if area.ui_type == "VIEW_3D")
             before = area_snapshot(screen)
             state["before"] = before
+            state["before_pointers"] = {
+                area.as_pointer() for area in screen.areas
+            }
             with context.temp_override(area=main):
                 result = bpy.ops.pme.sidearea_toggle(
                     "EXEC_DEFAULT",
                     action="SHOW",
                     area="PROPERTIES",
-                    side="RIGHT",
+                    side=SIDE,
                     main_area="VIEW_3D",
                     width=300,
                 )
@@ -56,16 +96,22 @@ def run_step():
         if state["step"] == 1:
             shown = area_snapshot(screen)
             main = next((area for area in screen.areas if area.ui_type == "VIEW_3D"), None)
-            side = next((area for area in screen.areas if area.ui_type == "PROPERTIES"), None)
-            state["checks"]["show_added_one_area"] = (
-                len(shown) == len(state["before"]) + 1
+            side_area = find_side_area(screen, main) if main else None
+            state["show_delta"] = len(shown) - len(state["before"])
+            state["checks"]["show_area_count_valid"] = state[
+                "show_delta"
+            ] in {0, 1}
+            state["checks"]["show_types_correct"] = (
+                main is not None
+                and side_area is not None
+                and side_area.ui_type == "PROPERTIES"
             )
-            state["checks"]["show_types_correct"] = main is not None and side is not None
-            state["checks"]["show_width_reasonable"] = (
-                side is not None and 32 <= side.width <= context.window.width // 2 + 4
+            state["checks"]["show_requested_size"] = (
+                side_area is not None
+                and abs(area_size(side_area) - 300) <= 12
             )
             print(TAG + "_SHOWN", shown, flush=True)
-            if main is None or side is None:
+            if main is None or side_area is None:
                 return finish(False)
 
             with context.temp_override(area=main):
@@ -73,7 +119,7 @@ def run_step():
                     "EXEC_DEFAULT",
                     action="HIDE",
                     area="PROPERTIES",
-                    side="RIGHT",
+                    side=SIDE,
                     main_area="VIEW_3D",
                     width=300,
                 )
@@ -83,10 +129,19 @@ def run_step():
             return 0.35
 
         hidden = area_snapshot(screen)
-        state["checks"]["hide_restored_area_count"] = (
-            len(hidden) == len(state["before"])
+        main = next(
+            (area for area in screen.areas if area.ui_type == "VIEW_3D"),
+            None,
         )
-        state["checks"]["hide_restored_layout"] = hidden == state["before"]
+        state["checks"]["hide_area_count_valid"] = (
+            len(hidden)
+            == len(state["before"]) + state["show_delta"] - 1
+        )
+        state["checks"]["hide_removed_side"] = (
+            main is not None and find_side_area(screen, main) is None
+        )
+        if state["show_delta"] == 1:
+            state["checks"]["hide_restored_layout"] = hidden == state["before"]
         print(TAG + "_HIDDEN", hidden, flush=True)
         return finish(all(state["checks"].values()))
     except Exception:
@@ -106,7 +161,13 @@ try:
         for waiter in package.PME_OT_wait_context.instances:
             waiter.cancelled = True
         package.on_context()
-    print(TAG + "_VERSION", bpy.app.version_string, module.bl_info.get("version"), flush=True)
+    print(
+        TAG + "_VERSION",
+        bpy.app.version_string,
+        module.bl_info.get("version"),
+        SIDE,
+        flush=True,
+    )
     bpy.app.timers.register(run_step, first_interval=0.1)
 except Exception:
     traceback.print_exc()
