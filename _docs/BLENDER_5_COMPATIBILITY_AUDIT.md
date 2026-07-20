@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 106.
+- Repository commits including this audit snapshot: 107.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  103.
+  104.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 51.
+- Feature, documentation, and test-infrastructure commits: 52.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -215,6 +215,12 @@ The following areas were tested without being counted as additional bugs:
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
   and active-operator cleanup on Blender 4.5 and 5.2.
+- The uninitialized `PME_OT_restore_pie_prefs.move_flag` errors reported in
+  Blender Artists posts 5457 and 5532 are covered by the modal-priority smoke
+  test. Both real PME helper operators enter their modal state, while the
+  public handler completes RELEASE, TIMER removal, and `finish()` without the
+  removed private field on Blender 4.5, 5.0, 5.1, and 5.2. This validates the
+  existing `fd4a9fb` fix and is not counted as another defect.
 - The fractional Modal Property Step report from Blender Artists post 5638 is
   covered across Blender 4.5, 5.0, 5.1, and 5.2. A Step of 0.3 survives the
   temporary editor RNA property, PMI encoding, float decoding, and runtime
