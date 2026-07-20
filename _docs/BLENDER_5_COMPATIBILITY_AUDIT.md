@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 107.
+- Repository commits including this audit snapshot: 109.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  104.
+  106.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 52.
+- Feature, documentation, and test-infrastructure commits: 54.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -243,6 +243,11 @@ The following areas were tested without being counted as additional bugs:
   alive, and both load handlers stay singly registered. The larger private
   configuration test additionally covers 85 menus, 759 items, and custom
   preview icons; that user fixture remains intentionally outside the repository.
+- The released-preview `NoneType` failure reported in Blender Artists post
+  5459 is covered on Blender 4.5, 5.0, 5.1, and 5.2. After explicitly releasing
+  the preview collection, name, ID, reverse-ID, and membership queries all
+  return safe empty values; refresh then rebuilds both existing and newly added
+  icons. This is separate from the `9dc2e9d` new-file refresh fix.
 - Overlay drawing, normal expiration, and disable while active.
 - Modal normal execution, no-area cancellation, and disable while active.
 - All bundled examples drawing under the compatibility layer.
