@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 101.
+- Repository commits including this audit snapshot: 103.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  98.
-- Confirmed defect groups committed as `fix:`: 51.
-- Feature, documentation, and test-infrastructure commits: 47.
+  100.
+- Confirmed defect groups committed as `fix:`: 52.
+- Feature, documentation, and test-infrastructure commits: 48.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -80,6 +80,7 @@ coverage, not counted as bugs.
 | `ee82f74` | Popup state | Safely closing Blender 5 Popup Screens discarded public editor state and reran the open command on every reopen. |
 | `5a2c470` | Side Area | Blender 5 Side Area resizing depended on the desktop cursor's active Screen state, and joined Areas invalidated the original main-area RNA reference. |
 | `a3a0daf` | Side Area sizing | Replacing an oversized Side Area editor reclamped against the already-shrunken main area, reducing a half-window side area to roughly one quarter. |
+| `cd1e497` | User keymaps | Malformed legacy PME KeyMapItems with missing or unreadable operator properties could abort empty-item cleanup instead of being removed. |
 
 ## Validated Coverage
 
@@ -130,6 +131,12 @@ The following areas were tested without being counted as additional bugs:
 - Editor keymap registration, including `3D View` and `3D View Generic`.
 - Empty/default PME user-keyconfig overrides are removed without changing
   valid PME overrides or unrelated Blender shortcuts on Blender 4.5 and 5.2.
+- Empty PME user-keyconfig cleanup also tolerates missing or unreadable
+  operator properties reported in the community keymap-cleaner discussion
+  around posts 5518 and 5573-5579. Such unusable PME items are treated as
+  empty, while valid PME properties and unrelated shortcuts remain untouched.
+  Missing-property handling, normal removal, and idempotence pass on Blender
+  4.5, 5.0, 5.1, and 5.2 at version 1.19.48.
 - Menu poll checks are consistent across hotkeys, scripts, previews, nested
   calls, embedded draws, and runtime menu classes; runtime poll errors cancel
   safely on Blender 4.5 and 5.2.
