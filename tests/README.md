@@ -139,6 +139,7 @@ pme_sidearea_oversize_smoke.py
 pme_sidearea_disable_smoke.py
 pme_keep_pie_open_safety_smoke.py
 pme_panel_group_rebuild_smoke.py
+pme_tag_group_collapse_smoke.py
 pme_overlay_disable_smoke.py
 pme_active_modal_disable_smoke.py
 pme_modal_runtime_smoke.py
