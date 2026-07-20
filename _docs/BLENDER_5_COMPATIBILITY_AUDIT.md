@@ -11,15 +11,15 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 93.
+- Repository commits including this audit snapshot: 95.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  90.
-- Confirmed defect groups committed as `fix:`: 50.
-- Feature, documentation, and test-infrastructure commits: 40.
-- Preserved test scripts: 126 (87 smoke tests and 39 probes).
+  92.
+- Confirmed defect groups committed as `fix:`: 51.
+- Feature, documentation, and test-infrastructure commits: 41.
+- Preserved test scripts: 127 (88 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **50 confirmed and fixed defect
+The conservative bug count is therefore **51 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -79,6 +79,7 @@ coverage, not counted as bugs.
 | `7fddb17` | Sculpt paint | Blender 5.0 retained `sculpt.sample_color` but rejected the `location` argument required by the Blender 5.1/5.2 replacement. |
 | `ee82f74` | Popup state | Safely closing Blender 5 Popup Screens discarded public editor state and reran the open command on every reopen. |
 | `5a2c470` | Side Area | Blender 5 Side Area resizing depended on the desktop cursor's active Screen state, and joined Areas invalidated the original main-area RNA reference. |
+| `a3a0daf` | Side Area sizing | Replacing an oversized Side Area editor reclamped against the already-shrunken main area, reducing a half-window side area to roughly one quarter. |
 
 ## Validated Coverage
 
@@ -180,6 +181,14 @@ The following areas were tested without being counted as additional bugs:
   after join rather than using cursor-dependent `screen.area_move`. Pending
   rebuild callbacks are removed during add-on disable and remain clear after
   re-enable on Blender 5.0, 5.1, and 5.2.
+- The oversized Side Area sequence reported in Blender Artists posts 5673 and
+  5681 is covered without cursor input. A requested 2000 px Asset Browser is
+  clamped to half of the combined available area; after changing it to the
+  Geometry Nodes editor and reopening the Asset Browser, the side size remains
+  stable and the Area count does not grow. Before the fix the 5.2 reproducer
+  changed from 1046 px to 518 px; version 1.19.47 remains 1046 px on both
+  calls. LEFT and TOP pass on 5.2, LEFT passes on 5.0 and 5.1, and the 4.5
+  legacy resize path remains unchanged and passes its focused regressions.
 - `keep_pie_open(layout)` retains its legacy flag behavior and returns `True`
   on Blender 4.5. On Blender 5.2 it performs zero private layout accesses and
   returns `False`, allowing user scripts to detect that Blender exposes no
@@ -284,6 +293,11 @@ The following areas were tested without being counted as additional bugs:
   public join/split API instead of cursor-dependent resize dispatch. Exact
   requested sizing, SHOW/HIDE, four directions, callback cleanup, and
   disable/re-enable pass in the focused Windows matrix.
+- Version 1.19.47 clamps replacement Side Areas against the combined main and
+  adjacent dimensions instead of the already-reduced main dimension. Oversize
+  editor swaps retain a stable half-area layout horizontally and vertically,
+  while normal four-direction, callback cleanup, and 4.5 baseline regressions
+  continue to pass.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
