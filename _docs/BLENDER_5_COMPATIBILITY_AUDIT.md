@@ -11,12 +11,12 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 91.
+- Repository commits including this audit snapshot: 93.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  88.
+  90.
 - Confirmed defect groups committed as `fix:`: 50.
-- Feature, documentation, and test-infrastructure commits: 38.
-- Preserved test scripts: 125 (86 smoke tests and 39 probes).
+- Feature, documentation, and test-infrastructure commits: 40.
+- Preserved test scripts: 126 (87 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **50 confirmed and fixed defect
@@ -164,6 +164,14 @@ The following areas were tested without being counted as additional bugs:
   Open commands execute once as on the 4.5 reused-Screen path. Cache timers and
   state are fully removed on add-on disable; explicit header arguments still
   override restored state. The four-version regression uses `center=False`.
+- The community-reported Popup Asset Browser crash path now has a dedicated
+  non-invasive regression. `area="ASSETS"` opens a real File Browser in Asset
+  mode with initialized parameters and exact 900 by 600 dimensions, then
+  closes without losing the source window or leaving the Popup state timer.
+  It passes on Blender 4.5, 5.0, 5.1, and 5.2 with `center=False`. This covers
+  the reports in Blender Artists posts 4942, 4944, and 5170; it is validated
+  coverage rather than a new defect count because no additional code change
+  was required at version 1.19.46.
 - Side Area SHOW/HIDE uses coordinate-based public split/join operations
   without moving the system cursor. LEFT, RIGHT, TOP, and BOTTOM restore the
   expected layout or consume a deliberately reused neighbor on Blender 5.2;
