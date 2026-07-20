@@ -11,12 +11,12 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 95.
+- Repository commits including this audit snapshot: 97.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  92.
+  94.
 - Confirmed defect groups committed as `fix:`: 51.
-- Feature, documentation, and test-infrastructure commits: 41.
-- Preserved test scripts: 127 (88 smoke tests and 39 probes).
+- Feature, documentation, and test-infrastructure commits: 43.
+- Preserved test scripts: 128 (89 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **51 confirmed and fixed defect
@@ -203,6 +203,11 @@ The following areas were tested without being counted as additional bugs:
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
   and active-operator cleanup on Blender 4.5 and 5.2.
+- The fractional Modal Property Step report from Blender Artists post 5638 is
+  covered across Blender 4.5, 5.0, 5.1, and 5.2. A Step of 0.3 survives the
+  temporary editor RNA property, PMI encoding, float decoding, and runtime
+  +1/-1 property updates. This is validated coverage at version 1.19.47, not
+  an additional defect count.
 - Panel Group rebuild, reorder, removal, and repeated unregister.
 - App-template reload with preference data and custom preview icons.
 - Overlay drawing, normal expiration, and disable while active.
