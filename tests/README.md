@@ -133,6 +133,7 @@ pme_popup_area_sync_smoke.py
 pme_popup_auto_close_smoke.py
 pme_popup_destroy_before_header_smoke.py
 pme_popup_state_cache_smoke.py
+pme_popup_asset_browser_smoke.py
 pme_sidearea_toggle_smoke.py
 pme_sidearea_disable_smoke.py
 pme_keep_pie_open_safety_smoke.py
