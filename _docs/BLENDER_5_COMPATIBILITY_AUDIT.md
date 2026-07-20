@@ -5,17 +5,21 @@ Snapshot date: 2026-07-20
 Target: Blender 5.2 LTS, with Blender 4.5 LTS retained as the compatibility
 baseline.
 
+Current local testing excludes release ZIP construction and installation. The
+historical ZIP results below remain recorded, while the current remote release
+flow is treated as user-verified.
+
 ## Current Count
 
-- Repository commits including this audit snapshot: 89.
+- Repository commits including this audit snapshot: 91.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  86.
-- Confirmed defect groups committed as `fix:`: 49.
-- Feature, documentation, and test-infrastructure commits: 37.
-- Preserved test scripts: 124 (85 smoke tests and 39 probes).
+  88.
+- Confirmed defect groups committed as `fix:`: 50.
+- Feature, documentation, and test-infrastructure commits: 38.
+- Preserved test scripts: 125 (86 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **49 confirmed and fixed defect
+The conservative bug count is therefore **50 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -74,6 +78,7 @@ coverage, not counted as bugs.
 | `d07f835` | UV editing | Blender 5.0/5.1 `uv.copy_mirrored_faces` still used `direction`, while Blender 5.2 replaced it with `mesh_axis` and `uv_axis`. |
 | `7fddb17` | Sculpt paint | Blender 5.0 retained `sculpt.sample_color` but rejected the `location` argument required by the Blender 5.1/5.2 replacement. |
 | `ee82f74` | Popup state | Safely closing Blender 5 Popup Screens discarded public editor state and reran the open command on every reopen. |
+| `5a2c470` | Side Area | Blender 5 Side Area resizing depended on the desktop cursor's active Screen state, and joined Areas invalidated the original main-area RNA reference. |
 
 ## Validated Coverage
 
@@ -159,6 +164,14 @@ The following areas were tested without being counted as additional bugs:
   Open commands execute once as on the 4.5 reused-Screen path. Cache timers and
   state are fully removed on add-on disable; explicit header arguments still
   override restored state. The four-version regression uses `center=False`.
+- Side Area SHOW/HIDE uses coordinate-based public split/join operations
+  without moving the system cursor. LEFT, RIGHT, TOP, and BOTTOM restore the
+  expected layout or consume a deliberately reused neighbor on Blender 5.2;
+  representative horizontal and vertical paths pass on Blender 4.5, 5.0,
+  and 5.1. Reused Blender 5 Areas with a different requested size are rebuilt
+  after join rather than using cursor-dependent `screen.area_move`. Pending
+  rebuild callbacks are removed during add-on disable and remain clear after
+  re-enable on Blender 5.0, 5.1, and 5.2.
 - `keep_pie_open(layout)` retains its legacy flag behavior and returns `True`
   on Blender 4.5. On Blender 5.2 it performs zero private layout accesses and
   returns `False`, allowing user scripts to detect that Blender exposes no
@@ -259,6 +272,10 @@ The following areas were tested without being counted as additional bugs:
   and Boolean state, status-bar state, command de-duplication, header updates,
   exact sizing, early destruction, and disable cleanup pass across the focused
   four-version matrix.
+- Version 1.19.46 rebuilds differently sized adjacent Side Areas through the
+  public join/split API instead of cursor-dependent resize dispatch. Exact
+  requested sizing, SHOW/HIDE, four directions, callback cleanup, and
+  disable/re-enable pass in the focused Windows matrix.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
@@ -275,9 +292,10 @@ The following areas were tested without being counted as additional bugs:
 - Synthetic and community fixtures: `tests/fixtures/`
 - Execution and data-handling notes: `tests/README.md`
 
-The test README marks Area Move, Dynamic Modes, and Side Area scripts as
-interactive-only because they use cursor warping or simulated input. Results
-from the interrupted mouse-driven batch are excluded from this audit.
+The test README marks Area Move, Dynamic Modes, and the legacy full Side Area
+script as interactive-only because they use cursor warping or simulated input.
+The non-invasive Side Area toggle and disable scripts are counted above.
+Results from the interrupted mouse-driven batch are excluded from this audit.
 
 The original temporary copies and generated output were not used as the source
 of truth after this snapshot. Private configuration data, generated RNA/API
@@ -290,13 +308,17 @@ outside version control.
   1.19.39 with byte-identical exported JSON and equivalent captured error
   signatures.
 - PME's hold and chord state machines are covered, but operating-system-level
-  keyboard queue dispatch is not an automated interaction matrix.
+  keyboard queue dispatch is not an automated interaction matrix. A discarded
+  Blender `Window.event_simulate` experiment delivered F13/F14 to modal
+  handlers but not to either PME or a minimal control keymap, so it was not
+  accepted as end-to-end keymap evidence.
 - Major installed third-party add-ons were enabled, representative menus were
   drawn, and one external operator was executed through PME, but every
   external operator was not executed.
-- Area Move and Side Area still need a non-invasive automation harness or an
-  explicitly reserved interactive desktop session. Their recent mouse-driven
-  results are not counted as compatibility evidence.
+- Area Move still needs an explicitly reserved interactive desktop session.
+  Its implementation intentionally warps the cursor to invoke Blender's
+  interactive edge-move operation, so its interrupted mouse-driven results are
+  not counted as compatibility evidence.
 - Blender 5 safely deletes a persistent Popup Screen when its window closes.
   PME now captures and restores its public scalar editor state, but multi-Area
   split geometry, pointer/collection RNA, and per-region view transforms are

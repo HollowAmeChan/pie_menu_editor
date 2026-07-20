@@ -57,6 +57,10 @@ audit evidence only when cursor control was explicitly reserved for the test.
 
 ## Release ZIP Install
 
+This is a historical/manual workflow. The current local Blender compatibility
+scope treats the remote release flow as user-verified and does not build or
+install-test ZIP archives.
+
 Build the archive with Blender's bundled Python:
 
 ```powershell
@@ -111,7 +115,6 @@ The following scripts cover the most important shared behavior without trying
 to build a complete Blender matrix:
 
 ```text
-pme_release_zip_install_smoke.py
 pme_lifecycle_smoke.py
 pme_import_export_smoke.py
 pme_community_config_smoke.py
