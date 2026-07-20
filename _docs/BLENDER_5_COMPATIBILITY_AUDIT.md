@@ -11,12 +11,12 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 97.
+- Repository commits including this audit snapshot: 99.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  94.
+  96.
 - Confirmed defect groups committed as `fix:`: 51.
-- Feature, documentation, and test-infrastructure commits: 43.
-- Preserved test scripts: 128 (89 smoke tests and 39 probes).
+- Feature, documentation, and test-infrastructure commits: 45.
+- Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
 The conservative bug count is therefore **51 confirmed and fixed defect
@@ -208,6 +208,12 @@ The following areas were tested without being counted as additional bugs:
   temporary editor RNA property, PMI encoding, float decoding, and runtime
   +1/-1 property updates. This is validated coverage at version 1.19.47, not
   an additional defect count.
+- Tag-group collapse from Blender Artists post 5539 is covered on Blender 4.5
+  and 5.2. The real tree-group operator hides only the selected tag's menu
+  links, preserves the collapsed group across a tree rebuild, and restores the
+  links on expansion. The regression disables tree-state file persistence, so
+  it does not modify the repository or user tree state. This is validated
+  coverage rather than an additional defect count.
 - Panel Group rebuild, reorder, removal, and repeated unregister.
 - App-template reload with preference data and custom preview icons.
 - Overlay drawing, normal expiration, and disable while active.
