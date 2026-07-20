@@ -63,11 +63,18 @@ try:
             rebuild_states.append((len(panels), all(registered)))
         checks["repeated_rebuild"] = rebuild_states == [(2, True)] * 3
 
-        pm.pmis.move(0, 1)
-        pm.update_panel_group()
+        prefs.active_pie_menu_idx = prefs.pie_menus.find(pm.name)
+        move_result = bpy.ops.pme.panel_item_move(
+            "EXEC_DEFAULT",
+            old_idx=0,
+            old_idx_last=-1,
+            new_idx=1,
+            swap=False,
+        )
         panels, registered = panel_state(panel_utils, pm.name)
         checks["move_rebuild"] = (
-            len(panels) == 2
+            move_result == {"FINISHED"}
+            and len(panels) == 2
             and all(registered)
             and [panel.bl_label for panel in panels] == ["Collections", "View"]
         )
