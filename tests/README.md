@@ -142,6 +142,7 @@ pme_panel_group_rebuild_smoke.py
 pme_overlay_disable_smoke.py
 pme_active_modal_disable_smoke.py
 pme_modal_runtime_smoke.py
+pme_modal_fractional_step_smoke.py
 pme_hotkey_runtime_smoke.py
 pme_layout_signature_smoke.py
 pme_popup_header_async_smoke.py
