@@ -766,6 +766,27 @@ class KeymapHelper:
         self.keymap_items = None
 
 
+_KEYMAP_PROPERTY_ERRORS = (
+    AttributeError,
+    ReferenceError,
+    RuntimeError,
+    TypeError,
+)
+
+
+def _is_empty_operator_properties(properties):
+    if properties is None:
+        return True
+    try:
+        return not any(
+            getattr(properties, prop.identifier) != prop.default
+            for prop in properties.bl_rna.properties
+            if prop.identifier != "rna_type"
+        )
+    except _KEYMAP_PROPERTY_ERRORS:
+        return True
+
+
 def remove_empty_pme_user_keymap_items():
     keyconfig = bpy.context.window_manager.keyconfigs.user
     if not keyconfig:
@@ -777,13 +798,11 @@ def remove_empty_pme_user_keymap_items():
             if item.idname != "wm.pme_user_pie_menu_call":
                 continue
 
-            properties = item.properties
-            has_non_default_property = any(
-                getattr(properties, prop.identifier) != prop.default
-                for prop in properties.bl_rna.properties
-                if prop.identifier != "rna_type"
-            )
-            if has_non_default_property:
+            try:
+                properties = item.properties
+            except _KEYMAP_PROPERTY_ERRORS:
+                properties = None
+            if not _is_empty_operator_properties(properties):
                 continue
 
             keymap.keymap_items.remove(item)

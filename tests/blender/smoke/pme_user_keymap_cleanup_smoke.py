@@ -64,6 +64,9 @@ try:
     removed_again = package.keymap_helper.remove_empty_pme_user_keymap_items()
 
     checks = {
+        "missing_properties_are_empty": (
+            package.keymap_helper._is_empty_operator_properties(None)
+        ),
         "removed_empty_items": removed == 2,
         "cleanup_is_idempotent": removed_again == 0,
         "valid_item_preserved": valid in remaining,
