@@ -11,15 +11,15 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 113.
+- Repository commits including this audit snapshot: 115.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  110.
-- Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 58.
-- Preserved test scripts: 129 (90 smoke tests and 39 probes).
+  112.
+- Confirmed defect groups committed as `fix:`: 53.
+- Feature, documentation, and test-infrastructure commits: 59.
+- Preserved test scripts: 130 (91 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **51 confirmed and fixed defect
+The conservative bug count is therefore **52 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -81,6 +81,7 @@ coverage, not counted as bugs.
 | `5a2c470` | Side Area | Blender 5 Side Area resizing depended on the desktop cursor's active Screen state, and joined Areas invalidated the original main-area RNA reference. |
 | `a3a0daf` | Side Area sizing | Replacing an oversized Side Area editor reclamped against the already-shrunken main area, reducing a half-window side area to roughly one quarter. |
 | `cd1e497` | User keymaps | Malformed legacy PME KeyMapItems with missing or unreadable operator properties could abort empty-item cleanup instead of being removed. |
+| `f5d4c29` | Context overrides | Selecting another Window without an explicit Screen paired it with the current Window's Area, causing `temp_override` to reject public PME multi-window helpers. |
 
 ## Validated Coverage
 
@@ -148,6 +149,14 @@ The following areas were tested without being counted as additional bugs:
 - Scripted poll globals (`C` and PME's `bpy.context` proxy) follow the context
   passed by Blender and restore the previous context after both successful and
   failing polls on Blender 4.5 and 5.2.
+- Multi-window context helpers now resolve dependencies in Window, Screen,
+  Area, Region order. Before version 1.19.49, selecting a second Window without
+  also naming its Screen paired it with an Area from the source Screen and
+  raised `TypeError: Area not found in screen` on both Blender 4.5 and 5.2.
+  `get_override_args`, public `override_context`, and public
+  `exec_with_override` enter the target Window and restore the source context
+  on Blender 4.5, 5.0, 5.1, and 5.2. Popup Header and Preferences maximize
+  regressions continue to pass on the 4.5/5.2 representative matrix.
 - Macro operator dependencies are checked before native Macro registration and
   before every PME execution. Direct, post-build removal, and nested missing
   dependencies stop the complete Macro safely, while disabling the bad slot
@@ -353,6 +362,10 @@ The following areas were tested without being counted as additional bugs:
   editor swaps retain a stable half-area layout horizontally and vertically,
   while normal four-direction, callback cleanup, and 4.5 baseline regressions
   continue to pass.
+- Version 1.19.49 resolves Area and Region overrides from the selected target
+  Window's Screen. Its real second-window regression passes all three PME
+  context helper paths across Blender 4.5, 5.0, 5.1, and 5.2 without simulated
+  input or cursor movement.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version
