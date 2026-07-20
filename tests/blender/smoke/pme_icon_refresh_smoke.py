@@ -42,6 +42,24 @@ def run():
             "loaded_after": after and new_id > 0,
             "existing_id_stable": old_id > 0 and stable_id == old_id,
         }
+
+        ph.unregister()
+        checks.update(
+            {
+                "preview_released": ph.preview is None,
+                "missing_has_icon_safe": not ph.has_icon("pPress"),
+                "missing_get_icon_safe": ph.get_icon("pPress") == 0,
+                "missing_names_safe": list(ph.get_names()) == [],
+                "missing_reverse_lookup_safe": ph.get_icon_name_by_id(old_id) is None,
+            }
+        )
+
+        ph.refresh()
+        checks["preview_rebuilt"] = (
+            ph.preview is not None
+            and ph.get_icon("pPress") > 0
+            and ph.get_icon("pme_refresh_smoke") > 0
+        )
         print("PME_ICON_REFRESH_CHECKS", checks, flush=True)
         print(
             "PME_ICON_REFRESH_IDS",
