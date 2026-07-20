@@ -21,6 +21,7 @@ NAMES = tuple(name for name, _mode in CASES)
 state = {
     "before": None,
     "original_hold_time": None,
+    "original_tag_filter": None,
     "expected_hold_time": 463,
     "load_seen": False,
 }
@@ -56,6 +57,8 @@ def finish(success, checks=None, after=None):
             prefs = get_prefs()
             if state["original_hold_time"] is not None:
                 prefs.hold_time = state["original_hold_time"]
+            if state["original_tag_filter"] is not None:
+                prefs.tag_filter = state["original_tag_filter"]
             cleanup(prefs)
     except Exception:
         traceback.print_exc()
@@ -86,6 +89,17 @@ def verify():
             "scalar_preference_preserved": (
                 prefs.hold_time == state["expected_hold_time"]
             ),
+            "active_index_is_rna": (
+                "active_pie_menu_idx" in prefs.bl_rna.properties
+            ),
+            "active_index_readable": (
+                isinstance(prefs.active_pie_menu_idx, int)
+                and -1 <= prefs.active_pie_menu_idx < len(prefs.pie_menus)
+            ),
+            "tag_filter_is_rna": "tag_filter" in prefs.bl_rna.properties,
+            "tag_filter_roundtrip": (
+                prefs.tag_filter == "PME Homefile Filter Smoke"
+            ),
         }
         return finish(all(checks.values()), checks, after)
     except Exception:
@@ -106,6 +120,7 @@ def switch_to_empty_homefile():
         prefs = get_prefs()
         cleanup(prefs)
         state["original_hold_time"] = prefs.hold_time
+        state["original_tag_filter"] = prefs.tag_filter
         prefs.hold_time = state["expected_hold_time"]
 
         for index, (name, mode) in enumerate(CASES):
@@ -116,6 +131,9 @@ def switch_to_empty_homefile():
             item.name = "Marker %d" % index
             item.mode = "COMMAND"
             item.text = 'C.scene["pme_empty_homefile"] = %d' % index
+
+        prefs.active_pie_menu_idx = prefs.pie_menus.find(NAMES[-1])
+        prefs.tag_filter = "PME Homefile Filter Smoke"
 
         state["before"] = signature(prefs)
         bpy.app.handlers.load_post.append(after_load)
