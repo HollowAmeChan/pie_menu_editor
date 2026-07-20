@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 111.
+- Repository commits including this audit snapshot: 113.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  108.
+  110.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 56.
+- Feature, documentation, and test-infrastructure commits: 58.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -153,7 +153,8 @@ The following areas were tested without being counted as additional bugs:
   dependencies stop the complete Macro safely, while disabling the bad slot
   restores normal execution on Blender 4.5 and 5.2. Before the fix, the focused
   reproducer terminated Blender 5.2 with an access violation in
-  `WM_operator_poll`.
+  `WM_operator_poll`. This covers the stale third-party Macro dependency
+  reported in Blender Artists posts 5444 and 5445.
 - Scripts can invoke stored Macros through
   `bpy.ops.pme.invoke_macro(menu_name="...")`. The wrapper checks menu type,
   enabled state, poll conditions, missing dependencies, and explicit Macro
@@ -221,12 +222,13 @@ The following areas were tested without being counted as additional bugs:
   Blender 4.5 and 5.2, including version-specific compatibility parameters.
 - Short-press fallback, long-hold activation, chord matching, chord timeout,
   and active-operator cleanup on Blender 4.5 and 5.2.
-- The uninitialized `PME_OT_restore_pie_prefs.move_flag` errors reported in
-  Blender Artists posts 5457 and 5532 are covered by the modal-priority smoke
-  test. Both real PME helper operators enter their modal state, while the
-  public handler completes RELEASE, TIMER removal, and `finish()` without the
-  removed private field on Blender 4.5, 5.0, 5.1, and 5.2. This validates the
-  existing `fd4a9fb` fix and is not counted as another defect.
+- The uninitialized `PME_OT_restore_pie_prefs.move_flag` and `finished` errors
+  reported in Blender Artists posts 5457, 5499, and 5532 are covered by the
+  modal-priority smoke test. Both real PME helper operators enter their modal
+  state, while the public handler completes RELEASE, TIMER removal, and
+  `finish()` without the removed private fields on Blender 4.5, 5.0, 5.1, and
+  5.2. This validates the existing `fd4a9fb` fix and is not counted as another
+  defect.
 - The fractional Modal Property Step report from Blender Artists post 5638 is
   covered across Blender 4.5, 5.0, 5.1, and 5.2. A Step of 0.3 survives the
   temporary editor RNA property, PMI encoding, float decoding, and runtime
@@ -243,6 +245,10 @@ The following areas were tested without being counted as additional bugs:
   matching the unregister failure reported in Blender Artists post 5650. Two
   registered panels remain valid, repeated removal is idempotent, and no
   unregister warning or class leak occurs on Blender 4.5 or 5.2.
+- Developer Search with an active hidden Panel Group, the crash combination
+  reported in Blender Artists posts 5428 and 5431, passes before and after PME
+  disable/re-enable on Blender 4.5, 5.0, 5.1, and 5.2. The regression verifies
+  both the hidden Panel state and dynamic Macro registration at each search.
 - The app-template crash path from Blender Artists post 5655 passes on Blender
   4.5, 5.0, and 5.2. After `wm.read_homefile(app_template="Sculpting")`, PME
   preferences and menu data remain available, its preview collection remains
