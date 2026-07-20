@@ -6,12 +6,16 @@ import traceback
 
 TAG = "PME_SIDEAREA_TOGGLE_SMOKE"
 SIDE = os.environ.get("PME_SIDE", "RIGHT").upper()
+UI_SCALE = os.environ.get("PME_UI_SCALE")
+UI_LINE_WIDTH = os.environ.get("PME_UI_LINE_WIDTH")
 state = {
     "step": 0,
     "success": False,
     "checks": {},
     "before": None,
     "before_pointers": set(),
+    "original_ui_scale": None,
+    "original_ui_line_width": None,
 }
 
 
@@ -59,6 +63,15 @@ def area_snapshot(screen):
 
 def finish(success):
     state["success"] = success
+    try:
+        view = bpy.context.preferences.view
+        if state["original_ui_scale"] is not None:
+            view.ui_scale = state["original_ui_scale"]
+        if state["original_ui_line_width"] is not None:
+            view.ui_line_width = state["original_ui_line_width"]
+    except Exception:
+        traceback.print_exc()
+        success = False
     print(TAG + "_CHECKS", state["checks"], flush=True)
     print(TAG + "_RESULT", "OK" if success else "FAILED", flush=True)
     bpy.ops.wm.quit_blender()
@@ -161,14 +174,23 @@ try:
         for waiter in package.PME_OT_wait_context.instances:
             waiter.cancelled = True
         package.on_context()
+
+    view = bpy.context.preferences.view
+    if UI_SCALE is not None:
+        state["original_ui_scale"] = view.ui_scale
+        view.ui_scale = float(UI_SCALE)
+    if UI_LINE_WIDTH is not None:
+        state["original_ui_line_width"] = view.ui_line_width
+        view.ui_line_width = UI_LINE_WIDTH.upper()
     print(
         TAG + "_VERSION",
         bpy.app.version_string,
         module.bl_info.get("version"),
         SIDE,
+        {"ui_scale": view.ui_scale, "ui_line_width": view.ui_line_width},
         flush=True,
     )
-    bpy.app.timers.register(run_step, first_interval=0.1)
+    bpy.app.timers.register(run_step, first_interval=0.5)
 except Exception:
     traceback.print_exc()
     finish(False)
