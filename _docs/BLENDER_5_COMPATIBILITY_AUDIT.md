@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 109.
+- Repository commits including this audit snapshot: 111.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  106.
+  108.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 54.
+- Feature, documentation, and test-infrastructure commits: 56.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -193,6 +193,12 @@ The following areas were tested without being counted as additional bugs:
   after join rather than using cursor-dependent `screen.area_move`. Pending
   rebuild callbacks are removed during add-on disable and remain clear after
   re-enable on Blender 5.0, 5.1, and 5.2.
+- The UI scaling and separator-width behavior reported in Blender Artists post
+  5523 is covered by the same non-invasive Side Area test. Real SHOW/HIDE
+  cycles pass with 0.75/THIN, 1.0/AUTO, and 2.0/THICK settings on Blender 5.2;
+  the 2.0/THICK vertical path also passes on Blender 4.5 and 5.0. Requested
+  300 px sides measure 290-300 px, do not multiply Areas, and the test restores
+  the original UI preferences before exit.
 - The oversized Side Area sequence reported in Blender Artists posts 5673 and
   5681 is covered without cursor input. A requested 2000 px Asset Browser is
   clamped to half of the combined available area; after changing it to the
