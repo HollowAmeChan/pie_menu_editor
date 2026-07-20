@@ -11,11 +11,11 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 103.
+- Repository commits including this audit snapshot: 105.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  100.
+  102.
 - Confirmed defect groups committed as `fix:`: 52.
-- Feature, documentation, and test-infrastructure commits: 48.
+- Feature, documentation, and test-infrastructure commits: 50.
 - Preserved test scripts: 129 (90 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
@@ -110,6 +110,11 @@ The following areas were tested without being counted as additional bugs:
   returned an empty menu list after re-enable.
 - Loading an empty Homefile preserves exact menu order, all mode-specific data
   and slots for all ten modes, and scalar preferences on Blender 4.5 and 5.2.
+- The exact startup/Homefile preference failure reported in Blender Artists
+  post 5503 is covered directly. `active_pie_menu_idx` and `tag_filter` remain
+  registered RNA properties, stay readable, and preserve assigned values while
+  an empty Homefile is loaded without disturbing menu data. The regression
+  passes on Blender 4.5, 5.0, and 5.2 without relying on custom IDProperties.
 - Bool, Int Vector, Float Vector, String, Enum, and Enum Flag Property Mode
   values survive both empty-Homefile loading and add-on disable/re-enable on
   Blender 4.5 and 5.2.
