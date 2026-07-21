@@ -772,6 +772,7 @@ _KEYMAP_PROPERTY_ERRORS = (
     RuntimeError,
     TypeError,
 )
+_needs_pme_user_keymap_rebuild = False
 
 
 def _is_empty_operator_properties(properties):
@@ -788,30 +789,102 @@ def _is_empty_operator_properties(properties):
 
 
 def remove_empty_pme_user_keymap_items():
-    keyconfig = bpy.context.window_manager.keyconfigs.user
-    if not keyconfig:
+    keyconfigs = bpy.context.window_manager.keyconfigs
+    if not keyconfigs:
         return 0
 
+    global _needs_pme_user_keymap_rebuild
     removed = 0
-    for keymap in keyconfig.keymaps:
-        for item in list(keymap.keymap_items):
-            if item.idname != "wm.pme_user_pie_menu_call":
-                continue
+    for keyconfig in (keyconfigs.user, keyconfigs.active):
+        if not keyconfig:
+            continue
+        for keymap in keyconfig.keymaps:
+            for item in list(keymap.keymap_items):
+                if item.idname != "wm.pme_user_pie_menu_call":
+                    continue
 
-            try:
-                properties = item.properties
-            except _KEYMAP_PROPERTY_ERRORS:
-                properties = None
-            if not _is_empty_operator_properties(properties):
-                continue
+                try:
+                    properties = item.properties
+                except _KEYMAP_PROPERTY_ERRORS:
+                    properties = None
+                if not _is_empty_operator_properties(properties):
+                    continue
 
-            keymap.keymap_items.remove(item)
-            removed += 1
+                keymap.keymap_items.remove(item)
+                removed += 1
 
     if removed:
-        bpy.context.window_manager.keyconfigs.update()
+        _needs_pme_user_keymap_rebuild = True
+        keyconfigs.update()
 
     return removed
+
+
+def _copy_pme_keymap_item(keymap, source):
+    item = keymap.keymap_items.new(
+        source.idname,
+        source.type,
+        source.value,
+        ctrl=source.ctrl,
+        shift=source.shift,
+        alt=source.alt,
+        oskey=source.oskey,
+        key_modifier=source.key_modifier,
+        any=source.any,
+    )
+    if hasattr(item, "direction") and hasattr(source, "direction"):
+        item.direction = source.direction
+    for name in source.properties.keys():
+        setattr(item.properties, name, getattr(source.properties, name))
+    return item
+
+
+def rebuild_pme_user_keymap_items():
+    global _needs_pme_user_keymap_rebuild
+    if not _needs_pme_user_keymap_rebuild:
+        return 0
+
+    keyconfigs = bpy.context.window_manager.keyconfigs
+    if not keyconfigs or not keyconfigs.user:
+        return 0
+
+    rebuilt = 0
+    user_keymaps = keyconfigs.user.keymaps
+    addon_keymaps = keyconfigs.addon.keymaps
+    for pm in get_prefs().pie_menus:
+        mapped = pm.kmis_map.get(pm.name) or {}
+        for keymap_name, source_items in mapped.items():
+            if not isinstance(source_items, list):
+                source_items = [source_items]
+            source_keymap = addon_keymaps.get(keymap_name)
+            if source_keymap is None:
+                continue
+            user_keymap = user_keymaps.get(keymap_name)
+            if user_keymap is None:
+                user_keymap = user_keymaps.new(
+                    name=keymap_name,
+                    space_type=source_keymap.space_type,
+                    region_type=source_keymap.region_type,
+                )
+            for source in source_items:
+                exists = False
+                for item in user_keymap.keymap_items:
+                    if item.idname != source.idname:
+                        continue
+                    try:
+                        if item.properties.pie_menu_name == pm.name:
+                            exists = True
+                            break
+                    except _KEYMAP_PROPERTY_ERRORS:
+                        continue
+                if exists:
+                    continue
+                _copy_pme_keymap_item(user_keymap, source)
+                rebuilt += 1
+
+    _needs_pme_user_keymap_rebuild = bool(get_prefs().missing_kms)
+    keyconfigs.update()
+    return rebuilt
 
 
 class Hotkey(DynamicPG):

@@ -383,6 +383,7 @@ class WM_OT_pm_import(bpy.types.Operator, ImportHelper):
 
         # Flush programmatic KMI changes into Blender's active event maps.
         keymap_helper.remove_empty_pme_user_keymap_items()
+        keymap_helper.rebuild_pme_user_keymap_items()
         keyconfigs = bpy.context.window_manager.keyconfigs
         if keyconfigs:
             keyconfigs.update()
@@ -3961,6 +3962,13 @@ def register():
         for file in files:
             if file.endswith('.py'):
                 execute_script(os.path.join(root, file))
+
+    # Blender 5.2 can retain property-less active entries for legacy PME
+    # shortcuts. Rebuild their user entries after all persisted KMIs exist.
+    keymap_helper.rebuild_pme_user_keymap_items()
+    keyconfigs = bpy.context.window_manager.keyconfigs
+    if keyconfigs:
+        keyconfigs.update()
 
 
 def unregister():

@@ -283,6 +283,10 @@ def init_keymaps():
             pr.pie_menus[pm_name].register_hotkey([km])
         pr.missing_kms.pop(km, None)
 
+    if kms_to_remove:
+        keymap_helper.rebuild_pme_user_keymap_items()
+        bpy.context.window_manager.keyconfigs.update()
+
 
 def on_timer():
     init_keymaps()
