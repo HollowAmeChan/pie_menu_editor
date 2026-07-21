@@ -11,15 +11,15 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 117.
+- Repository commits including this audit snapshot: 119.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  114.
-- Confirmed defect groups committed as `fix:`: 54.
-- Feature, documentation, and test-infrastructure commits: 60.
-- Preserved test scripts: 131 (92 smoke tests and 39 probes).
+  116.
+- Confirmed defect groups committed as `fix:`: 55.
+- Feature, documentation, and test-infrastructure commits: 61.
+- Preserved test scripts: 132 (93 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **53 confirmed and fixed defect
+The conservative bug count is therefore **54 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -83,6 +83,7 @@ coverage, not counted as bugs.
 | `cd1e497` | User keymaps | Malformed legacy PME KeyMapItems with missing or unreadable operator properties could abort empty-item cleanup instead of being removed. |
 | `f5d4c29` | Context overrides | Selecting another Window without an explicit Screen paired it with the current Window's Area, causing `temp_override` to reject public PME multi-window helpers. |
 | `50ad441` | Imported hotkeys | Programmatically imported KMI changes and removal of broken user overrides were not flushed into Blender's active event maps, leaving all newly imported shortcuts inert. |
+| `da03c22` | Active keymaps | Blender 5.2 retained property-less PME entries in the active KeyConfig after loading a legacy user configuration, so events invoked an operator with no menu name and all shortcuts appeared inert. |
 
 ## Validated Coverage
 
@@ -378,6 +379,17 @@ The following areas were tested without being counted as additional bugs:
   all six, rebuilt six active items, and passed the same menu calls. Exact
   import/export, editor multi-KeyMap registration, and empty-user-item cleanup
   regressions also pass on both baseline versions.
+- Version 1.19.51 repairs the restart path missed by 1.19.50. The reported
+  Blender 5.2 user configuration reproduced six active
+  `wm.pme_user_pie_menu_call` entries whose operator properties were empty,
+  while all six correct entries existed only in the add-on KeyConfig. PME now
+  removes unusable entries from both user and active KeyConfigs and, only when
+  such corruption is detected, rebuilds the missing user entries from the
+  registered menu KMIs. A read-only restart of the real configuration ends
+  with six complete add-on entries, six complete user entries, and zero
+  property-less active PME entries. Two-process save/restart coverage and an
+  injected active-entry corruption regression pass on Blender 4.5.8 and 5.2.0;
+  the exact 84-menu preset and its six menu calls continue to pass on both.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version

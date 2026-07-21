@@ -5,7 +5,7 @@ temporary directories during the Blender 4.5 and 5.2 upgrade.
 
 ## Inventory
 
-- `blender/smoke/`: 92 end-to-end or focused regression scripts.
+- `blender/smoke/`: 93 end-to-end or focused regression scripts.
 - `blender/probes/`: 39 API discovery and diagnostic scripts.
 - `fixtures/`: 6 reusable JSON configurations.
 
@@ -117,6 +117,15 @@ copying it into the repository:
 PME_IMPORT_HOTKEY_JSON
 ```
 
+`pme_startup_hotkey_refresh_smoke.py` is a two-process persistence test. Run
+its `WRITE` phase with `--factory-startup`, then run its `READ` phase without
+that flag while reusing the same isolated `BLENDER_USER_CONFIG` directory:
+
+```text
+PME_STARTUP_HOTKEY_PHASE=WRITE
+PME_STARTUP_HOTKEY_PHASE=READ
+```
+
 ## High-Signal Regression Set
 
 The following scripts cover the most important shared behavior without trying
@@ -126,6 +135,7 @@ to build a complete Blender matrix:
 pme_lifecycle_smoke.py
 pme_import_export_smoke.py
 pme_import_hotkey_registration_smoke.py
+pme_startup_hotkey_refresh_smoke.py
 pme_community_config_smoke.py
 pme_all_examples_draw_smoke.py
 pme_modes_smoke.py
