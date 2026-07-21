@@ -808,6 +808,9 @@ def remove_empty_pme_user_keymap_items():
             keymap.keymap_items.remove(item)
             removed += 1
 
+    if removed:
+        bpy.context.window_manager.keyconfigs.update()
+
     return removed
 
 

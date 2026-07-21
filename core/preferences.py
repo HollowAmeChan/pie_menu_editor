@@ -381,6 +381,12 @@ class WM_OT_pm_import(bpy.types.Operator, ImportHelper):
         for pm in pms:
             pm.ed.init_pm(pm)
 
+        # Flush programmatic KMI changes into Blender's active event maps.
+        keymap_helper.remove_empty_pme_user_keymap_items()
+        keyconfigs = bpy.context.window_manager.keyconfigs
+        if keyconfigs:
+            keyconfigs.update()
+
     def import_file(self, filepath):
         from zipfile import ZipFile, is_zipfile
 
