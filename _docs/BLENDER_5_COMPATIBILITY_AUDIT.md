@@ -1,6 +1,6 @@
 # Blender 5 Compatibility Audit
 
-Snapshot date: 2026-07-20
+Snapshot date: 2026-07-21
 
 Target: Blender 5.2 LTS, with Blender 4.5 LTS retained as the compatibility
 baseline.
@@ -11,15 +11,15 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 115.
+- Repository commits including this audit snapshot: 117.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  112.
-- Confirmed defect groups committed as `fix:`: 53.
-- Feature, documentation, and test-infrastructure commits: 59.
-- Preserved test scripts: 130 (91 smoke tests and 39 probes).
+  114.
+- Confirmed defect groups committed as `fix:`: 54.
+- Feature, documentation, and test-infrastructure commits: 60.
+- Preserved test scripts: 131 (92 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **52 confirmed and fixed defect
+The conservative bug count is therefore **53 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -82,6 +82,7 @@ coverage, not counted as bugs.
 | `a3a0daf` | Side Area sizing | Replacing an oversized Side Area editor reclamped against the already-shrunken main area, reducing a half-window side area to roughly one quarter. |
 | `cd1e497` | User keymaps | Malformed legacy PME KeyMapItems with missing or unreadable operator properties could abort empty-item cleanup instead of being removed. |
 | `f5d4c29` | Context overrides | Selecting another Window without an explicit Screen paired it with the current Window's Area, causing `temp_override` to reject public PME multi-window helpers. |
+| `50ad441` | Imported hotkeys | Programmatically imported KMI changes and removal of broken user overrides were not flushed into Blender's active event maps, leaving all newly imported shortcuts inert. |
 
 ## Validated Coverage
 
@@ -366,6 +367,17 @@ The following areas were tested without being counted as additional bugs:
   Window's Screen. Its real second-window regression passes all three PME
   context helper paths across Blender 4.5, 5.0, 5.1, and 5.2 without simulated
   input or cursor movement.
+- Version 1.19.50 flushes KeyConfig changes after JSON import and after removal
+  of unusable PME user overrides. A real version 1.18.6 Blender 4.5 export with
+  84 menus imports six `Window` hotkeys (`BUTTON4MOUSE`, `BUTTON5MOUSE`, `W`,
+  `X`, `SPACE`, and `Shift+SPACE`) with exact event fields in both add-on and
+  refreshed user KeyConfigs on Blender 4.5.8 and 5.2.0. All six menus then enter
+  PME's `HOTKEY` invocation path without errors; the test disables mouse-position
+  restoration and sends no operating-system input. A copy of the real 5.2 user
+  configuration reproduced six broken, property-less PME user items, removed
+  all six, rebuilt six active items, and passed the same menu calls. Exact
+  import/export, editor multi-KeyMap registration, and empty-user-item cleanup
+  regressions also pass on both baseline versions.
 - Real user configuration: 85 menus, 759 items, 70 visible menus, and 408
   drawn items, with byte-identical 4.5/5.2 round-trip JSON and identical
   normalized signatures for all 144 captured layout/script reports at version

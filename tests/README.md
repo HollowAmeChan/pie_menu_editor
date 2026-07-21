@@ -5,7 +5,7 @@ temporary directories during the Blender 4.5 and 5.2 upgrade.
 
 ## Inventory
 
-- `blender/smoke/`: 81 end-to-end or focused regression scripts.
+- `blender/smoke/`: 92 end-to-end or focused regression scripts.
 - `blender/probes/`: 39 API discovery and diagnostic scripts.
 - `fixtures/`: 6 reusable JSON configurations.
 
@@ -109,6 +109,14 @@ PME_OLD_EXPORT / PME_CURRENT_EXPORT
 PME_BRUSH_ASSET_LIBRARY
 ```
 
+The legacy hotkey-import regression is self-contained by default. Set
+`PME_IMPORT_HOTKEY_JSON` to exercise a private Blender 4.5 export without
+copying it into the repository:
+
+```text
+PME_IMPORT_HOTKEY_JSON
+```
+
 ## High-Signal Regression Set
 
 The following scripts cover the most important shared behavior without trying
@@ -117,6 +125,7 @@ to build a complete Blender matrix:
 ```text
 pme_lifecycle_smoke.py
 pme_import_export_smoke.py
+pme_import_hotkey_registration_smoke.py
 pme_community_config_smoke.py
 pme_all_examples_draw_smoke.py
 pme_modes_smoke.py
