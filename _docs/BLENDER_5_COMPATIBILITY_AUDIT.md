@@ -1,6 +1,6 @@
 # Blender 5 Compatibility Audit
 
-Snapshot date: 2026-07-21
+Snapshot date: 2026-07-22
 
 Target: Blender 5.2 LTS, with Blender 4.5 LTS retained as the compatibility
 baseline.
@@ -11,15 +11,15 @@ flow is treated as user-verified.
 
 ## Current Count
 
-- Repository commits including this audit snapshot: 119.
+- Repository commits including this audit snapshot: 120.
 - Compatibility commits after the automated-release baseline (`0ec77a9`):
-  116.
-- Confirmed defect groups committed as `fix:`: 55.
+  117.
+- Confirmed defect groups committed as `fix:`: 56.
 - Feature, documentation, and test-infrastructure commits: 61.
-- Preserved test scripts: 132 (93 smoke tests and 39 probes).
+- Preserved test scripts: 133 (94 smoke tests and 39 probes).
 - Preserved reusable JSON fixtures: 6.
 
-The conservative bug count is therefore **54 confirmed and fixed defect
+The conservative bug count is therefore **55 confirmed and fixed defect
 groups**. A fix commit may update several related call sites, so this is a
 lower-bound issue count rather than a raw count of changed lines or API names.
 Tests that passed without requiring a code change are recorded as validated
@@ -84,6 +84,7 @@ coverage, not counted as bugs.
 | `f5d4c29` | Context overrides | Selecting another Window without an explicit Screen paired it with the current Window's Area, causing `temp_override` to reject public PME multi-window helpers. |
 | `50ad441` | Imported hotkeys | Programmatically imported KMI changes and removal of broken user overrides were not flushed into Blender's active event maps, leaving all newly imported shortcuts inert. |
 | `da03c22` | Active keymaps | Blender 5.2 retained property-less PME entries in the active KeyConfig after loading a legacy user configuration, so events invoked an operator with no menu name and all shortcuts appeared inert. |
+| `d775352` | Menu redraw | Property and custom slots referencing unavailable context data raised repeated redraw errors or attempted `UILayout.prop()` with `None`; missing slots now render as separators while real custom errors remain visible. |
 
 ## Validated Coverage
 
@@ -151,6 +152,10 @@ The following areas were tested without being counted as additional bugs:
 - Scripted poll globals (`C` and PME's `bpy.context` proxy) follow the context
   passed by Blender and restore the previous context after both successful and
   failing polls on Blender 4.5 and 5.2.
+- Context-dependent `PROP` and `CUSTOM` slots now draw safely when their data
+  is unavailable during a pie redraw, while unrelated custom-script failures
+  still report a layout error. The focused regression passes on Blender 4.5
+  and 5.2 at version 1.19.52.
 - Multi-window context helpers now resolve dependencies in Window, Screen,
   Area, Region order. Before version 1.19.49, selecting a second Window without
   also naming its Screen paired it with an Area from the source Screen and
