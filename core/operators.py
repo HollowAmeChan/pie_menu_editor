@@ -1574,6 +1574,10 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
             exec_globals.update(menu=pm.name, slot=pmi.name)
             try:
                 obj = eval(text, exec_globals)
+            except AttributeError as exc:
+                # Context-dependent paths can be unavailable during redraw.
+                if "'NoneType' object has no attribute" not in str(exc):
+                    print_exc(text)
             except:
                 print_exc(text)
 
@@ -1584,6 +1588,13 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
 
             text, icon, *_, use_cb = pmi.parse()
             toggle = not use_cb
+            if obj is None or (
+                not prop.startswith("[") and not hasattr(obj, prop)
+            ):
+                if pm.mode == 'PMENU':
+                    lh.sep()
+                return
+
             try:
                 if bl_icon != 'NONE' or icon == 'NONE':
                     lh.prop(obj, prop, text, toggle=toggle)
@@ -1615,6 +1626,17 @@ class WM_OT_pme_user_pie_menu_call(bpy.types.Operator):
 
             try:
                 pme.context.exe(pmi.text, exec_globals, use_try=False)
+            except TypeError as exc:
+                message = str(exc)
+                if (
+                    "UILayout.prop()" in message
+                    and 'argument 1, "data"' in message
+                    and "'None'" in message
+                ):
+                    if pm.mode == 'PMENU':
+                        lh.sep()
+                else:
+                    lh.error(text)
             except:
                 lh.error(text)
                 # print_exc()
